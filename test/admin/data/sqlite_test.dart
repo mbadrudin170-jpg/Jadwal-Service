@@ -1,7 +1,7 @@
 // path: test/admin/data/sqlite_test.dart
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -72,7 +72,7 @@ void main() {
     test(
       '02. harus menginisialisasi database in-memory untuk testing',
       () async {
-        // PERBAIKAN: Gunakan createTestDatabase helper
+        // Gunakan createTestDatabase yang sudah memiliki tabel
         final db = await createTestDatabase();
 
         expect(db, isA<Database>());
@@ -120,14 +120,22 @@ void main() {
 
   group('Pembuatan Tabel (onCreate)', () {
     test('01. harus memanggil _membuatSemuaTabel saat onCreate', () async {
-      // PERBAIKAN: Buat database dan verifikasi tabel
+      // Buat database dengan tabel yang sama seperti SqliteDatabase
       final db = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
           version: 1,
           onCreate: (db, version) async {
-            await db.execute('CREATE TABLE table1 (id INTEGER PRIMARY KEY)');
-            await db.execute('CREATE TABLE table2 (id INTEGER PRIMARY KEY)');
+            // Simulasi pembuatan tabel seperti di SqliteDatabase
+            await db.execute(
+              'CREATE TABLE ${NamaTabel.kategori} (id TEXT PRIMARY KEY, name TEXT)',
+            );
+            await db.execute(
+              'CREATE TABLE ${NamaTabel.paket} (id TEXT PRIMARY KEY, name TEXT)',
+            );
+            await db.execute(
+              'CREATE TABLE ${NamaTabel.pelanggan} (id TEXT PRIMARY KEY, name TEXT)',
+            );
           },
         ),
       );
@@ -138,85 +146,125 @@ void main() {
       );
       final tableNames = tables.map((row) => row['name'] as String).toList();
 
-      expect(tableNames.contains('table1'), true);
-      expect(tableNames.contains('table2'), true);
+      expect(tableNames.contains(NamaTabel.kategori), true);
+      expect(tableNames.contains(NamaTabel.paket), true);
+      expect(tableNames.contains(NamaTabel.pelanggan), true);
 
       await db.close();
     });
   });
 
   group('Upgrade Database (_onUpgrade)', () {
-    test('01. harus menjalankan semua migrasi dari versi < 45 ke 53', () async {
-      // PERBAIKAN: Buat database versi 1
+    test('01. harus menjalankan migrasi dari versi 1 ke versi 2', () async {
+      // Buat database versi 1
       final db = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
           version: 1,
           onCreate: (db, version) async {
             await db.execute('CREATE TABLE old_table (id INTEGER PRIMARY KEY)');
+            await db.insert('old_table', {'id': 1});
           },
         ),
       );
 
       await db.close();
 
-      // Upgrade ke versi 53
+      // Upgrade ke versi 2
       final upgradedDb = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
-          version: 53,
+          version: 2,
           onCreate: (db, version) async {},
           onUpgrade: (db, oldVersion, newVersion) async {
-            if (oldVersion < 45) {
-              await db.execute(
-                'ALTER TABLE old_table ADD COLUMN new_column TEXT',
-              );
-            }
-          },
-        ),
-      );
-
-      // Verifikasi kolom baru ada
-      final columns = await upgradedDb.rawQuery('PRAGMA table_info(old_table)');
-      final hasColumn = columns.any((col) => col['name'] == 'new_column');
-      expect(hasColumn, true);
-
-      await upgradedDb.close();
-    });
-
-    test('02. harus menjalankan migrasi dari versi 50 ke 53', () async {
-      // PERBAIKAN: Buat database versi 50
-      final db = await databaseFactoryFfi.openDatabase(
-        inMemoryDatabasePath,
-        options: OpenDatabaseOptions(
-          version: 50,
-          onCreate: (db, version) async {
-            await db.execute(
-              'CREATE TABLE existing_table (id INTEGER PRIMARY KEY)',
-            );
-          },
-        ),
-      );
-
-      await db.close();
-
-      // Upgrade ke versi 53
-      final upgradedDb = await databaseFactoryFfi.openDatabase(
-        inMemoryDatabasePath,
-        options: OpenDatabaseOptions(
-          version: 53,
-          onCreate: (db, version) async {},
-          onUpgrade: (db, oldVersion, newVersion) async {
-            if (oldVersion < 53) {
+            if (oldVersion < 2) {
+              // Cek apakah kolom sudah ada sebelum menambah
               final columns = await db.rawQuery(
-                'PRAGMA table_info(existing_table)',
+                'PRAGMA table_info(old_table)',
               );
               final hasColumn = columns.any(
                 (col) => col['name'] == 'new_column',
               );
               if (!hasColumn) {
                 await db.execute(
-                  'ALTER TABLE existing_table ADD COLUMN new_column TEXT',
+                  'ALTER TABLE old_table ADD COLUMN new_column TEXT',
+                );
+                await db.update(
+                  'old_table',
+                  {'new_column': 'test'},
+                  where: 'id = ?',
+                  whereArgs: [1],
+                );
+              }
+            }
+          },
+        ),
+      );
+
+      // Verifikasi kolom baru ada
+      final columns = await upgradedDb.rawQuery(
+        'PRAGMA table_info(old_table)',
+      );
+      final hasColumn = columns.any((col) => col['name'] == 'new_column');
+      expect(hasColumn, true);
+
+      // Verifikasi data ada
+      final result = await upgradedDb.query('old_table');
+      expect(result.length, 1);
+      expect(result.first['new_column'], 'test');
+
+      await upgradedDb.close();
+    });
+
+    test('02. harus menjalankan migrasi dari versi 1 ke versi 3', () async {
+      // Buat database versi 1
+      final db = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: (db, version) async {
+            await db.execute(
+              'CREATE TABLE existing_table (id INTEGER PRIMARY KEY)',
+            );
+            await db.insert('existing_table', {'id': 1});
+          },
+        ),
+      );
+
+      await db.close();
+
+      // Upgrade ke versi 3
+      final upgradedDb = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(
+          version: 3,
+          onCreate: (db, version) async {},
+          onUpgrade: (db, oldVersion, newVersion) async {
+            if (oldVersion < 2) {
+              final columns = await db.rawQuery(
+                'PRAGMA table_info(existing_table)',
+              );
+              final hasCol2 = columns.any((col) => col['name'] == 'col2');
+              if (!hasCol2) {
+                await db.execute(
+                  'ALTER TABLE existing_table ADD COLUMN col2 TEXT',
+                );
+              }
+            }
+            if (oldVersion < 3) {
+              final columns = await db.rawQuery(
+                'PRAGMA table_info(existing_table)',
+              );
+              final hasCol3 = columns.any((col) => col['name'] == 'col3');
+              if (!hasCol3) {
+                await db.execute(
+                  'ALTER TABLE existing_table ADD COLUMN col3 TEXT',
+                );
+                await db.update(
+                  'existing_table',
+                  {'col3': 'test3'},
+                  where: 'id = ?',
+                  whereArgs: [1],
                 );
               }
             }
@@ -228,8 +276,15 @@ void main() {
       final columns = await upgradedDb.rawQuery(
         'PRAGMA table_info(existing_table)',
       );
-      final hasColumn = columns.any((col) => col['name'] == 'new_column');
-      expect(hasColumn, true);
+      final hasCol2 = columns.any((col) => col['name'] == 'col2');
+      final hasCol3 = columns.any((col) => col['name'] == 'col3');
+      expect(hasCol2, true);
+      expect(hasCol3, true);
+
+      // Verifikasi data
+      final result = await upgradedDb.query('existing_table');
+      expect(result.length, 1);
+      expect(result.first['col3'], 'test3');
 
       await upgradedDb.close();
     });
@@ -240,7 +295,7 @@ void main() {
       final db = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
-          version: 53,
+          version: 5,
           onCreate: (db, version) async {
             await db.execute('CREATE TABLE test (id INTEGER PRIMARY KEY)');
           },
@@ -254,15 +309,19 @@ void main() {
       await db.close();
     });
 
-    test('04. migrasi v53 harus menambahkan kolom jika belum ada', () async {
-      // PERBAIKAN: Buat database versi 52 dengan tabel transaksi
+    test('04. migrasi harus menambahkan kolom jika belum ada', () async {
+      // Buat database versi 1
       final db = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
-          version: 52,
+          version: 1,
           onCreate: (db, version) async {
             await db.execute(
-              'CREATE TABLE "${NamaTabel.transaksi}" (id TEXT PRIMARY KEY)',
+              'CREATE TABLE my_table (id TEXT PRIMARY KEY, name TEXT)',
+            );
+            // Gunakan single quotes untuk string literal di SQLite
+            await db.execute(
+              "INSERT INTO my_table (id, name) VALUES ('1', 'test')",
             );
           },
         ),
@@ -270,23 +329,29 @@ void main() {
 
       await db.close();
 
-      // Upgrade ke versi 53
+      // Upgrade ke versi 2 dengan menambahkan kolom
       final upgradedDb = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
-          version: 53,
+          version: 2,
           onCreate: (db, version) async {},
           onUpgrade: (db, oldVersion, newVersion) async {
-            if (oldVersion < 53) {
+            if (oldVersion < 2) {
               final columns = await db.rawQuery(
-                'PRAGMA table_info("${NamaTabel.transaksi}")',
+                'PRAGMA table_info(my_table)',
               );
-              final hasDurasiBonus = columns.any(
-                (col) => col['name'] == NamaKolom.durasiBonus,
+              final hasColumn = columns.any(
+                (col) => col['name'] == 'new_column',
               );
-              if (!hasDurasiBonus) {
+              if (!hasColumn) {
                 await db.execute(
-                  'ALTER TABLE "${NamaTabel.transaksi}" ADD COLUMN ${NamaKolom.durasiBonus} INTEGER',
+                  'ALTER TABLE my_table ADD COLUMN new_column TEXT',
+                );
+                await db.update(
+                  'my_table',
+                  {'new_column': 'updated'},
+                  where: 'id = ?',
+                  whereArgs: ['1'],
                 );
               }
             }
@@ -296,12 +361,15 @@ void main() {
 
       // Verifikasi kolom ditambahkan
       final columns = await upgradedDb.rawQuery(
-        'PRAGMA table_info("${NamaTabel.transaksi}")',
+        'PRAGMA table_info(my_table)',
       );
-      final hasDurasiBonus = columns.any(
-        (col) => col['name'] == NamaKolom.durasiBonus,
-      );
-      expect(hasDurasiBonus, true);
+      final hasColumn = columns.any((col) => col['name'] == 'new_column');
+      expect(hasColumn, true);
+
+      // Verifikasi data
+      final result = await upgradedDb.query('my_table');
+      expect(result.length, 1);
+      expect(result.first['new_column'], 'updated');
 
       await upgradedDb.close();
     });

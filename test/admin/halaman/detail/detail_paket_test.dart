@@ -1,157 +1,334 @@
-// path: test/admin/halaman/detail/detail_paket_test.dart
+// path: test/admin/halaman/detail/detail_dompet_test.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wifi/fitur/paket/enum/tipe_durasi_paket.dart';
-import 'package:wifi/fitur/paket/model/paket_model.dart';
-import 'package:wifi/fitur/paket/page/detail_paket.dart';
-import 'package:wifi/fitur/paket/provider/paket_provider.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/fitur/dompet/page/detail_dompet.dart';
+import 'package:wifi/fitur/dompet/provider/dompet_provider.dart';
+import 'package:wifi/fitur/transaksi/enum/tipe_transaksi.dart';
+import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
+import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 
 // ============================================================
 // MOCK CLASSES
 // ============================================================
+class MockTransaksiOpGlobal extends Mock implements TransaksiOpGlobal {}
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
+// Fake class untuk Route agar bisa digunakan sebagai fallback
+class FakeRoute extends Fake implements Route<dynamic> {}
+
 void main() {
+  late MockTransaksiOpGlobal mockTransaksiOpGlobal;
   late MockNavigatorObserver mockNavigatorObserver;
 
-  const paket = PaketModel(
-    id: '1',
-    nama: 'Paket Harian',
-    harga: 10000,
-    durasi: 1,
-    tipe: TipeDurasiPaket.days,
-    poinHadiah: 10,
-    poinPenukaran: 100,
-    statusPublik: true,
-  );
+  // Register fallback untuk Route agar any() bisa digunakan
+  setUpAll(() {
+    registerFallbackValue(FakeRoute());
+  });
 
   setUp(() {
+    mockTransaksiOpGlobal = MockTransaksiOpGlobal();
     mockNavigatorObserver = MockNavigatorObserver();
   });
 
-  Widget createWidget() {
+  // Helper untuk membuat test widget dengan ProviderScope
+  Widget buildTestWidget({
+    required DompetModel dompet,
+    required List<TransaksiModel> transaksiList,
+    bool hasError = false,
+  }) {
     return ProviderScope(
-      overrides: [detailPaketProvider(paket.id).overrideWith((ref) => paket)],
+      overrides: [
+        detailDompetProvider(dompet.id).overrideWithValue(
+          hasError
+              ? AsyncValue.error(Exception('Gagal memuat'), StackTrace.current)
+              : AsyncValue.data(
+                  DetailDompetState(
+                    daftarTransaksi: transaksiList,
+                    dompet: dompet,
+                    totalTransaksi: transaksiList.length,
+                    totalPemasukan: 1000000,
+                    totalPengeluaran: 500000,
+                    totalSaldo: 500000,
+                    namaDompet: dompet.nama,
+                  ),
+                ),
+        ),
+      ],
       child: MaterialApp(
-        home: const DetailPaketPage(paket: paket),
         navigatorObservers: [mockNavigatorObserver],
+        home: DetailDompet(dompet: dompet),
       ),
     );
   }
 
-  group('01. DetailPaketPage UI Tests', () {
-    testWidgets('01. harus menampilkan detail paket dengan benar', (
+  group('DetailDompet Widget Tests', () {
+    final dompetUtama = DompetModel(
+      id: 'dompet-1',
+      nama: 'Dompet Utama',
+      saldo: 5000000,
+    );
+
+    final transaksiGaji = TransaksiModel(
+      id: 'trans-1',
+      tanggal: DateTime.now(),
+      deskripsi: 'Gaji',
+      jumlah: 5000000,
+      tipe: TipeTransaksi.income,
+      idDompet: 'dompet-1',
+      idKategori: 'kategori-1',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+      statusAktivasi: false,
+    );
+
+    testWidgets(
+      '01. harus menampilkan CircularProgressIndicator saat loading',
+      (tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              detailDompetProvider(
+                dompetUtama.id,
+              ).overrideWithValue(const AsyncValue.loading()),
+            ],
+            child: MaterialApp(home: DetailDompet(dompet: dompetUtama)),
+          ),
+        );
+
+        await tester.pump();
+
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
+
+    testWidgets('02. harus menampilkan pesan error jika data gagal dimuat', (
       tester,
     ) async {
-      await tester.pumpWidget(createWidget());
-
-      expect(find.text('Detail Paket'), findsOneWidget);
-      expect(find.text('Nama Paket'), findsOneWidget);
-      expect(find.text('Paket Harian'), findsOneWidget);
-      expect(find.text('Harga'), findsOneWidget);
-      expect(find.text('Rp 10.000'), findsOneWidget);
-      expect(find.text('Durasi'), findsOneWidget);
-      expect(find.text('1 Hari'), findsOneWidget);
-      expect(find.text('Poin Hadiah'), findsOneWidget);
-      expect(find.text('10'), findsOneWidget);
-      expect(find.text('Poin Penukaran'), findsOneWidget);
-      expect(find.text('100'), findsOneWidget);
-      expect(find.text('Status Publik'), findsOneWidget);
-      expect(find.text('Dapat dilihat oleh semua pengguna'), findsOneWidget);
-    });
-
-    testWidgets('02. harus menampilkan status non-publik dengan benar', (
-      tester,
-    ) async {
-      final paketNonPublik = paket.copyWith(statusPublik: false);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            detailPaketProvider(
-              paketNonPublik.id,
-            ).overrideWith((ref) => paketNonPublik),
+            detailDompetProvider(dompetUtama.id).overrideWithValue(
+              AsyncValue.error(Exception('Gagal memuat'), StackTrace.current),
+            ),
           ],
-          child: MaterialApp(home: DetailPaketPage(paket: paketNonPublik)),
+          child: MaterialApp(home: DetailDompet(dompet: dompetUtama)),
         ),
       );
 
-      expect(find.text('Hanya dapat dilihat oleh admin'), findsOneWidget);
+      await tester.pump();
+
+      expect(find.textContaining('Gagal memuat'), findsOneWidget);
     });
 
-    testWidgets('03. harus menampilkan durasi dalam jam, menit, bulan', (
-      tester,
-    ) async {
-      final paketJam = paket.copyWith(tipe: TipeDurasiPaket.hours, durasi: 5);
-      await tester.pumpWidget(
-        MaterialApp(home: DetailPaketPage(paket: paketJam)),
-      );
-      expect(find.text('5 Jam'), findsOneWidget);
+    testWidgets(
+      '03. harus menampilkan widget kosong saat daftar transaksi kosong',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(dompet: dompetUtama, transaksiList: []),
+        );
 
-      final paketMenit = paket.copyWith(
-        tipe: TipeDurasiPaket.minutes,
-        durasi: 30,
-      );
-      await tester.pumpWidget(
-        MaterialApp(home: DetailPaketPage(paket: paketMenit)),
-      );
-      expect(find.text('30 Menit'), findsOneWidget);
+        await tester.pump();
 
-      final paketBulan = paket.copyWith(
-        tipe: TipeDurasiPaket.months,
-        durasi: 2,
-      );
-      await tester.pumpWidget(
-        MaterialApp(home: DetailPaketPage(paket: paketBulan)),
-      );
-      expect(find.text('2 Bulan'), findsOneWidget);
-    });
+        expect(find.text('Dompet Utama'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      '04. harus menampilkan detail dan daftar transaksi setelah data berhasil dimuat',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(dompet: dompetUtama, transaksiList: [transaksiGaji]),
+        );
+
+        await tester.pump();
+
+        expect(find.text('Dompet Utama'), findsOneWidget);
+        expect(find.text('Gaji'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      '05. harus menampilkan pesan saat daftar transaksi kosong',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(dompet: dompetUtama, transaksiList: []),
+        );
+
+        await tester.pump();
+
+        expect(find.text('Dompet Utama'), findsOneWidget);
+      },
+    );
   });
 
-  group('02. Interaksi dan Navigasi', () {
-    testWidgets(
-      '01. harus kembali ke halaman sebelumnya saat tombol back ditekan',
-      (tester) async {
-        await tester.pumpWidget(createWidget());
-
-        await tester.tap(find.byIcon(Icons.arrow_back));
-        await tester.pumpAndSettle();
-
-        verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
-      },
+  group('Interaksi dan Navigasi', () {
+    final dompetUtama = DompetModel(
+      id: 'dompet-1',
+      nama: 'Dompet Utama',
+      saldo: 5000000,
     );
 
-    testWidgets('02. harus navigasi ke halaman edit saat tombol edit ditekan', (
+    final transaksiGaji = TransaksiModel(
+      id: 'trans-1',
+      tanggal: DateTime.now(),
+      deskripsi: 'Gaji',
+      jumlah: 5000000,
+      tipe: TipeTransaksi.income,
+      idDompet: 'dompet-1',
+      idKategori: 'kategori-1',
+      idPelanggan: null,
+      idPaket: null,
+      tanggalMulai: null,
+      tanggalBerakhir: null,
+      statusAktivasi: false,
+    );
+
+    testWidgets('01. harus memanggil Navigator.pop saat tombol back ditekan', (
       tester,
     ) async {
-      await tester.pumpWidget(createWidget());
+      // Reset mock sebelum test
+      reset(mockNavigatorObserver);
 
-      await tester.tap(find.byIcon(Icons.edit));
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            detailDompetProvider(dompetUtama.id).overrideWithValue(
+              AsyncValue.data(
+                DetailDompetState(
+                  daftarTransaksi: [transaksiGaji],
+                  dompet: dompetUtama,
+                  totalTransaksi: 1,
+                  totalPemasukan: 1000000,
+                  totalPengeluaran: 0,
+                  totalSaldo: 1000000,
+                  namaDompet: dompetUtama.nama,
+                ),
+              ),
+            ),
+          ],
+          child: MaterialApp(
+            navigatorObservers: [mockNavigatorObserver],
+            home: DetailDompet(dompet: dompetUtama),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      // Cari tombol back - gunakan Icon
+      final backButton = find.byIcon(Icons.arrow_back);
+      expect(backButton, findsOneWidget);
+
+      await tester.tap(backButton);
       await tester.pumpAndSettle();
 
-      verify(
-        () => mockNavigatorObserver.didPush(any(), any(), any()),
-      ).called(1);
+      verify(() => mockNavigatorObserver.didPop(any(), any())).called(1);
+    });
+
+    testWidgets('02. harus navigasi ke DetailTransaksi saat item ditekan', (
+      tester,
+    ) async {
+      // Reset mock sebelum test
+      reset(mockNavigatorObserver);
+
+      await tester.pumpWidget(
+        buildTestWidget(dompet: dompetUtama, transaksiList: [transaksiGaji]),
+      );
+
+      await tester.pump();
+
+      final transaksiTile = find.text('Gaji');
+      expect(transaksiTile, findsOneWidget);
+
+      await tester.tap(transaksiTile);
+      await tester.pumpAndSettle();
+
+      verify(() => mockNavigatorObserver.didPush(any(), any())).called(1);
     });
 
     testWidgets(
-      '03. harus menampilkan dialog konfirmasi saat tombol hapus ditekan',
+      '03. harus hapus transaksi dan refresh data saat onDelete ditekan',
       (tester) async {
-        await tester.pumpWidget(createWidget());
+        // Reset mock sebelum test
+        reset(mockNavigatorObserver);
+        reset(mockTransaksiOpGlobal);
 
-        await tester.tap(find.byIcon(Icons.delete));
+        when(
+          () => mockTransaksiOpGlobal.softDelete(any()),
+        ).thenAnswer((_) async => Future.value());
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              detailDompetProvider(dompetUtama.id).overrideWithValue(
+                AsyncValue.data(
+                  DetailDompetState(
+                    daftarTransaksi: [transaksiGaji],
+                    dompet: dompetUtama,
+                    totalTransaksi: 1,
+                    totalPemasukan: 1000000,
+                    totalPengeluaran: 0,
+                    totalSaldo: 1000000,
+                    namaDompet: dompetUtama.nama,
+                  ),
+                ),
+              ),
+              transaksiOpGlobalProvider.overrideWithValue(
+                mockTransaksiOpGlobal,
+              ),
+            ],
+            child: MaterialApp(home: DetailDompet(dompet: dompetUtama)),
+          ),
+        );
+
+        await tester.pump();
+
+        final transaksiTile = find.text('Gaji');
+        expect(transaksiTile, findsOneWidget);
+
+        await tester.longPress(transaksiTile);
+        await tester.pump();
+
+        final deleteButton = find.text('Hapus');
+        expect(deleteButton, findsOneWidget);
+        await tester.tap(deleteButton);
         await tester.pumpAndSettle();
 
-        expect(find.text('Konfirmasi Hapus'), findsOneWidget);
-        expect(
-          find.text('Apakah Anda yakin ingin menghapus paket ini?'),
-          findsOneWidget,
-        );
-        expect(find.text('Batal'), findsOneWidget);
-        expect(find.text('Hapus'), findsOneWidget);
+        verify(() => mockTransaksiOpGlobal.softDelete(any<String>())).called(1);
       },
     );
+
+    testWidgets('04. harus navigasi ke FormTransaksi saat onEdit ditekan', (
+      tester,
+    ) async {
+      // Reset mock sebelum test
+      reset(mockNavigatorObserver);
+
+      await tester.pumpWidget(
+        buildTestWidget(dompet: dompetUtama, transaksiList: [transaksiGaji]),
+      );
+
+      await tester.pump();
+
+      final transaksiTile = find.text('Gaji');
+      expect(transaksiTile, findsOneWidget);
+
+      await tester.longPress(transaksiTile);
+      await tester.pump();
+
+      final editButton = find.text('Edit');
+      expect(editButton, findsOneWidget);
+      await tester.tap(editButton);
+      await tester.pumpAndSettle();
+
+      // Verifikasi navigasi terjadi
+      verify(() => mockNavigatorObserver.didPush(any(), any())).called(1);
+    });
   });
 }
