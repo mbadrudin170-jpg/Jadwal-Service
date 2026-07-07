@@ -8,6 +8,7 @@ import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
@@ -20,7 +21,7 @@ class HalamanPortofolio extends ConsumerWidget {
 
   Future<void> _unggahDataDummy(WidgetRef ref) async {
     try {
-      await ref.read(layananUnduhDataProvider).unduhSemuaData();
+      await ref.read(layananUnggahDataProvider).unggahSemuaData();
     } on Exception catch (e, s) {
       Log.error('Error di unggahDataDummy: $e', e: e, s: s);
       // Error handling opsional

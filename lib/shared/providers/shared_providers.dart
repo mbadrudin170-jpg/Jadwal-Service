@@ -6,6 +6,7 @@ import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/user/services/storage/layanan_penyimpanan_lokal.dart';
+import 'package:workmanager/workmanager.dart';
 
 part 'shared_providers.g.dart';
 
@@ -71,4 +72,9 @@ void pengontrolNotifikasi(Ref ref) {
     );
     layananNotifikasi.hentikanPemantauanNotifikasi();
   });
+}
+
+@Riverpod(keepAlive: true)
+Workmanager workmanager(Ref ref) {
+  return Workmanager();
 }

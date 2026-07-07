@@ -192,3 +192,44 @@ final class PengontrolNotifikasiProvider
 
 String _$pengontrolNotifikasiHash() =>
     r'26ae02c220f18bc760585f65a9b76d3e37fd1e75';
+
+@ProviderFor(workmanager)
+final workmanagerProvider = WorkmanagerProvider._();
+
+final class WorkmanagerProvider
+    extends $FunctionalProvider<Workmanager, Workmanager, Workmanager>
+    with $Provider<Workmanager> {
+  WorkmanagerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'workmanagerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$workmanagerHash();
+
+  @$internal
+  @override
+  $ProviderElement<Workmanager> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  Workmanager create(Ref ref) {
+    return workmanager(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Workmanager value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Workmanager>(value),
+    );
+  }
+}
+
+String _$workmanagerHash() => r'5fb24c7bed7b6b00e447382c853449913ab7eb40';

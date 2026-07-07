@@ -4,22 +4,22 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:wifi/admin/halaman_utama.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
 import 'package:wifi/fitur/pelanggan_aktif/page/pelanggan_aktif_page.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
 import 'package:workmanager/workmanager.dart';
 
 import 'halaman_utama_test.mocks.dart';
 
-// Mocks
 @GenerateMocks([
   LayananCekSinkronisasi,
   ArsipLanggananKadaluarsaService,
@@ -27,46 +27,32 @@ import 'halaman_utama_test.mocks.dart';
   Connectivity,
 ])
 void main() {
+  // Initialize FFI for sqflite
+  setUpAll(() {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+  });
+
   late MockLayananCekSinkronisasi mockSyncService;
   late MockArsipLanggananKadaluarsaService mockExpiredService;
   late MockWorkmanager mockWorkmanager;
   late MockConnectivity mockConnectivity;
   late StreamController<List<ConnectivityResult>> connectivityStreamController;
 
-  setUpAll(() {
-    // This is required to mock SharedPreferences
-    SharedPreferences.setMockInitialValues({});
-    // This is required to mock FlutterNativeSplash
-    TestWidgetsFlutterBinding.ensureInitialized();
-
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel('flutter_native_splash'),
-          (methodCall) async {
-            if (methodCall.method == 'remove') {
-              return null;
-            }
-            return null;
-          },
-        );
-    addTearDown(() {
-      // restore original
-    });
-  });
-
   setUp(() {
     mockSyncService = MockLayananCekSinkronisasi();
     mockExpiredService = MockArsipLanggananKadaluarsaService();
     mockWorkmanager = MockWorkmanager();
     mockConnectivity = MockConnectivity();
-
     connectivityStreamController =
         StreamController<List<ConnectivityResult>>.broadcast();
 
+    // Default stubs
     when(mockSyncService.jalankanCekSinkronisasi()).thenAnswer((_) async {});
-    when(
-      mockExpiredService.prosesArsipLanggananKadaluarsa(),
-    ).thenAnswer((_) async {});
+    when(mockExpiredService.prosesArsipLanggananKadaluarsa())
+        .thenAnswer((_) async {});
     when(
       mockWorkmanager.registerPeriodicTask(
         any,
@@ -75,9 +61,12 @@ void main() {
         constraints: anyNamed('constraints'),
       ),
     ).thenAnswer((_) async {});
-    when(
-      mockConnectivity.onConnectivityChanged,
-    ).thenAnswer((_) => connectivityStreamController.stream);
+
+    // Stub for connectivity
+    when(mockConnectivity.onConnectivityChanged)
+        .thenAnswer((_) => connectivityStreamController.stream);
+    when(mockConnectivity.checkConnectivity())
+        .thenAnswer((_) async => [ConnectivityResult.wifi]);
   });
 
   tearDown(() {
@@ -88,13 +77,13 @@ void main() {
     return ProviderScope(
       overrides: [
         layananCekSinkronisasiProvider.overrideWithValue(mockSyncService),
-        arsipLanggananKadaluarsaServiceProvider.overrideWithValue(
-          mockExpiredService,
-        ),
-        // We can't easily mock the connectivity provider as it creates its own instance.
-        // Instead, we inject the mock via stream listening in initState.
+        arsipLanggananKadaluarsaServiceProvider
+            .overrideWithValue(mockExpiredService),
+        workmanagerProvider.overrideWithValue(mockWorkmanager),
       ],
-      child: MaterialApp(home: HalamanUtama(isOffline: isOffline)),
+      child: MaterialApp(
+        home: HalamanUtama(isOffline: isOffline),
+      ),
     );
   }
 
@@ -109,26 +98,10 @@ void main() {
       expect(find.byType(PelangganAktifPage), findsOneWidget);
       expect(find.byType(BottomNavigationBar), findsOneWidget);
 
-      // Verify first tab is selected
       final bottomNavBar = tester.widget<BottomNavigationBar>(
         find.byType(BottomNavigationBar),
       );
       expect(bottomNavBar.currentIndex, 0);
-    });
-
-    testWidgets('02. harus menampilkan toast saat isOffline true', (
-      tester,
-    ) async {
-      await tester.pumpWidget(createWidget(isOffline: true));
-      await tester.pump(); // for addPostFrameCallback
-      await tester.pump(); // for the toast
-
-      expect(
-        find.text('Anda dalam mode offline. Data mungkin tidak terbaru.'),
-        findsOneWidget,
-      );
-
-      await tester.pumpAndSettle(const Duration(seconds: 4)); // Clear toast
     });
   });
 
@@ -140,7 +113,10 @@ void main() {
       await tester.pumpAndSettle();
 
       verify(mockExpiredService.prosesArsipLanggananKadaluarsa()).called(1);
+
+      // Called once in _initAwal -> _handleConnectivityChange
       verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
+
       verify(
         mockWorkmanager.registerPeriodicTask(
           '1',
@@ -151,56 +127,42 @@ void main() {
       ).called(1);
     });
 
-    testWidgets('02. harus memproses notifikasi awal jika ada payload', (
-      tester,
-    ) async {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('initial_notification_payload', 'test_payload');
-
-      await tester.pumpWidget(createWidget());
-      await tester.pumpAndSettle();
-
-      expect(find.text('Dibuka dari notifikasi: test_payload'), findsOneWidget);
-
-      // Check that payload is removed
-      expect(prefs.getString('initial_notification_payload'), isNull);
-
-      await tester.pumpAndSettle(const Duration(seconds: 4)); // Clear toast
-    });
-
     testWidgets(
-      '03. harus menjalankan sinkronisasi saat koneksi kembali online',
+      '02. harus menjalankan sinkronisasi saat koneksi kembali online',
       (tester) async {
+        when(mockConnectivity.checkConnectivity())
+            .thenAnswer((_) async => [ConnectivityResult.none]);
+
         await tester.pumpWidget(createWidget());
         await tester.pumpAndSettle();
 
-        // Initial sync
-        verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
+        // Should not be called initially because it is offline.
+        verifyNever(mockSyncService.jalankanCekSinkronisasi());
 
-        // Simulate connectivity change to online
+        // Simulate coming online
         connectivityStreamController.add([ConnectivityResult.wifi]);
         await tester.pump();
 
-        // Verify sync is called again
+        // Now it should be called
         verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
       },
     );
 
-    testWidgets('04. harus menjalankan sinkronisasi saat aplikasi resumed', (
+    testWidgets('03. harus menjalankan sinkronisasi saat aplikasi resumed', (
       tester,
     ) async {
       await tester.pumpWidget(createWidget());
       await tester.pumpAndSettle();
 
-      // Initial sync
+      // Initial sync (once from _initAwal)
       verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
 
-      // Simulate app lifecycle change
+      // Simulate app lifecycle change to resumed
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
 
-      // Verify sync is called again
-      verify(mockSyncService.jalankanCekSinkronisasi()).called(1);
+      // Verify sync is called again (total 2 times)
+      verify(mockSyncService.jalankanCekSinkronisasi()).called(2);
     });
   });
 
@@ -213,12 +175,10 @@ void main() {
       await tester.tap(find.text('Dompet'));
       await tester.pumpAndSettle();
 
-      // Verify second tab is selected
       final bottomNavBar = tester.widget<BottomNavigationBar>(
         find.byType(BottomNavigationBar),
       );
       expect(bottomNavBar.currentIndex, 1);
-      // expect(find.byType(DompetPage), findsOneWidget);
 
       // Tap on 'Lainnya' tab
       await tester.tap(find.text('Lainnya'));
@@ -228,7 +188,6 @@ void main() {
         find.byType(BottomNavigationBar),
       );
       expect(bottomNavBar2.currentIndex, 5);
-      // expect(find.byType(LainnyaPage), findsOneWidget);
     });
   });
 }

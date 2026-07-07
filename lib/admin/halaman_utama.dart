@@ -17,8 +17,8 @@ import 'package:wifi/fitur/statistik/page/statistik_page_a.dart';
 import 'package:wifi/fitur/transaksi/page/transaksi_a.dart';
 import 'package:wifi/fitur/voucher/page/voucher.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/providers/shared_providers.dart';
 import 'package:wifi/shared/services/arsipkan_langganan_kadaluarsa_service.dart';
-import 'package:wifi/shared/services/koneksi_internet_service.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 import 'package:workmanager/workmanager.dart';
@@ -60,11 +60,12 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     _syncService = ref.read(layananCekSinkronisasiProvider);
     WidgetsBinding.instance.addObserver(this);
 
+    // Subscribe to connectivity changes
+    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(_handleConnectivityChange);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_initAwal());
     });
-
-    _koneksiBerubah();
   }
 
   Future<void> _initAwal() async {
@@ -77,7 +78,8 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     try {
       final expiredService = ref.read(arsipLanggananKadaluarsaServiceProvider);
       await expiredService.prosesArsipLanggananKadaluarsa();
-      await _syncJikaOnline().timeout(const Duration(seconds: 5));
+      final initialConnection = await Connectivity().checkConnectivity();
+      await _handleConnectivityChange(initialConnection);
     } catch (e, s) {
       Log.info('gagal arsip langganan kadaluarsa $e $s');
     }
@@ -98,19 +100,22 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   }
 
   Future<void> _jadwalkanSinkron() async {
-    await Workmanager().registerPeriodicTask(
-      '1',
-      namaTugasSinkronisasi,
-      frequency: const Duration(minutes: 15),
-      constraints: Constraints(networkType: NetworkType.connected),
-    );
+    await ref.read(workmanagerProvider).registerPeriodicTask(
+          '1',
+          namaTugasSinkronisasi,
+          frequency: const Duration(minutes: 15),
+          constraints: Constraints(networkType: NetworkType.connected),
+        );
     Log.info('Tugas sinkronisasi periodik dijadwalkan.');
   }
 
-  Future<void> _koneksiBerubah() async {
-    final isOnline = await ref
-        .read(koneksiInternetServiceProvider)
-        .cekInternet();
+  Future<void> _handleConnectivityChange(
+    List<ConnectivityResult> results,
+  ) async {
+    final isOnline = results.contains(ConnectivityResult.mobile) ||
+        results.contains(ConnectivityResult.wifi) ||
+        results.contains(ConnectivityResult.ethernet);
+
     if (isOnline) {
       Log.info('Koneksi kembali online. Memicu sinkronisasi.');
       await _syncJikaOnline();

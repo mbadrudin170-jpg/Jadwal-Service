@@ -33,7 +33,7 @@ final class InvestasiNotifierProvider
   InvestasiNotifier create() => InvestasiNotifier();
 }
 
-String _$investasiNotifierHash() => r'4cd81a0065077a54a4bf49f06f7f002c104b644b';
+String _$investasiNotifierHash() => r'0c25612789ee2ed04ae79dc189b3faac2c1a346d';
 
 abstract class _$InvestasiNotifier extends $AsyncNotifier<InvestasiState> {
   FutureOr<InvestasiState> build();
