@@ -2,10 +2,9 @@
 
 import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
-import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 
-/// Data dummy untuk investasi dan dividen
+/// Data dummy untuk investasi
 
 // ============================================================
 // ID INVESTASI
@@ -15,18 +14,8 @@ const String idInvestasi2 = 'investasi-002';
 const String idInvestasi3 = 'investasi-003';
 const String idInvestasi4 = 'investasi-004';
 const String idInvestasi5 = 'investasi-005';
-
-// ============================================================
-// ID DIVIDEN
-// ============================================================
-const String idDividen1 = 'dividen-001';
-const String idDividen2 = 'dividen-002';
-const String idDividen3 = 'dividen-003';
-const String idDividen4 = 'dividen-004';
-const String idDividen5 = 'dividen-005';
-const String idDividen6 = 'dividen-006';
-const String idDividen7 = 'dividen-007';
-const String idDividen8 = 'dividen-008';
+const String idInvestasi6 = 'investasi-006';
+const String idInvestasi7 = 'investasi-007';
 
 // ============================================================
 // DATA INVESTASI DUMMY
@@ -36,9 +25,12 @@ const String idDividen8 = 'dividen-008';
 List<InvestasiModel> get daftarInvestasi {
   final now = DateTime.now();
   final satuBulanLalu = now.subtract(const Duration(days: 30));
-  const duaBulanLalu = Duration(days: 60);
-  const tigaBulanLalu = Duration(days: 90);
-  const empatBulanLalu = Duration(days: 120);
+  final duaBulanLalu = now.subtract(const Duration(days: 60));
+  final tigaBulanLalu = now.subtract(const Duration(days: 90));
+  final empatBulanLalu = now.subtract(const Duration(days: 120));
+  final limaBulanLalu = now.subtract(
+    const Duration(days: 150),
+  ); // ✅ Perbaikan: gunakan final, bukan const
 
   return [
     // ============================================================
@@ -46,138 +38,70 @@ List<InvestasiModel> get daftarInvestasi {
     // ============================================================
     InvestasiModel(
       id: idInvestasi1,
-      idInvestor: idBudi,
-      idTransaksi: idTransaksi1, // Transaksi Gaji Budi
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi1,
       jumlahModal: 5000000,
       jumlahLembar: 50,
-      tanggalInvestasi: now.subtract(duaBulanLalu),
+      tanggalInvestasi: duaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
     ),
     InvestasiModel(
       id: idInvestasi2,
-      idInvestor: idBudi,
-      idTransaksi: idTransaksi2, // Transaksi Bonus Budi
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi2,
       jumlahModal: 2000000,
       jumlahLembar: 20,
-      tanggalInvestasi: satuBulanLalu,
+      tanggalInvestasi: satuBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi3,
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi4,
+      jumlahModal: 1500000,
+      jumlahLembar: 15,
+      tanggalInvestasi: limaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
     ),
 
     // ============================================================
     // INVESTASI INVESTOR 2
     // ============================================================
     InvestasiModel(
-      id: idInvestasi3,
-      idInvestor: idInvestor2,
-      idTransaksi: idTransaksi5, // Transaksi Aktivasi Paket Bisnis Siti
-      jumlahModal: 7500000,
-      jumlahLembar: 75,
-      tanggalInvestasi: now.subtract(tigaBulanLalu),
-    ),
-    InvestasiModel(
       id: idInvestasi4,
       idInvestor: idInvestor2,
-      idTransaksi: idTransaksi7, // Transaksi Aktivasi Paket Gamer Dewi
-      jumlahModal: 3000000,
-      jumlahLembar: 30,
-      tanggalInvestasi: now.subtract(empatBulanLalu),
+      idTransaksi: idTransaksi5,
+      jumlahModal: 7500000,
+      jumlahLembar: 75,
+      tanggalInvestasi: tigaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
     ),
     InvestasiModel(
       id: idInvestasi5,
       idInvestor: idInvestor2,
-      idTransaksi: idTransaksi9, // Transaksi Aktivasi Paket Ultimate Joko
+      idTransaksi: idTransaksi7,
+      jumlahModal: 3000000,
+      jumlahLembar: 30,
+      tanggalInvestasi:
+          empatBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi6,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi9,
       jumlahModal: 1000000,
       jumlahLembar: 10,
-      tanggalInvestasi: now.subtract(duaBulanLalu),
+      tanggalInvestasi: duaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi7,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi4,
+      jumlahModal: 2000000,
+      jumlahLembar: 20,
+      tanggalInvestasi: satuBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
     ),
   ];
 }
 
 // ============================================================
-// DATA DIVIDEN DUMMY
-// ============================================================
-
-/// Daftar dividen untuk semua investor
-List<DividenModel> get daftarDividen {
-  final now = DateTime.now();
-  const satuBulanLalu = Duration(days: 30);
-  const duaBulanLalu = Duration(days: 60);
-
-  return [
-    // ============================================================
-    // DIVIDEN INVESTOR 1 (Budi Santoso)
-    // ============================================================
-    DividenModel(
-      id: idDividen1,
-      idInvestasi: idInvestasi1,
-      idInvestor: idInvestor1,
-      jumlahDividen: 600000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
-      sudahDibayar: true,
-    ),
-    DividenModel(
-      id: idDividen2,
-      idInvestasi: idInvestasi1,
-      idInvestor: idInvestor1,
-      jumlahDividen: 600000,
-      tanggalPembagian: now,
-      sudahDibayar: false, // Belum dibayar
-    ),
-    DividenModel(
-      id: idDividen3,
-      idInvestasi: idInvestasi2,
-      idInvestor: idInvestor1,
-      jumlahDividen: 240000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
-      sudahDibayar: true,
-    ),
-
-    // ============================================================
-    // DIVIDEN INVESTOR 2
-    // ============================================================
-    DividenModel(
-      id: idDividen4,
-      idInvestasi: idInvestasi3,
-      idInvestor: idInvestor2,
-      jumlahDividen: 900000,
-      tanggalPembagian: now.subtract(duaBulanLalu),
-      sudahDibayar: true,
-    ),
-    DividenModel(
-      id: idDividen5,
-      idInvestasi: idInvestasi3,
-      idInvestor: idInvestor2,
-      jumlahDividen: 900000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
-      sudahDibayar: true,
-    ),
-    DividenModel(
-      id: idDividen6,
-      idInvestasi: idInvestasi3,
-      idInvestor: idInvestor2,
-      jumlahDividen: 900000,
-      tanggalPembagian: now,
-      sudahDibayar: false,
-    ),
-    DividenModel(
-      id: idDividen7,
-      idInvestasi: idInvestasi4,
-      idInvestor: idInvestor2,
-      jumlahDividen: 360000,
-      tanggalPembagian: now.subtract(duaBulanLalu),
-      sudahDibayar: true,
-    ),
-    DividenModel(
-      id: idDividen8,
-      idInvestasi: idInvestasi5,
-      idInvestor: idInvestor2,
-      jumlahDividen: 120000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
-      sudahDibayar: true,
-    ),
-  ];
-}
-
-// ============================================================
-// FUNGSI PEMBANTU
+// FUNGSI PEMBANTU INVESTASI
 // ============================================================
 
 /// Mendapatkan investasi berdasarkan ID investor
@@ -185,24 +109,10 @@ List<InvestasiModel> getInvestasiByIdInvestor(String idInvestor) {
   return daftarInvestasi.where((i) => i.idInvestor == idInvestor).toList();
 }
 
-/// Mendapatkan dividen berdasarkan ID investor
-List<DividenModel> getDividenByIdInvestor(String idInvestor) {
-  return daftarDividen.where((d) => d.idInvestor == idInvestor).toList();
-}
-
 /// Mendapatkan investasi berdasarkan ID
 InvestasiModel? getInvestasiById(String id) {
   try {
     return daftarInvestasi.firstWhere((i) => i.id == id);
-  } catch (e) {
-    return null;
-  }
-}
-
-/// Mendapatkan dividen berdasarkan ID
-DividenModel? getDividenById(String id) {
-  try {
-    return daftarDividen.firstWhere((d) => d.id == id);
   } catch (e) {
     return null;
   }
@@ -222,18 +132,12 @@ int getTotalLembarInvestor(String idInvestor) {
       .fold(0, (sum, i) => sum + i.jumlahLembar);
 }
 
-/// Menghitung total persentase kepemilikan investor
-
-/// Menghitung total dividen yang sudah diterima investor
-double getTotalDividenDiterima(String idInvestor) {
-  return daftarDividen
-      .where((d) => d.idInvestor == idInvestor && d.sudahDibayar)
-      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+/// Menghitung total modal semua investasi
+double getTotalModalSemuaInvestasi() {
+  return daftarInvestasi.fold(0.0, (sum, i) => sum + i.jumlahModal);
 }
 
-/// Menghitung total dividen yang belum dibayar investor
-double getTotalDividenBelumDibayar(String idInvestor) {
-  return daftarDividen
-      .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
-      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+/// Menghitung total lembar semua investasi
+int getTotalLembarSemuaInvestasi() {
+  return daftarInvestasi.fold(0, (sum, i) => sum + i.jumlahLembar);
 }

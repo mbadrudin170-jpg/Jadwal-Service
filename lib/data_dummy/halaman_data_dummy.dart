@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/data_dummy/dummy_dividen.dart'; // ✅ TAMBAHKAN import ini
 import 'package:wifi/data_dummy/dummy_dompet.dart';
 import 'package:wifi/data_dummy/dummy_investasi.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
@@ -13,6 +14,7 @@ import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
@@ -21,6 +23,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -119,7 +122,8 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
             onPressed: () async {
               await _tambahDividen(ref);
             },
-            label: 'Tambah Dividen Dummy (${daftarDividen.length})',
+            label:
+                'Tambah Dividen Dummy (${daftarDividen.length})', // ✅ SEKARANG TERDEFINISI
             icon: TIcons.points,
             color: Colors.orange,
           ),
@@ -390,6 +394,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       var successCount = 0;
 
       for (final data in daftarDividen) {
+        // ✅ SEKARANG TERDEFINISI
         try {
           await investasiOp.tambahDividen(data);
           successCount++;
@@ -558,7 +563,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
 
       // 2. Dompet
-      final dompetOp = ref.read(dompetOpSqliteProvider);
+      final dompetOp = ref.read(dompetOpFirebaseProvider);
       for (final data in DummyDompet.daftarDompet) {
         await dompetOp.tambahDompet(data);
       }
@@ -595,10 +600,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
 
       // 7. Investasi
-      final investasiOp = InvestasiOpSqlite(
-        sqliteDb: ref.read(sqliteDatabaseProvider),
-        baseOpSqlite: ref.read(baseOpSqliteProvider),
-      );
+      final investasiOp = ref.read(investasiOpFirebaseProvider);
       for (final data in daftarInvestasi) {
         await investasiOp.tambahInvestasi(data);
       }
@@ -606,6 +608,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
 
       // 8. Dividen
       for (final data in daftarDividen) {
+        // ✅ SEKARANG TERDEFINISI
         await investasiOp.tambahDividen(data);
       }
       Log.info('✅ Dividen: ${daftarDividen.length} data');
@@ -661,6 +664,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       ref.invalidate(feedbackOpSqliteProvider);
       ref.invalidate(versiApkOpSqliteProvider);
       ref.invalidate(settingsOpSqliteProvider);
+      ref.invalidate(investasiOpFirebaseProvider); // ✅ TAMBAHKAN
 
       if (context.mounted) {
         await showDialog<void>(
@@ -682,7 +686,9 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
                 Text('• ${DummyPaket.daftarPaket.length} Paket'),
                 Text('• ${daftarTransaksi.length} Transaksi'),
                 Text('• ${daftarInvestasi.length} Investasi'),
-                Text('• ${daftarDividen.length} Dividen'),
+                Text(
+                  '• ${daftarDividen.length} Dividen',
+                ), // ✅ SEKARANG TERDEFINISI
                 const Text('• 1 Pengaturan'),
                 gapH16,
                 const Text(

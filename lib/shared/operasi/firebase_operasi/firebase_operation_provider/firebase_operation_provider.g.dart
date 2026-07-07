@@ -533,3 +533,54 @@ final class InvestasiOpFirebaseProvider
 
 String _$investasiOpFirebaseHash() =>
     r'4e9d8b3ec23530f0c185471686428ed409508c51';
+
+/// Provider untuk menyediakan instance dari [DompetOpFirebase].
+
+@ProviderFor(dompetOpFirebase)
+final dompetOpFirebaseProvider = DompetOpFirebaseProvider._();
+
+/// Provider untuk menyediakan instance dari [DompetOpFirebase].
+
+final class DompetOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          DompetOpFirebase,
+          DompetOpFirebase,
+          DompetOpFirebase
+        >
+    with $Provider<DompetOpFirebase> {
+  /// Provider untuk menyediakan instance dari [DompetOpFirebase].
+  DompetOpFirebaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dompetOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$dompetOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<DompetOpFirebase> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DompetOpFirebase create(Ref ref) {
+    return dompetOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DompetOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DompetOpFirebase>(value),
+    );
+  }
+}
+
+String _$dompetOpFirebaseHash() => r'dcc2ec8999a4519b560d0bb247040a53ee34fbe6';

@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_firebase.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
@@ -107,6 +108,18 @@ InvestasiOpFirebase investasiOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
   return InvestasiOpFirebase(
+    firestore: firestoreInstance,
+    baseOpFirebase: baseOp,
+  );
+}
+
+/// Provider untuk menyediakan instance dari [DompetOpFirebase].
+@Riverpod(keepAlive: true)
+DompetOpFirebase dompetOpFirebase(Ref ref) {
+  Log.info('Membuat instance DompetOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return DompetOpFirebase(
     firestore: firestoreInstance,
     baseOpFirebase: baseOp,
   );
