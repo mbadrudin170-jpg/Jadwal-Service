@@ -168,6 +168,7 @@ lib/fitur/dompet/provider/dompet_provider.freezed.dart
 lib/fitur/dompet/provider/dompet_provider.dart
 lib/fitur/dompet/operasi
 lib/fitur/dompet/operasi/dompet_op_sqlite.dart
+lib/fitur/dompet/operasi/dompet_op_firebase.dart
 lib/fitur/dompet/model
 lib/fitur/dompet/model/dompet_model.freezed.dart
 lib/fitur/dompet/model/dompet_model.dart
@@ -307,7 +308,6 @@ lib/fitur/pelanggan/page/user/detail_pelanggan.dart
 lib/fitur/pelanggan/page/admin
 lib/fitur/pelanggan/page/admin/pelanggan_page.dart
 lib/fitur/pelanggan/page/admin/form_pelanggan.dart
-lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 lib/fitur/pelanggan/widget
 lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
 lib/fitur/pelanggan/widget/nama_pelanggan_widget.dart
@@ -475,6 +475,7 @@ lib/data_dummy/dummy_pelanggan.dart
 lib/data_dummy/dummy_paket.dart
 lib/data_dummy/dummy_kategori.dart
 lib/data_dummy/dummy_transaksi.dart
+lib/data_dummy/dummy_dividen.dart
 lib/data_dummy/dummy_investasi.dart
 lib/data_dummy/halaman_data_dummy.dart
 lib/data_dummy/dummy_sub_kategori.dart
@@ -704,7 +705,6 @@ test/admin/halaman/widget/tombol_aksi_test.dart
 test/admin/halaman/event
 test/admin/halaman/detail
 test/admin/halaman/detail/detail_dompet_test.dart
-test/admin/halaman/detail/detail_paket_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.dart
 test/admin/halaman/form
 test/admin/halaman/form/form_pelanggan_test.dart
@@ -21060,6 +21060,305 @@ class DompetOpSqlite {
 ```
 
 
+// File: lib/fitur/dompet/operasi/dompet_op_firebase.dart
+```dart
+// path: lib/fitur/dompet/operasi/dompet_op_firebase.dart
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wifi/fitur/dompet/model/dompet_model.dart';
+import 'package:wifi/shared/constant/nama_kolom.dart';
+import 'package:wifi/shared/constant/nama_tabel.dart';
+import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
+
+/// Kelas untuk operasi terkait data dompet di Firebase.
+class DompetOpFirebase {
+  final FirebaseFirestore _firestore;
+  final BaseOpFirebase _baseOpFirebase;
+  final String _namaKoleksi = NamaTabel.dompet;
+
+  DompetOpFirebase({
+    required FirebaseFirestore firestore,
+    required BaseOpFirebase baseOpFirebase,
+  }) : _firestore = firestore,
+       _baseOpFirebase = baseOpFirebase {
+    Log.info('DompetOpFirebase diinisialisasi.');
+  }
+
+  CollectionReference get _koleksiDompet => _firestore.collection(_namaKoleksi);
+
+  // ============================================================
+  // OPERASI TULIS (WRITE)
+  // ============================================================
+
+  /// Menambahkan dompet baru ke Firebase.
+  Future<void> tambahDompet(DompetModel dompet) async {
+    Log.info('Menambahkan dompet baru ke Firebase - ID: ${dompet.id}');
+    try {
+      await _baseOpFirebase.sisipkan(
+        _namaKoleksi,
+        dompet.id,
+        dompet.toFirebase(),
+      );
+      Log.info('Dompet berhasil ditambahkan - ID: ${dompet.id}');
+    } catch (e, s) {
+      Log.error('Gagal menambahkan dompet - ID: ${dompet.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Memperbarui dompet yang sudah ada di Firebase.
+  Future<void> perbaruiDompet(DompetModel dompet) async {
+    Log.info('Memperbarui dompet di Firebase - ID: ${dompet.id}');
+    try {
+      await _baseOpFirebase.update(
+        _namaKoleksi,
+        dompet.id,
+        dompet.toFirebase(),
+      );
+      Log.info('Dompet berhasil diperbarui - ID: ${dompet.id}');
+    } catch (e, s) {
+      Log.error('Gagal memperbarui dompet - ID: ${dompet.id}', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Melakukan soft delete pada dompet di Firebase.
+  Future<void> softDeleteDompet(String id) async {
+    Log.info('Soft delete dompet di Firebase - ID: $id');
+    try {
+      await _baseOpFirebase.softDelete(_namaKoleksi, id);
+      Log.info('Soft delete dompet berhasil - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal soft delete dompet - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Menghapus dompet secara permanen dari Firebase.
+  Future<void> hapusPermanenDompet(String id) async {
+    Log.warning('Menghapus dompet secara permanen - ID: $id');
+    try {
+      await _baseOpFirebase.hapusPermanen(_namaKoleksi, id);
+      Log.info('Dompet berhasil dihapus permanen - ID: $id');
+    } catch (e, s) {
+      Log.error('Gagal menghapus permanen dompet - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Menyisipkan atau memperbarui banyak dompet sekaligus (batch).
+  Future<void> sisipkanAtauPerbaruiBatch(List<DompetModel> daftarDompet) async {
+    if (daftarDompet.isEmpty) {
+      Log.info('Daftar dompet kosong, batch dibatalkan.');
+      return;
+    }
+
+    Log.info('Memulai batch insert/update untuk ${daftarDompet.length} dompet');
+    try {
+      final dataList = daftarDompet.map((item) => item.toFirebase()).toList();
+      await _baseOpFirebase.insertOrUpdateBatch(
+        _namaKoleksi,
+        dataList,
+        NamaKolom.id,
+      );
+      Log.info('Batch ${daftarDompet.length} dompet berhasil diproses');
+    } catch (e, st) {
+      Log.error('Gagal memproses batch dompet', e: e, s: st);
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // OPERASI BACA (READ)
+  // ============================================================
+
+  /// Mengambil semua dompet dari Firebase.
+  Future<List<DompetModel>> ambilSemua({
+    bool tampilkanYangDiarsip = false,
+  }) async {
+    Log.info('Mengambil semua dompet dari Firebase');
+    try {
+      Query query = _koleksiDompet;
+      if (!tampilkanYangDiarsip) {
+        query = query.where(NamaKolom.dihapus, isEqualTo: false);
+      }
+
+      final querySnapshot = await query.get();
+      final hasil = querySnapshot.docs.map((doc) {
+        // ✅ Perbaikan: Cast data ke Map<String, dynamic>
+        final data = doc.data() as Map<String, dynamic>;
+        return DompetModel.fromFirebase(doc.id, data);
+      }).toList();
+
+      Log.info('Berhasil mengambil ${hasil.length} dompet dari Firebase');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil semua dompet dari Firebase', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dompet berdasarkan ID dari Firebase.
+  Future<DompetModel?> ambilBerdasarkanId(String id) async {
+    Log.info('Mengambil dompet berdasarkan ID dari Firebase: $id');
+    try {
+      final doc = await _koleksiDompet.doc(id).get();
+      if (doc.exists) {
+        Log.info('Dompet ditemukan - ID: $id');
+        // ✅ Perbaikan: Cast data ke Map<String, dynamic>
+        final data = doc.data() as Map<String, dynamic>;
+        return DompetModel.fromFirebase(doc.id, data);
+      }
+      Log.info('Dompet tidak ditemukan - ID: $id');
+      return null;
+    } catch (e, s) {
+      Log.error('Gagal mengambil dompet - ID: $id', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil beberapa dompet berdasarkan daftar ID.
+  Future<List<DompetModel>> ambilBerdasarkanIds(List<String> ids) async {
+    if (ids.isEmpty) {
+      Log.info('Daftar ID kosong, mengembalikan list kosong');
+      return [];
+    }
+
+    Log.info('Mengambil ${ids.length} dompet berdasarkan ID dari Firebase');
+    try {
+      final hasil = <DompetModel>[];
+      for (final id in ids) {
+        final dompet = await ambilBerdasarkanId(id);
+        if (dompet != null) {
+          hasil.add(dompet);
+        }
+      }
+      Log.info('Berhasil mengambil ${hasil.length} dari ${ids.length} dompet');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil dompet berdasarkan IDs', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dompet berdasarkan nama (pencarian).
+  Future<List<DompetModel>> ambilBerdasarkanNama(String nama) async {
+    Log.info('Mencari dompet dengan nama: $nama');
+    try {
+      final querySnapshot = await _koleksiDompet
+          .where(NamaKolom.nama, isEqualTo: nama)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        // ✅ Perbaikan: Cast data ke Map<String, dynamic>
+        final data = doc.data() as Map<String, dynamic>;
+        return DompetModel.fromFirebase(doc.id, data);
+      }).toList();
+
+      Log.info('Ditemukan ${hasil.length} dompet dengan nama: $nama');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mencari dompet dengan nama: $nama', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil dompet dengan saldo di atas nilai tertentu.
+  Future<List<DompetModel>> ambilDompetSaldoDiatas(double saldoMin) async {
+    Log.info('Mengambil dompet dengan saldo > $saldoMin');
+    try {
+      final querySnapshot = await _koleksiDompet
+          .where(NamaKolom.saldo, isGreaterThan: saldoMin)
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .orderBy(NamaKolom.saldo, descending: true)
+          .get();
+
+      final hasil = querySnapshot.docs.map((doc) {
+        // ✅ Perbaikan: Cast data ke Map<String, dynamic>
+        final data = doc.data() as Map<String, dynamic>;
+        return DompetModel.fromFirebase(doc.id, data);
+      }).toList();
+
+      Log.info('Ditemukan ${hasil.length} dompet dengan saldo > $saldoMin');
+      return hasil;
+    } catch (e, s) {
+      Log.error('Gagal mengambil dompet dengan saldo > $saldoMin', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  /// Mengambil total saldo semua dompet.
+  Future<double> ambilTotalSaldo() async {
+    Log.info('Menghitung total saldo semua dompet');
+    try {
+      final querySnapshot = await _koleksiDompet
+          .where(NamaKolom.dihapus, isEqualTo: false)
+          .get();
+
+      var totalSaldo = 0.0;
+      for (final doc in querySnapshot.docs) {
+        // ✅ Perbaikan: Cast data ke Map<String, dynamic> dan gunakan null check
+        final data = doc.data() as Map<String, dynamic>;
+        totalSaldo += (data[NamaKolom.saldo] as num?)?.toDouble() ?? 0.0;
+      }
+
+      Log.info('Total saldo semua dompet: $totalSaldo');
+      return totalSaldo;
+    } catch (e, s) {
+      Log.error('Gagal menghitung total saldo', e: e, s: s);
+      rethrow;
+    }
+  }
+
+  // ============================================================
+  // STREAM (REALTIME)
+  // ============================================================
+
+  /// Stream dompet berdasarkan ID (real-time).
+  Stream<DompetModel?> ambilStreamBerdasarkanId(String id) {
+    Log.info('Memulai stream dompet - ID: $id');
+    return _koleksiDompet
+        .doc(id)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.exists) {
+            // ✅ Perbaikan: Cast data ke Map<String, dynamic>
+            final data = snapshot.data() as Map<String, dynamic>;
+            return DompetModel.fromFirebase(snapshot.id, data);
+          }
+          return null;
+        })
+        .handleError((Object e, StackTrace s) {
+          Log.error('Error pada stream dompet - ID: $id', e: e, s: s);
+          return null;
+        });
+  }
+
+  /// Stream semua dompet (real-time).
+  Stream<List<DompetModel>> ambilStreamSemua() {
+    Log.info('Memulai stream semua dompet');
+    return _koleksiDompet
+        .where(NamaKolom.dihapus, isEqualTo: false)
+        .orderBy(NamaKolom.nama)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            // ✅ Perbaikan: Cast data ke Map<String, dynamic>
+            final data = doc.data() as Map<String, dynamic>;
+            return DompetModel.fromFirebase(doc.id, data);
+          }).toList();
+        })
+        .handleError((Object e, StackTrace s) {
+          Log.error('Error pada stream semua dompet', e: e, s: s);
+          return <DompetModel>[];
+        });
+  }
+}
+```
+
+
 // File: lib/fitur/dompet/model/dompet_model.freezed.dart
 ```dart
 // GENERATED CODE - DO NOT MODIFY BY HAND
@@ -28154,11 +28453,11 @@ import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/page/feedback_detail.dart';
 import 'package:wifi/fitur/feedback/page/form_feedback.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 
 class FeedbackPage extends ConsumerStatefulWidget {
   const FeedbackPage({super.key});
@@ -38201,7 +38500,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
       return;
     }
-
     Log.info(
       'Memulai batch insert/update untuk ${items.length} transaksi di Firestore',
     );
@@ -39439,7 +39737,6 @@ import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -40749,11 +41046,9 @@ as double,
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_global.dart';
-import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/shared/debug/log.dart';
 
 part 'investasi_provider.freezed.dart';
@@ -44097,127 +44392,6 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
     );
   }
 }
-```
-
-
-// File: lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
-```dart
-// // path lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
-
-// import 'dart:async';
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-// import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
-// import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-// import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
-// import 'package:wifi/fitur/poin/page/halaman_poin.dart';
-// import 'package:wifi/shared/debug/log.dart';
-// import 'package:wifi/shared/utils/toast_util.dart';
-
-// class DetailPelanggan extends ConsumerWidget {
-//   final String idPelanggan;
-
-//   const DetailPelanggan({super.key, required this.idPelanggan});
-
-//   Future<void> _editPelanggan(
-//     BuildContext context,
-//     PelangganModel? pelanggan,
-//   ) async {
-//     if (pelanggan == null) return;
-//     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
-//     unawaited(
-//       Navigator.push<bool>(
-//         context,
-//         MaterialPageRoute<bool>(
-//           builder: (context) => FormPelanggan(pelanggan: pelanggan),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Future<void> _salinSemuaInfo(
-//     BuildContext context,
-//     PelangganModel customer,
-//     int totalPoin,
-//   ) async {
-//     Log.info('Menyalin info pelanggan: ${customer.nama}');
-//     final info =
-//         '''
-// Nama : ${customer.nama}
-// No HP : ${customer.telepon}
-// Alamat : ${customer.alamat}
-// Password : ${customer.kataSandi}
-// MAC : ${customer.macAddress}
-// Poin: $totalPoin
-// '''
-//             .trim();
-
-//     await Clipboard.setData(ClipboardData(text: info));
-//     if (context.mounted) {
-//       ToastUtil.success(context, 'Informasi pelanggan berhasil disalin.');
-//     }
-//   }
-
-//   Future<void> _navigasiKePoin(
-//     BuildContext context,
-//     PelangganModel? pelanggan,
-//   ) async {
-//     if (pelanggan == null) return;
-//     Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
-
-//     unawaited(
-//       Navigator.push<void>(
-//         context,
-//         MaterialPageRoute<void>(
-//           builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
-//     return detailAsync.when(
-//       skipLoadingOnReload: true,
-//       loading: () => Scaffold(
-//         appBar: AppBar(title: const Text('Memuat Detail...')),
-//         body: const Center(child: CircularProgressIndicator()),
-//       ),
-//       error: (e, s) {
-//         Log.error(
-//           'Gagal mengambil data pelanggan ID: $idPelanggan.',
-//           e: e,
-//           s: s,
-//         );
-//         return Scaffold(
-//           appBar: AppBar(title: const Text('Detail Pelanggan')),
-//           body: Center(child: Text('Gagal memuat data: $e')),
-//         );
-//       },
-//       data: (data) {
-//         final (pelanggan, totalPoin) = data;
-//         if (pelanggan == null) {
-//           return Scaffold(
-//             appBar: AppBar(title: const Text('Detail Pelanggan')),
-//             body: const Center(child: Text('Pelanggan tidak ditemukan')),
-//           );
-//         }
-//         return DetailPelangganUI(
-//           pelanggan: pelanggan,
-//           totalPoin: totalPoin,
-//           navigasiKeEdit: () => _editPelanggan(context, pelanggan),
-//           navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
-
-//           onCopyAll: () => _salinSemuaInfo(context, pelanggan, totalPoin),
-//         );
-//       },
-//     );
-//   }
-// }
 ```
 
 
@@ -57622,6 +57796,57 @@ final class InvestasiOpFirebaseProvider
 
 String _$investasiOpFirebaseHash() =>
     r'4e9d8b3ec23530f0c185471686428ed409508c51';
+
+/// Provider untuk menyediakan instance dari [DompetOpFirebase].
+
+@ProviderFor(dompetOpFirebase)
+final dompetOpFirebaseProvider = DompetOpFirebaseProvider._();
+
+/// Provider untuk menyediakan instance dari [DompetOpFirebase].
+
+final class DompetOpFirebaseProvider
+    extends
+        $FunctionalProvider<
+          DompetOpFirebase,
+          DompetOpFirebase,
+          DompetOpFirebase
+        >
+    with $Provider<DompetOpFirebase> {
+  /// Provider untuk menyediakan instance dari [DompetOpFirebase].
+  DompetOpFirebaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'dompetOpFirebaseProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$dompetOpFirebaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<DompetOpFirebase> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DompetOpFirebase create(Ref ref) {
+    return dompetOpFirebase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DompetOpFirebase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DompetOpFirebase>(value),
+    );
+  }
+}
+
+String _$dompetOpFirebaseHash() => r'dcc2ec8999a4519b560d0bb247040a53ee34fbe6';
 ```
 
 
@@ -57631,6 +57856,7 @@ String _$investasiOpFirebaseHash() =>
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/dompet/operasi/dompet_op_firebase.dart';
 import 'package:wifi/fitur/feedback/operasi/feedback_op_firebase.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/notifikasi/operasi/notifikasi_op_firebase.dart';
@@ -57736,6 +57962,18 @@ InvestasiOpFirebase investasiOpFirebase(Ref ref) {
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
   return InvestasiOpFirebase(
+    firestore: firestoreInstance,
+    baseOpFirebase: baseOp,
+  );
+}
+
+/// Provider untuk menyediakan instance dari [DompetOpFirebase].
+@Riverpod(keepAlive: true)
+DompetOpFirebase dompetOpFirebase(Ref ref) {
+  Log.info('Membuat instance DompetOpFirebase via @riverpod...');
+  final firestoreInstance = ref.watch(firestoreProvider);
+  final baseOp = ref.watch(baseOpFirebaseProvider);
+  return DompetOpFirebase(
     firestore: firestoreInstance,
     baseOpFirebase: baseOp,
   );
@@ -59906,14 +60144,14 @@ class FirebaseMigrationService {
 ```dart
 // path: lib/data_dummy/data_dummy.dart
 
+export 'dummy_dividen.dart';
 export 'dummy_dompet.dart';
-export 'dummy_investasi.dart'; // ← Tambahkan ini
+export 'dummy_investasi.dart';
 export 'dummy_kategori.dart';
 export 'dummy_paket.dart';
 export 'dummy_pelanggan.dart';
 export 'dummy_sub_kategori.dart';
-export 'dummy_transaksi.dart';
-```
+export 'dummy_transaksi.dart';```
 
 
 // File: lib/data_dummy/dummy_pelanggan.dart
@@ -60663,25 +60901,15 @@ Map<String, int> getTotalPoinPerPelanggan() {
 ```
 
 
-// File: lib/data_dummy/dummy_investasi.dart
+// File: lib/data_dummy/dummy_dividen.dart
 ```dart
-// path: lib/data_dummy/dummy_investasi.dart
+// path: lib/data_dummy/dummy_dividen.dart
 
+import 'package:wifi/data_dummy/dummy_investasi.dart';
 import 'package:wifi/data_dummy/dummy_pelanggan.dart';
-import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
-import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 
-/// Data dummy untuk investasi dan dividen
-
-// ============================================================
-// ID INVESTASI
-// ============================================================
-const String idInvestasi1 = 'investasi-001';
-const String idInvestasi2 = 'investasi-002';
-const String idInvestasi3 = 'investasi-003';
-const String idInvestasi4 = 'investasi-004';
-const String idInvestasi5 = 'investasi-005';
+/// Data dummy untuk dividen
 
 // ============================================================
 // ID DIVIDEN
@@ -60694,79 +60922,26 @@ const String idDividen5 = 'dividen-005';
 const String idDividen6 = 'dividen-006';
 const String idDividen7 = 'dividen-007';
 const String idDividen8 = 'dividen-008';
-
-// ============================================================
-// DATA INVESTASI DUMMY
-// ============================================================
-
-/// Daftar investasi untuk semua investor
-List<InvestasiModel> get daftarInvestasi {
-  final now = DateTime.now();
-  final satuBulanLalu = now.subtract(const Duration(days: 30));
-  const duaBulanLalu = Duration(days: 60);
-  const tigaBulanLalu = Duration(days: 90);
-  const empatBulanLalu = Duration(days: 120);
-
-  return [
-    // ============================================================
-    // INVESTASI INVESTOR 1 (Budi Santoso)
-    // ============================================================
-    InvestasiModel(
-      id: idInvestasi1,
-      idInvestor: idBudi,
-      idTransaksi: idTransaksi1, // Transaksi Gaji Budi
-      jumlahModal: 5000000,
-      jumlahLembar: 50,
-      tanggalInvestasi: now.subtract(duaBulanLalu),
-    ),
-    InvestasiModel(
-      id: idInvestasi2,
-      idInvestor: idBudi,
-      idTransaksi: idTransaksi2, // Transaksi Bonus Budi
-      jumlahModal: 2000000,
-      jumlahLembar: 20,
-      tanggalInvestasi: satuBulanLalu,
-    ),
-
-    // ============================================================
-    // INVESTASI INVESTOR 2
-    // ============================================================
-    InvestasiModel(
-      id: idInvestasi3,
-      idInvestor: idInvestor2,
-      idTransaksi: idTransaksi5, // Transaksi Aktivasi Paket Bisnis Siti
-      jumlahModal: 7500000,
-      jumlahLembar: 75,
-      tanggalInvestasi: now.subtract(tigaBulanLalu),
-    ),
-    InvestasiModel(
-      id: idInvestasi4,
-      idInvestor: idInvestor2,
-      idTransaksi: idTransaksi7, // Transaksi Aktivasi Paket Gamer Dewi
-      jumlahModal: 3000000,
-      jumlahLembar: 30,
-      tanggalInvestasi: now.subtract(empatBulanLalu),
-    ),
-    InvestasiModel(
-      id: idInvestasi5,
-      idInvestor: idInvestor2,
-      idTransaksi: idTransaksi9, // Transaksi Aktivasi Paket Ultimate Joko
-      jumlahModal: 1000000,
-      jumlahLembar: 10,
-      tanggalInvestasi: now.subtract(duaBulanLalu),
-    ),
-  ];
-}
+const String idDividen9 = 'dividen-009';
+const String idDividen10 = 'dividen-010';
+const String idDividen11 = 'dividen-011';
+const String idDividen12 = 'dividen-012';
+const String idDividen13 = 'dividen-013';
+const String idDividen14 = 'dividen-014';
+const String idDividen15 = 'dividen-015';
 
 // ============================================================
 // DATA DIVIDEN DUMMY
 // ============================================================
 
-/// Daftar dividen untuk semua investor
+/// Daftar semua dividen dummy
 List<DividenModel> get daftarDividen {
   final now = DateTime.now();
-  const satuBulanLalu = Duration(days: 30);
-  const duaBulanLalu = Duration(days: 60);
+  final satuBulanLalu = now.subtract(const Duration(days: 30));
+  final duaBulanLalu = now.subtract(const Duration(days: 60));
+  final tigaBulanLalu = now.subtract(const Duration(days: 90));
+  final empatBulanLalu = now.subtract(const Duration(days: 120));
+  final limaBulanLalu = now.subtract(const Duration(days: 150));
 
   return [
     // ============================================================
@@ -60777,7 +60952,7 @@ List<DividenModel> get daftarDividen {
       idInvestasi: idInvestasi1,
       idInvestor: idInvestor1,
       jumlahDividen: 600000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
+      tanggalPembagian: limaBulanLalu,
       sudahDibayar: true,
     ),
     DividenModel(
@@ -60785,15 +60960,71 @@ List<DividenModel> get daftarDividen {
       idInvestasi: idInvestasi1,
       idInvestor: idInvestor1,
       jumlahDividen: 600000,
+      tanggalPembagian: empatBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen3,
+      idInvestasi: idInvestasi1,
+      idInvestor: idInvestor1,
+      jumlahDividen: 600000,
+      tanggalPembagian: tigaBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen4,
+      idInvestasi: idInvestasi1,
+      idInvestor: idInvestor1,
+      jumlahDividen: 600000,
+      tanggalPembagian: duaBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen5,
+      idInvestasi: idInvestasi1,
+      idInvestor: idInvestor1,
+      jumlahDividen: 600000,
+      tanggalPembagian: satuBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen6,
+      idInvestasi: idInvestasi1,
+      idInvestor: idInvestor1,
+      jumlahDividen: 600000,
       tanggalPembagian: now,
       sudahDibayar: false, // Belum dibayar
     ),
     DividenModel(
-      id: idDividen3,
+      id: idDividen7,
       idInvestasi: idInvestasi2,
       idInvestor: idInvestor1,
       jumlahDividen: 240000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
+      tanggalPembagian: tigaBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen8,
+      idInvestasi: idInvestasi2,
+      idInvestor: idInvestor1,
+      jumlahDividen: 240000,
+      tanggalPembagian: satuBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen9,
+      idInvestasi: idInvestasi2,
+      idInvestor: idInvestor1,
+      jumlahDividen: 240000,
+      tanggalPembagian: now,
+      sudahDibayar: false, // Belum dibayar
+    ),
+    DividenModel(
+      id: idDividen10,
+      idInvestasi: idInvestasi3,
+      idInvestor: idInvestor1,
+      jumlahDividen: 180000,
+      tanggalPembagian: duaBulanLalu,
       sudahDibayar: true,
     ),
 
@@ -60801,43 +61032,43 @@ List<DividenModel> get daftarDividen {
     // DIVIDEN INVESTOR 2
     // ============================================================
     DividenModel(
-      id: idDividen4,
-      idInvestasi: idInvestasi3,
+      id: idDividen11,
+      idInvestasi: idInvestasi4,
       idInvestor: idInvestor2,
       jumlahDividen: 900000,
-      tanggalPembagian: now.subtract(duaBulanLalu),
+      tanggalPembagian: tigaBulanLalu,
       sudahDibayar: true,
     ),
     DividenModel(
-      id: idDividen5,
-      idInvestasi: idInvestasi3,
+      id: idDividen12,
+      idInvestasi: idInvestasi4,
       idInvestor: idInvestor2,
       jumlahDividen: 900000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
+      tanggalPembagian: duaBulanLalu,
       sudahDibayar: true,
     ),
     DividenModel(
-      id: idDividen6,
-      idInvestasi: idInvestasi3,
+      id: idDividen13,
+      idInvestasi: idInvestasi4,
+      idInvestor: idInvestor2,
+      jumlahDividen: 900000,
+      tanggalPembagian: satuBulanLalu,
+      sudahDibayar: true,
+    ),
+    DividenModel(
+      id: idDividen14,
+      idInvestasi: idInvestasi4,
       idInvestor: idInvestor2,
       jumlahDividen: 900000,
       tanggalPembagian: now,
-      sudahDibayar: false,
+      sudahDibayar: false, // Belum dibayar
     ),
     DividenModel(
-      id: idDividen7,
-      idInvestasi: idInvestasi4,
-      idInvestor: idInvestor2,
-      jumlahDividen: 360000,
-      tanggalPembagian: now.subtract(duaBulanLalu),
-      sudahDibayar: true,
-    ),
-    DividenModel(
-      id: idDividen8,
+      id: idDividen15,
       idInvestasi: idInvestasi5,
       idInvestor: idInvestor2,
-      jumlahDividen: 120000,
-      tanggalPembagian: now.subtract(satuBulanLalu),
+      jumlahDividen: 360000,
+      tanggalPembagian: duaBulanLalu,
       sudahDibayar: true,
     ),
   ];
@@ -60847,29 +61078,243 @@ List<DividenModel> get daftarDividen {
 // FUNGSI PEMBANTU
 // ============================================================
 
-/// Mendapatkan investasi berdasarkan ID investor
-List<InvestasiModel> getInvestasiByIdInvestor(String idInvestor) {
-  return daftarInvestasi.where((i) => i.idInvestor == idInvestor).toList();
-}
-
 /// Mendapatkan dividen berdasarkan ID investor
 List<DividenModel> getDividenByIdInvestor(String idInvestor) {
   return daftarDividen.where((d) => d.idInvestor == idInvestor).toList();
 }
 
-/// Mendapatkan investasi berdasarkan ID
-InvestasiModel? getInvestasiById(String id) {
-  try {
-    return daftarInvestasi.firstWhere((i) => i.id == id);
-  } catch (e) {
-    return null;
-  }
+/// Mendapatkan dividen berdasarkan ID investasi
+List<DividenModel> getDividenByIdInvestasi(String idInvestasi) {
+  return daftarDividen.where((d) => d.idInvestasi == idInvestasi).toList();
 }
 
 /// Mendapatkan dividen berdasarkan ID
 DividenModel? getDividenById(String id) {
   try {
     return daftarDividen.firstWhere((d) => d.id == id);
+  } catch (e) {
+    return null;
+  }
+}
+
+/// Mendapatkan dividen yang sudah dibayar
+List<DividenModel> getDividenSudahDibayar() {
+  return daftarDividen.where((d) => d.sudahDibayar).toList();
+}
+
+/// Mendapatkan dividen yang belum dibayar
+List<DividenModel> getDividenBelumDibayar() {
+  return daftarDividen.where((d) => !d.sudahDibayar).toList();
+}
+
+/// Mendapatkan dividen berdasarkan rentang tanggal
+List<DividenModel> getDividenByDateRange(DateTime mulai, DateTime sampai) {
+  return daftarDividen.where((d) {
+    return d.tanggalPembagian.isAfter(mulai) &&
+        d.tanggalPembagian.isBefore(sampai);
+  }).toList();
+}
+
+/// Menghitung total dividen yang sudah diterima investor
+double getTotalDividenDiterima(String idInvestor) {
+  return daftarDividen
+      .where((d) => d.idInvestor == idInvestor && d.sudahDibayar)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Menghitung total dividen yang belum dibayar investor
+double getTotalDividenBelumDibayar(String idInvestor) {
+  return daftarDividen
+      .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Menghitung total semua dividen investor (sudah + belum)
+double getTotalDividen(String idInvestor) {
+  return daftarDividen
+      .where((d) => d.idInvestor == idInvestor)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Menghitung total dividen keseluruhan (semua investor)
+double getTotalDividenKeseluruhan() {
+  return daftarDividen.fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Menghitung total dividen yang sudah dibayar keseluruhan
+double getTotalDividenSudahDibayarKeseluruhan() {
+  return daftarDividen
+      .where((d) => d.sudahDibayar)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Menghitung total dividen yang belum dibayar keseluruhan
+double getTotalDividenBelumDibayarKeseluruhan() {
+  return daftarDividen
+      .where((d) => !d.sudahDibayar)
+      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+}
+
+/// Mendapatkan statistik dividen per investor
+Map<String, Map<String, dynamic>> getStatistikDividenPerInvestor() {
+  final statistik = <String, Map<String, dynamic>>{};
+
+  // Ambil semua ID investor unik dari data dividen
+  final idInvestorUnik = daftarDividen.map((d) => d.idInvestor).toSet();
+
+  for (final id in idInvestorUnik) {
+    final dividenInvestor = getDividenByIdInvestor(id);
+    final totalDiterima = dividenInvestor
+        .where((d) => d.sudahDibayar)
+        .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+    final totalBelumDibayar = dividenInvestor
+        .where((d) => !d.sudahDibayar)
+        .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+    final total = totalDiterima + totalBelumDibayar;
+
+    statistik[id] = {
+      'total_diterima': totalDiterima,
+      'total_belum_dibayar': totalBelumDibayar,
+      'total': total,
+      'jumlah_transaksi': dividenInvestor.length,
+    };
+  }
+
+  return statistik;
+}
+
+/// Mendapatkan dividen terbaru (berdasarkan tanggal)
+List<DividenModel> getDividenTerbaru({int limit = 5}) {
+  final sorted = List<DividenModel>.from(daftarDividen)
+    ..sort((a, b) => b.tanggalPembagian.compareTo(a.tanggalPembagian));
+  return sorted.take(limit).toList();
+}
+
+/// Mendapatkan dividen tertua (berdasarkan tanggal)
+List<DividenModel> getDividenTertua({int limit = 5}) {
+  final sorted = List<DividenModel>.from(daftarDividen)
+    ..sort((a, b) => a.tanggalPembagian.compareTo(b.tanggalPembagian));
+  return sorted.take(limit).toList();
+}```
+
+
+// File: lib/data_dummy/dummy_investasi.dart
+```dart
+// path: lib/data_dummy/dummy_investasi.dart
+
+import 'package:wifi/data_dummy/dummy_pelanggan.dart';
+import 'package:wifi/data_dummy/dummy_transaksi.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+
+/// Data dummy untuk investasi
+
+// ============================================================
+// ID INVESTASI
+// ============================================================
+const String idInvestasi1 = 'investasi-001';
+const String idInvestasi2 = 'investasi-002';
+const String idInvestasi3 = 'investasi-003';
+const String idInvestasi4 = 'investasi-004';
+const String idInvestasi5 = 'investasi-005';
+const String idInvestasi6 = 'investasi-006';
+const String idInvestasi7 = 'investasi-007';
+
+// ============================================================
+// DATA INVESTASI DUMMY
+// ============================================================
+
+/// Daftar investasi untuk semua investor
+List<InvestasiModel> get daftarInvestasi {
+  final now = DateTime.now();
+  final satuBulanLalu = now.subtract(const Duration(days: 30));
+  final duaBulanLalu = now.subtract(const Duration(days: 60));
+  final tigaBulanLalu = now.subtract(const Duration(days: 90));
+  final empatBulanLalu = now.subtract(const Duration(days: 120));
+  final limaBulanLalu = now.subtract(
+    const Duration(days: 150),
+  ); // ✅ Perbaikan: gunakan final, bukan const
+
+  return [
+    // ============================================================
+    // INVESTASI INVESTOR 1 (Budi Santoso)
+    // ============================================================
+    InvestasiModel(
+      id: idInvestasi1,
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi1,
+      jumlahModal: 5000000,
+      jumlahLembar: 50,
+      tanggalInvestasi: duaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi2,
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi2,
+      jumlahModal: 2000000,
+      jumlahLembar: 20,
+      tanggalInvestasi: satuBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi3,
+      idInvestor: idInvestor1,
+      idTransaksi: idTransaksi4,
+      jumlahModal: 1500000,
+      jumlahLembar: 15,
+      tanggalInvestasi: limaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+
+    // ============================================================
+    // INVESTASI INVESTOR 2
+    // ============================================================
+    InvestasiModel(
+      id: idInvestasi4,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi5,
+      jumlahModal: 7500000,
+      jumlahLembar: 75,
+      tanggalInvestasi: tigaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi5,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi7,
+      jumlahModal: 3000000,
+      jumlahLembar: 30,
+      tanggalInvestasi:
+          empatBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi6,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi9,
+      jumlahModal: 1000000,
+      jumlahLembar: 10,
+      tanggalInvestasi: duaBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+    InvestasiModel(
+      id: idInvestasi7,
+      idInvestor: idInvestor2,
+      idTransaksi: idTransaksi4,
+      jumlahModal: 2000000,
+      jumlahLembar: 20,
+      tanggalInvestasi: satuBulanLalu, // ✅ Perbaikan: gunakan variabel langsung
+    ),
+  ];
+}
+
+// ============================================================
+// FUNGSI PEMBANTU INVESTASI
+// ============================================================
+
+/// Mendapatkan investasi berdasarkan ID investor
+List<InvestasiModel> getInvestasiByIdInvestor(String idInvestor) {
+  return daftarInvestasi.where((i) => i.idInvestor == idInvestor).toList();
+}
+
+/// Mendapatkan investasi berdasarkan ID
+InvestasiModel? getInvestasiById(String id) {
+  try {
+    return daftarInvestasi.firstWhere((i) => i.id == id);
   } catch (e) {
     return null;
   }
@@ -60889,20 +61334,14 @@ int getTotalLembarInvestor(String idInvestor) {
       .fold(0, (sum, i) => sum + i.jumlahLembar);
 }
 
-/// Menghitung total persentase kepemilikan investor
-
-/// Menghitung total dividen yang sudah diterima investor
-double getTotalDividenDiterima(String idInvestor) {
-  return daftarDividen
-      .where((d) => d.idInvestor == idInvestor && d.sudahDibayar)
-      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+/// Menghitung total modal semua investasi
+double getTotalModalSemuaInvestasi() {
+  return daftarInvestasi.fold(0.0, (sum, i) => sum + i.jumlahModal);
 }
 
-/// Menghitung total dividen yang belum dibayar investor
-double getTotalDividenBelumDibayar(String idInvestor) {
-  return daftarDividen
-      .where((d) => d.idInvestor == idInvestor && !d.sudahDibayar)
-      .fold(0.0, (sum, d) => sum + d.jumlahDividen);
+/// Menghitung total lembar semua investasi
+int getTotalLembarSemuaInvestasi() {
+  return daftarInvestasi.fold(0, (sum, i) => sum + i.jumlahLembar);
 }
 ```
 
@@ -60916,6 +61355,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
+import 'package:wifi/data_dummy/dummy_dividen.dart';
 import 'package:wifi/data_dummy/dummy_dompet.dart';
 import 'package:wifi/data_dummy/dummy_investasi.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
@@ -60924,6 +61364,8 @@ import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
+// ❌ HAPUS import ini karena tidak digunakan
+// import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
@@ -60932,6 +61374,7 @@ import 'package:wifi/fitur/settings/model/settings_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
@@ -61386,6 +61829,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     });
 
     try {
+      if (mounted) {
         unawaited(
           showDialog<void>(
             context: context,
@@ -61402,7 +61846,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
             ),
           ),
         );
-      
+      }
 
       // Panggil layanan sinkronisasi untuk mengunggah semua data
       await ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
@@ -61448,7 +61892,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
   }
 
   // ============================================================
-  // TAMBAH SEMUA DATA + UNGGAH KE FIREBASE
+  // TAMBAH SEMUA DATA + UNGGAH KE FIREBASE (DENGAN FUTURE.WAIT)
   // ============================================================
 
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
@@ -61458,79 +61902,10 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     });
 
     try {
-      Log.info('Memulai proses penambahan SEMUA data dummy');
+      Log.info('🚀 Memulai proses penambahan SEMUA data dummy dengan Future.wait');
 
-      // 1. Pelanggan
-      final pelangganOp = ref.read(pelangganOpGlobalProvider);
-      for (final data in daftarPelanggan) {
-        await pelangganOp.tambahPelanggan(data);
-      }
-      Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
-
-      // 2. Dompet
-      final dompetOp = ref.read(dompetOpSqliteProvider);
-      for (final data in DummyDompet.daftarDompet) {
-        await dompetOp.tambahDompet(data);
-      }
-      Log.info('✅ Dompet: ${DummyDompet.daftarDompet.length} data');
-
-      // 3. Kategori
-      final kategoriOp = ref.read(kategoriOpSqliteProvider);
-      for (final data in DummyKategori.daftarKategori) {
-        await kategoriOp.tambahKategori(data);
-      }
-      Log.info('✅ Kategori: ${DummyKategori.daftarKategori.length} data');
-
-      // 4. Sub Kategori
-      final subKategoriOp = ref.read(subKategoriOpSqliteProvider);
-      for (final data in DummySubKategori.daftarSubKategori) {
-        await subKategoriOp.createSubCategory(data);
-      }
-      Log.info(
-        '✅ Sub Kategori: ${DummySubKategori.daftarSubKategori.length} data',
-      );
-
-      // 5. Paket
-      final paketOp = ref.read(paketOpGlobalProvider);
-      for (final data in DummyPaket.daftarPaket) {
-        await paketOp.tambahPaket(data);
-      }
-      Log.info('✅ Paket: ${DummyPaket.daftarPaket.length} data');
-
-      // 6. Transaksi
-      final transaksiOp = ref.read(transaksiOpGlobalProvider);
-      for (final data in daftarTransaksi) {
-        await transaksiOp.tambahTransaksi(data);
-      }
-      Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
-
-      // 7. Investasi
-      final investasiOp = InvestasiOpSqlite(
-        sqliteDb: ref.read(sqliteDatabaseProvider),
-        baseOpSqlite: ref.read(baseOpSqliteProvider),
-      );
-      for (final data in daftarInvestasi) {
-        await investasiOp.tambahInvestasi(data);
-      }
-      Log.info('✅ Investasi: ${daftarInvestasi.length} data');
-
-      // 8. Dividen
-      for (final data in daftarDividen) {
-        await investasiOp.tambahDividen(data);
-      }
-      Log.info('✅ Dividen: ${daftarDividen.length} data');
-
-      // 9. Pengaturan
-      final settingsOp = ref.read(settingsOpSqliteProvider);
-      await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
-      Log.info('✅ Pengaturan: 1 data');
-
-      // ============================================================
-      // 10. UNGGAH SEMUA DATA KE FIREBASE (TAMBAHAN)
-      // ============================================================
-      Log.info('🚀 Memulai proses unggah data ke Firebase...');
+      // Tampilkan dialog loading
       if (context.mounted) {
-        // Tampilkan dialog loading
         unawaited(
           showDialog<void>(
             context: context,
@@ -61541,7 +61916,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Mengunggah data ke Firebase...'),
+                  Text('Menambahkan semua data dummy...'),
                 ],
               ),
             ),
@@ -61549,17 +61924,101 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
         );
       }
 
+      // Ambil semua provider yang dibutuhkan
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
+      final dompetOp = ref.read(dompetOpFirebaseProvider);
+      final kategoriOp = ref.read(kategoriOpSqliteProvider);
+      final subKategoriOp = ref.read(subKategoriOpSqliteProvider);
+      final paketOp = ref.read(paketOpGlobalProvider);
+      final transaksiOp = ref.read(transaksiOpGlobalProvider);
+      final investasiOp = ref.read(investasiOpFirebaseProvider);
+      final settingsOp = ref.read(settingsOpSqliteProvider);
+
+      // ============================================================
+      // 1. PROSES TAMBAH DATA MENGGUNAKAN FUTURE.WAIT
+      // ============================================================
+
+      // ✅ Perbaikan: Gunakan List<Future<void>> dengan tipe generik yang eksplisit
+      final futureList = <Future<void>>[];
+
+      // 1.1 Pelanggan
+      Log.info('📦 Menyiapkan data Pelanggan: ${daftarPelanggan.length} item');
+      for (final data in daftarPelanggan) {
+        futureList.add(pelangganOp.tambahPelanggan(data));
+      }
+
+      // 1.2 Dompet
+      Log.info('📦 Menyiapkan data Dompet: ${DummyDompet.daftarDompet.length} item');
+      for (final data in DummyDompet.daftarDompet) {
+        futureList.add(dompetOp.tambahDompet(data));
+      }
+
+      // 1.3 Kategori
+      Log.info('📦 Menyiapkan data Kategori: ${DummyKategori.daftarKategori.length} item');
+      for (final data in DummyKategori.daftarKategori) {
+        futureList.add(kategoriOp.tambahKategori(data));
+      }
+
+      // 1.4 Sub Kategori
+      Log.info('📦 Menyiapkan data Sub Kategori: ${DummySubKategori.daftarSubKategori.length} item');
+      for (final data in DummySubKategori.daftarSubKategori) {
+        futureList.add(subKategoriOp.createSubCategory(data));
+      }
+
+      // 1.5 Paket
+      Log.info('📦 Menyiapkan data Paket: ${DummyPaket.daftarPaket.length} item');
+      for (final data in DummyPaket.daftarPaket) {
+        futureList.add(paketOp.tambahPaket(data));
+      }
+
+      // 1.6 Transaksi
+      Log.info('📦 Menyiapkan data Transaksi: ${daftarTransaksi.length} item');
+      for (final data in daftarTransaksi) {
+        futureList.add(transaksiOp.tambahTransaksi(data));
+      }
+
+      // 1.7 Investasi
+      Log.info('📦 Menyiapkan data Investasi: ${daftarInvestasi.length} item');
+      for (final data in daftarInvestasi) {
+        futureList.add(investasiOp.tambahInvestasi(data));
+      }
+
+      // 1.8 Dividen
+      Log.info('📦 Menyiapkan data Dividen: ${daftarDividen.length} item');
+      for (final data in daftarDividen) {
+        futureList.add(investasiOp.tambahDividen(data));
+      }
+
+      // 1.9 Pengaturan
+      Log.info('📦 Menyiapkan data Pengaturan: 1 item');
+      futureList.add(settingsOp.simpanAtauPerbaruiSettings(const SettingsModel()));
+
+      // Eksekusi semua Future secara paralel
+      Log.info('⚡ Menjalankan ${futureList.length} operasi secara paralel...');
+      await Future.wait(futureList);
+
+      Log.info('✅ Semua data dummy berhasil ditambahkan ke SQLite');
+
+      // ============================================================
+      // 2. UNGGAH SEMUA DATA KE FIREBASE
+      // ============================================================
+
+      Log.info('🚀 Memulai proses unggah data ke Firebase...');
+
       // Jalankan sinkronisasi
       await ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+
+      Log.info('✅ Semua data berhasil diunggah ke Firebase!');
 
       // Tutup loading dialog
       if (context.mounted) {
         Navigator.pop(context);
       }
 
-      Log.info('✅ Semua data berhasil diunggah ke Firebase!');
+      // ============================================================
+      // 3. INVALIDASI PROVIDER
+      // ============================================================
 
-      // Invalidasi provider agar UI ter-refresh
       ref.invalidate(pelangganOpSqliteProvider);
       ref.invalidate(dompetOpSqliteProvider);
       ref.invalidate(kategoriOpSqliteProvider);
@@ -61571,6 +62030,11 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       ref.invalidate(feedbackOpSqliteProvider);
       ref.invalidate(versiApkOpSqliteProvider);
       ref.invalidate(settingsOpSqliteProvider);
+      ref.invalidate(investasiOpFirebaseProvider);
+
+      // ============================================================
+      // 4. TAMPILKAN DIALOG SUKSES
+      // ============================================================
 
       if (context.mounted) {
         await showDialog<void>(
@@ -61617,7 +62081,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       Log.error('Gagal menambahkan semua data dummy', e: e, s: s);
 
       // Tutup loading dialog jika masih terbuka
-      if (ref.context.mounted) {
+      if (context.mounted) {
         try {
           Navigator.pop(context);
         } catch (_) {}
@@ -61638,8 +62102,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       }
     }
   }
-}
-```
+}```
 
 
 // File: lib/data_dummy/dummy_sub_kategori.dart
@@ -64938,6 +65401,7 @@ lib/fitur/dompet/provider/dompet_provider.freezed.dart
 lib/fitur/dompet/provider/dompet_provider.dart
 lib/fitur/dompet/operasi
 lib/fitur/dompet/operasi/dompet_op_sqlite.dart
+lib/fitur/dompet/operasi/dompet_op_firebase.dart
 lib/fitur/dompet/model
 lib/fitur/dompet/model/dompet_model.freezed.dart
 lib/fitur/dompet/model/dompet_model.dart
@@ -65077,7 +65541,6 @@ lib/fitur/pelanggan/page/user/detail_pelanggan.dart
 lib/fitur/pelanggan/page/admin
 lib/fitur/pelanggan/page/admin/pelanggan_page.dart
 lib/fitur/pelanggan/page/admin/form_pelanggan.dart
-lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 lib/fitur/pelanggan/widget
 lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
 lib/fitur/pelanggan/widget/nama_pelanggan_widget.dart
@@ -65245,6 +65708,7 @@ lib/data_dummy/dummy_pelanggan.dart
 lib/data_dummy/dummy_paket.dart
 lib/data_dummy/dummy_kategori.dart
 lib/data_dummy/dummy_transaksi.dart
+lib/data_dummy/dummy_dividen.dart
 lib/data_dummy/dummy_investasi.dart
 lib/data_dummy/halaman_data_dummy.dart
 lib/data_dummy/dummy_sub_kategori.dart
@@ -65474,7 +65938,6 @@ test/admin/halaman/widget/tombol_aksi_test.dart
 test/admin/halaman/event
 test/admin/halaman/detail
 test/admin/halaman/detail/detail_dompet_test.dart
-test/admin/halaman/detail/detail_paket_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.dart
 test/admin/halaman/form
 test/admin/halaman/form/form_pelanggan_test.dart

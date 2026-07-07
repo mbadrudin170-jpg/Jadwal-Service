@@ -330,7 +330,6 @@ class TransaksiOpFirebase extends BaseOpFirebase {
       Log.info('Batch transaksi: daftar kosong, operasi dibatalkan.');
       return;
     }
-
     Log.info(
       'Memulai batch insert/update untuk ${items.length} transaksi di Firestore',
     );

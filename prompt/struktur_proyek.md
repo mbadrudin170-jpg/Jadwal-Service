@@ -165,6 +165,7 @@ lib/fitur/dompet/provider/dompet_provider.freezed.dart
 lib/fitur/dompet/provider/dompet_provider.dart
 lib/fitur/dompet/operasi
 lib/fitur/dompet/operasi/dompet_op_sqlite.dart
+lib/fitur/dompet/operasi/dompet_op_firebase.dart
 lib/fitur/dompet/model
 lib/fitur/dompet/model/dompet_model.freezed.dart
 lib/fitur/dompet/model/dompet_model.dart
@@ -304,7 +305,6 @@ lib/fitur/pelanggan/page/user/detail_pelanggan.dart
 lib/fitur/pelanggan/page/admin
 lib/fitur/pelanggan/page/admin/pelanggan_page.dart
 lib/fitur/pelanggan/page/admin/form_pelanggan.dart
-lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
 lib/fitur/pelanggan/widget
 lib/fitur/pelanggan/widget/detail_pelanggan_ui.dart
 lib/fitur/pelanggan/widget/nama_pelanggan_widget.dart
@@ -472,6 +472,7 @@ lib/data_dummy/dummy_pelanggan.dart
 lib/data_dummy/dummy_paket.dart
 lib/data_dummy/dummy_kategori.dart
 lib/data_dummy/dummy_transaksi.dart
+lib/data_dummy/dummy_dividen.dart
 lib/data_dummy/dummy_investasi.dart
 lib/data_dummy/halaman_data_dummy.dart
 lib/data_dummy/dummy_sub_kategori.dart
@@ -701,7 +702,6 @@ test/admin/halaman/widget/tombol_aksi_test.dart
 test/admin/halaman/event
 test/admin/halaman/detail
 test/admin/halaman/detail/detail_dompet_test.dart
-test/admin/halaman/detail/detail_paket_test.mocks.dart
 test/admin/halaman/detail/detail_paket_test.dart
 test/admin/halaman/form
 test/admin/halaman/form/form_pelanggan_test.dart

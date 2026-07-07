@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
-import 'package:wifi/data_dummy/dummy_dividen.dart'; // ✅ TAMBAHKAN import ini
+import 'package:wifi/data_dummy/dummy_dividen.dart';
 import 'package:wifi/data_dummy/dummy_dompet.dart';
 import 'package:wifi/data_dummy/dummy_investasi.dart';
 import 'package:wifi/data_dummy/dummy_kategori.dart';
@@ -14,7 +14,8 @@ import 'package:wifi/data_dummy/dummy_pelanggan.dart';
 import 'package:wifi/data_dummy/dummy_sub_kategori.dart';
 import 'package:wifi/data_dummy/dummy_transaksi.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
-import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
+// ❌ HAPUS import ini karena tidak digunakan
+// import 'package:wifi/fitur/investasi/operasi/investasi_op_firebase.dart';
 import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
@@ -122,8 +123,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
             onPressed: () async {
               await _tambahDividen(ref);
             },
-            label:
-                'Tambah Dividen Dummy (${daftarDividen.length})', // ✅ SEKARANG TERDEFINISI
+            label: 'Tambah Dividen Dummy (${daftarDividen.length})',
             icon: TIcons.points,
             color: Colors.orange,
           ),
@@ -394,7 +394,6 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       var successCount = 0;
 
       for (final data in daftarDividen) {
-        // ✅ SEKARANG TERDEFINISI
         try {
           await investasiOp.tambahDividen(data);
           successCount++;
@@ -543,7 +542,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
   }
 
   // ============================================================
-  // TAMBAH SEMUA DATA + UNGGAH KE FIREBASE
+  // TAMBAH SEMUA DATA + UNGGAH KE FIREBASE (DENGAN FUTURE.WAIT)
   // ============================================================
 
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
@@ -553,77 +552,10 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     });
 
     try {
-      Log.info('Memulai proses penambahan SEMUA data dummy');
+      Log.info('🚀 Memulai proses penambahan SEMUA data dummy dengan Future.wait');
 
-      // 1. Pelanggan
-      final pelangganOp = ref.read(pelangganOpGlobalProvider);
-      for (final data in daftarPelanggan) {
-        await pelangganOp.tambahPelanggan(data);
-      }
-      Log.info('✅ Pelanggan: ${daftarPelanggan.length} data');
-
-      // 2. Dompet
-      final dompetOp = ref.read(dompetOpFirebaseProvider);
-      for (final data in DummyDompet.daftarDompet) {
-        await dompetOp.tambahDompet(data);
-      }
-      Log.info('✅ Dompet: ${DummyDompet.daftarDompet.length} data');
-
-      // 3. Kategori
-      final kategoriOp = ref.read(kategoriOpSqliteProvider);
-      for (final data in DummyKategori.daftarKategori) {
-        await kategoriOp.tambahKategori(data);
-      }
-      Log.info('✅ Kategori: ${DummyKategori.daftarKategori.length} data');
-
-      // 4. Sub Kategori
-      final subKategoriOp = ref.read(subKategoriOpSqliteProvider);
-      for (final data in DummySubKategori.daftarSubKategori) {
-        await subKategoriOp.createSubCategory(data);
-      }
-      Log.info(
-        '✅ Sub Kategori: ${DummySubKategori.daftarSubKategori.length} data',
-      );
-
-      // 5. Paket
-      final paketOp = ref.read(paketOpGlobalProvider);
-      for (final data in DummyPaket.daftarPaket) {
-        await paketOp.tambahPaket(data);
-      }
-      Log.info('✅ Paket: ${DummyPaket.daftarPaket.length} data');
-
-      // 6. Transaksi
-      final transaksiOp = ref.read(transaksiOpGlobalProvider);
-      for (final data in daftarTransaksi) {
-        await transaksiOp.tambahTransaksi(data);
-      }
-      Log.info('✅ Transaksi: ${daftarTransaksi.length} data');
-
-      // 7. Investasi
-      final investasiOp = ref.read(investasiOpFirebaseProvider);
-      for (final data in daftarInvestasi) {
-        await investasiOp.tambahInvestasi(data);
-      }
-      Log.info('✅ Investasi: ${daftarInvestasi.length} data');
-
-      // 8. Dividen
-      for (final data in daftarDividen) {
-        // ✅ SEKARANG TERDEFINISI
-        await investasiOp.tambahDividen(data);
-      }
-      Log.info('✅ Dividen: ${daftarDividen.length} data');
-
-      // 9. Pengaturan
-      final settingsOp = ref.read(settingsOpSqliteProvider);
-      await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
-      Log.info('✅ Pengaturan: 1 data');
-
-      // ============================================================
-      // 10. UNGGAH SEMUA DATA KE FIREBASE (TAMBAHAN)
-      // ============================================================
-      Log.info('🚀 Memulai proses unggah data ke Firebase...');
+      // Tampilkan dialog loading
       if (context.mounted) {
-        // Tampilkan dialog loading
         unawaited(
           showDialog<void>(
             context: context,
@@ -634,7 +566,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Mengunggah data ke Firebase...'),
+                  Text('Menambahkan semua data dummy...'),
                 ],
               ),
             ),
@@ -642,17 +574,101 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
         );
       }
 
+      // Ambil semua provider yang dibutuhkan
+      final pelangganOp = ref.read(pelangganOpGlobalProvider);
+      final dompetOp = ref.read(dompetOpFirebaseProvider);
+      final kategoriOp = ref.read(kategoriOpSqliteProvider);
+      final subKategoriOp = ref.read(subKategoriOpSqliteProvider);
+      final paketOp = ref.read(paketOpGlobalProvider);
+      final transaksiOp = ref.read(transaksiOpGlobalProvider);
+      final investasiOp = ref.read(investasiOpFirebaseProvider);
+      final settingsOp = ref.read(settingsOpSqliteProvider);
+
+      // ============================================================
+      // 1. PROSES TAMBAH DATA MENGGUNAKAN FUTURE.WAIT
+      // ============================================================
+
+      // ✅ Perbaikan: Gunakan List<Future<void>> dengan tipe generik yang eksplisit
+      final futureList = <Future<void>>[];
+
+      // 1.1 Pelanggan
+      Log.info('📦 Menyiapkan data Pelanggan: ${daftarPelanggan.length} item');
+      for (final data in daftarPelanggan) {
+        futureList.add(pelangganOp.tambahPelanggan(data));
+      }
+
+      // 1.2 Dompet
+      Log.info('📦 Menyiapkan data Dompet: ${DummyDompet.daftarDompet.length} item');
+      for (final data in DummyDompet.daftarDompet) {
+        futureList.add(dompetOp.tambahDompet(data));
+      }
+
+      // 1.3 Kategori
+      Log.info('📦 Menyiapkan data Kategori: ${DummyKategori.daftarKategori.length} item');
+      for (final data in DummyKategori.daftarKategori) {
+        futureList.add(kategoriOp.tambahKategori(data));
+      }
+
+      // 1.4 Sub Kategori
+      Log.info('📦 Menyiapkan data Sub Kategori: ${DummySubKategori.daftarSubKategori.length} item');
+      for (final data in DummySubKategori.daftarSubKategori) {
+        futureList.add(subKategoriOp.createSubCategory(data));
+      }
+
+      // 1.5 Paket
+      Log.info('📦 Menyiapkan data Paket: ${DummyPaket.daftarPaket.length} item');
+      for (final data in DummyPaket.daftarPaket) {
+        futureList.add(paketOp.tambahPaket(data));
+      }
+
+      // 1.6 Transaksi
+      Log.info('📦 Menyiapkan data Transaksi: ${daftarTransaksi.length} item');
+      for (final data in daftarTransaksi) {
+        futureList.add(transaksiOp.tambahTransaksi(data));
+      }
+
+      // 1.7 Investasi
+      Log.info('📦 Menyiapkan data Investasi: ${daftarInvestasi.length} item');
+      for (final data in daftarInvestasi) {
+        futureList.add(investasiOp.tambahInvestasi(data));
+      }
+
+      // 1.8 Dividen
+      Log.info('📦 Menyiapkan data Dividen: ${daftarDividen.length} item');
+      for (final data in daftarDividen) {
+        futureList.add(investasiOp.tambahDividen(data));
+      }
+
+      // 1.9 Pengaturan
+      Log.info('📦 Menyiapkan data Pengaturan: 1 item');
+      futureList.add(settingsOp.simpanAtauPerbaruiSettings(const SettingsModel()));
+
+      // Eksekusi semua Future secara paralel
+      Log.info('⚡ Menjalankan ${futureList.length} operasi secara paralel...');
+      await Future.wait(futureList);
+
+      Log.info('✅ Semua data dummy berhasil ditambahkan ke SQLite');
+
+      // ============================================================
+      // 2. UNGGAH SEMUA DATA KE FIREBASE
+      // ============================================================
+
+      Log.info('🚀 Memulai proses unggah data ke Firebase...');
+
       // Jalankan sinkronisasi
       await ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+
+      Log.info('✅ Semua data berhasil diunggah ke Firebase!');
 
       // Tutup loading dialog
       if (context.mounted) {
         Navigator.pop(context);
       }
 
-      Log.info('✅ Semua data berhasil diunggah ke Firebase!');
+      // ============================================================
+      // 3. INVALIDASI PROVIDER
+      // ============================================================
 
-      // Invalidasi provider agar UI ter-refresh
       ref.invalidate(pelangganOpSqliteProvider);
       ref.invalidate(dompetOpSqliteProvider);
       ref.invalidate(kategoriOpSqliteProvider);
@@ -664,7 +680,11 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       ref.invalidate(feedbackOpSqliteProvider);
       ref.invalidate(versiApkOpSqliteProvider);
       ref.invalidate(settingsOpSqliteProvider);
-      ref.invalidate(investasiOpFirebaseProvider); // ✅ TAMBAHKAN
+      ref.invalidate(investasiOpFirebaseProvider);
+
+      // ============================================================
+      // 4. TAMPILKAN DIALOG SUKSES
+      // ============================================================
 
       if (context.mounted) {
         await showDialog<void>(
@@ -686,9 +706,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
                 Text('• ${DummyPaket.daftarPaket.length} Paket'),
                 Text('• ${daftarTransaksi.length} Transaksi'),
                 Text('• ${daftarInvestasi.length} Investasi'),
-                Text(
-                  '• ${daftarDividen.length} Dividen',
-                ), // ✅ SEKARANG TERDEFINISI
+                Text('• ${daftarDividen.length} Dividen'),
                 const Text('• 1 Pengaturan'),
                 gapH16,
                 const Text(
@@ -713,7 +731,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       Log.error('Gagal menambahkan semua data dummy', e: e, s: s);
 
       // Tutup loading dialog jika masih terbuka
-      if (ref.context.mounted) {
+      if (context.mounted) {
         try {
           Navigator.pop(context);
         } catch (_) {}
