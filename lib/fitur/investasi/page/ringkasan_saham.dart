@@ -572,22 +572,29 @@ class RingkasanSaham extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          children: [
-            if (icon != null) Icon(icon, size: 20, color: Colors.grey.shade600),
-            gapW8,
-            Text(
-              label,
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-            ),
-          ],
+        Expanded(
+          child: Row(
+            children: [
+              if (icon != null)
+                Icon(icon, size: 20, color: Colors.grey.shade600),
+              gapW8,
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+                ),
+              ),
+            ],
+          ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: color,
+        Flexible(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
         ),
       ],
