@@ -466,6 +466,7 @@ class RingkasanSaham extends ConsumerWidget {
       ),
     );
   } // Tambahkan method ini di dalam class RingkasanSaham
+
   Widget _buildPieChartLegend(List<({String nama, int lembar})> dataInvestor) {
     return Wrap(
       spacing: 8,
