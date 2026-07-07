@@ -119,8 +119,5 @@ DompetOpFirebase dompetOpFirebase(Ref ref) {
   Log.info('Membuat instance DompetOpFirebase via @riverpod...');
   final firestoreInstance = ref.watch(firestoreProvider);
   final baseOp = ref.watch(baseOpFirebaseProvider);
-  return DompetOpFirebase(
-    firestore: firestoreInstance,
-    baseOpFirebase: baseOp,
-  );
+  return DompetOpFirebase(firestore: firestoreInstance, baseOpFirebase: baseOp);
 }

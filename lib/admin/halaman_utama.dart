@@ -61,7 +61,9 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
     WidgetsBinding.instance.addObserver(this);
 
     // Subscribe to connectivity changes
-    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(_handleConnectivityChange);
+    _langgananKoneksi = Connectivity().onConnectivityChanged.listen(
+      _handleConnectivityChange,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(_initAwal());
@@ -100,7 +102,9 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   }
 
   Future<void> _jadwalkanSinkron() async {
-    await ref.read(workmanagerProvider).registerPeriodicTask(
+    await ref
+        .read(workmanagerProvider)
+        .registerPeriodicTask(
           '1',
           namaTugasSinkronisasi,
           frequency: const Duration(minutes: 15),
@@ -112,7 +116,8 @@ class _HalamanUtamaState extends ConsumerState<HalamanUtama>
   Future<void> _handleConnectivityChange(
     List<ConnectivityResult> results,
   ) async {
-    final isOnline = results.contains(ConnectivityResult.mobile) ||
+    final isOnline =
+        results.contains(ConnectivityResult.mobile) ||
         results.contains(ConnectivityResult.wifi) ||
         results.contains(ConnectivityResult.ethernet);
 

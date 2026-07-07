@@ -552,7 +552,9 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     });
 
     try {
-      Log.info('🚀 Memulai proses penambahan SEMUA data dummy dengan Future.wait');
+      Log.info(
+        '🚀 Memulai proses penambahan SEMUA data dummy dengan Future.wait',
+      );
 
       // Tampilkan dialog loading
       if (context.mounted) {
@@ -598,25 +600,33 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       }
 
       // 1.2 Dompet
-      Log.info('📦 Menyiapkan data Dompet: ${DummyDompet.daftarDompet.length} item');
+      Log.info(
+        '📦 Menyiapkan data Dompet: ${DummyDompet.daftarDompet.length} item',
+      );
       for (final data in DummyDompet.daftarDompet) {
         futureList.add(dompetOp.tambahDompet(data));
       }
 
       // 1.3 Kategori
-      Log.info('📦 Menyiapkan data Kategori: ${DummyKategori.daftarKategori.length} item');
+      Log.info(
+        '📦 Menyiapkan data Kategori: ${DummyKategori.daftarKategori.length} item',
+      );
       for (final data in DummyKategori.daftarKategori) {
         futureList.add(kategoriOp.tambahKategori(data));
       }
 
       // 1.4 Sub Kategori
-      Log.info('📦 Menyiapkan data Sub Kategori: ${DummySubKategori.daftarSubKategori.length} item');
+      Log.info(
+        '📦 Menyiapkan data Sub Kategori: ${DummySubKategori.daftarSubKategori.length} item',
+      );
       for (final data in DummySubKategori.daftarSubKategori) {
         futureList.add(subKategoriOp.createSubCategory(data));
       }
 
       // 1.5 Paket
-      Log.info('📦 Menyiapkan data Paket: ${DummyPaket.daftarPaket.length} item');
+      Log.info(
+        '📦 Menyiapkan data Paket: ${DummyPaket.daftarPaket.length} item',
+      );
       for (final data in DummyPaket.daftarPaket) {
         futureList.add(paketOp.tambahPaket(data));
       }
@@ -641,7 +651,9 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
 
       // 1.9 Pengaturan
       Log.info('📦 Menyiapkan data Pengaturan: 1 item');
-      futureList.add(settingsOp.simpanAtauPerbaruiSettings(const SettingsModel()));
+      futureList.add(
+        settingsOp.simpanAtauPerbaruiSettings(const SettingsModel()),
+      );
 
       // Eksekusi semua Future secara paralel
       Log.info('⚡ Menjalankan ${futureList.length} operasi secara paralel...');
