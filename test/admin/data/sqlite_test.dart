@@ -290,7 +290,7 @@ void main() {
     });
 
     test('03. tidak boleh menjalankan migrasi jika versi sama', () async {
-      bool onUpgradeCalled = false;
+      var onUpgradeCalled = false;
 
       final db = await databaseFactoryFfi.openDatabase(
         inMemoryDatabasePath,

@@ -7,7 +7,6 @@ import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/investasi/model/dividen_model.dart';
 import 'package:wifi/fitur/investasi/model/investasi_model.dart';
 import 'package:wifi/fitur/investasi/provider/investasi_provider.dart';
-import 'package:wifi/fitur/sinkronisasi/layanan_unduh_data.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_unggah_data.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';

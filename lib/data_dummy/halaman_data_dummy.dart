@@ -1,5 +1,7 @@
 // path: lib/data_dummy/halaman_data_dummy.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/data/sqlite.dart';
@@ -16,6 +18,7 @@ import 'package:wifi/fitur/paket/operasi/paket_op_global.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart';
 import 'package:wifi/fitur/settings/model/settings_model.dart';
+import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
@@ -23,6 +26,10 @@ import 'package:wifi/shared/theme/app_icons.dart';
 import 'package:wifi/shared/theme/app_sizes.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
 
+/// Halaman untuk menambahkan data dummy ke database lokal dan Firebase.
+///
+/// File ini digunakan oleh:
+/// - lib/admin/halaman/tab/lainnya.dart (menu debug)
 class HalamanDataDummy extends ConsumerStatefulWidget {
   const HalamanDataDummy({super.key});
 
@@ -98,9 +105,6 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
             label: 'Tambah Transaksi Dummy (${daftarTransaksi.length})',
             icon: TIcons.receiptLong,
           ),
-          // ============================================================
-          // TOMBOL INVESTASI & DIVIDEN
-          // ============================================================
           _tombolFitur(
             context: context,
             onPressed: () async {
@@ -126,6 +130,16 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
             },
             label: 'Tambah Pengaturan Dummy',
             icon: TIcons.settings,
+          ),
+          // Tombol untuk mengunggah data ke Firebase
+          _tombolFitur(
+            context: context,
+            onPressed: () async {
+              await _unggahKeFirebase(ref);
+            },
+            label: '🔄 UNGGAH DATA KE FIREBASE',
+            icon: TIcons.cloudUpload,
+            color: Colors.blue,
           ),
         ],
       ),
@@ -157,7 +171,7 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
   }
 
   // ============================================================
-  // FUNGSI TAMBAH DATA PER TABEL (MENGGUNAKAN OpGlobal)
+  // FUNGSI TAMBAH DATA PER TABEL
   // ============================================================
 
   Future<void> _tambahPelanggan(WidgetRef ref) async {
@@ -334,10 +348,6 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     }
   }
 
-  // ============================================================
-  // FUNGSI TAMBAH INVESTASI
-  // ============================================================
-
   Future<void> _tambahInvestasi(WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Investasi dummy');
@@ -369,10 +379,6 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       }
     }
   }
-
-  // ============================================================
-  // FUNGSI TAMBAH DIVIDEN
-  // ============================================================
 
   Future<void> _tambahDividen(WidgetRef ref) async {
     try {
@@ -406,10 +412,6 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
     }
   }
 
-  // ============================================================
-  // FUNGSI TAMBAH PENGATURAN
-  // ============================================================
-
   Future<void> _tambahPengaturan(WidgetRef ref) async {
     try {
       Log.info('Memulai proses penambahan data Pengaturan dummy');
@@ -431,7 +433,112 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
   }
 
   // ============================================================
-  // TAMBAH SEMUA DATA
+  // FUNGSI UNGGAH KE FIREBASE
+  // ============================================================
+
+  /// Mengunggah semua data dari SQLite ke Firebase.
+  /// Fungsi ini memicu mekanisme sinkronisasi yang sudah ada.
+  Future<void> _unggahKeFirebase(WidgetRef ref) async {
+    if (_menyimpan) return;
+
+    Log.info('Memulai proses unggah data dummy ke Firebase');
+
+    final konfirmasi = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Konfirmasi Unggah'),
+        content: const Text(
+          'Anda yakin ingin mengunggah semua data dummy ke Firebase? '
+          'Data yang sudah ada di Firebase akan ditimpa (merge).',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.blue),
+            child: const Text('Unggah'),
+          ),
+        ],
+      ),
+    );
+
+    if (konfirmasi != true) {
+      Log.info('Pengguna membatalkan unggah data dummy');
+      return;
+    }
+
+    setState(() {
+      _menyimpan = true;
+    });
+
+    try {
+      if (mounted) {
+        unawaited(
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Mengunggah data ke Firebase...'),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Panggil layanan sinkronisasi untuk mengunggah semua data
+      await ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+
+      // Tutup loading dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      Log.info('Proses unggah data dummy ke Firebase selesai');
+
+      if (mounted) {
+        ToastUtil.success(
+          context,
+          '✅ Semua data dummy berhasil diunggah ke Firebase!',
+          logData: 'Data berhasil disinkronkan ke cloud',
+        );
+      }
+    } catch (e, s) {
+      Log.error('Gagal mengunggah data dummy ke Firebase', e: e, s: s);
+
+      // Tutup loading dialog jika masih terbuka
+      if (mounted) {
+        try {
+          Navigator.pop(context);
+        } catch (_) {}
+      }
+
+      if (mounted) {
+        ToastUtil.error(
+          context,
+          '❌ Gagal mengunggah data: ${e.toString()}',
+          logData: e.toString(),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _menyimpan = false;
+        });
+      }
+    }
+  }
+
+  // ============================================================
+  // TAMBAH SEMUA DATA + UNGGAH KE FIREBASE
   // ============================================================
 
   Future<void> _tambahSemuaData(BuildContext context, WidgetRef ref) async {
@@ -508,7 +615,41 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       await settingsOp.simpanAtauPerbaruiSettings(const SettingsModel());
       Log.info('✅ Pengaturan: 1 data');
 
-      // Invalidate provider
+      // ============================================================
+      // 10. UNGGAH SEMUA DATA KE FIREBASE (TAMBAHAN)
+      // ============================================================
+      Log.info('🚀 Memulai proses unggah data ke Firebase...');
+      if (context.mounted) {
+        // Tampilkan dialog loading
+        unawaited(
+          showDialog<void>(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => const AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Mengunggah data ke Firebase...'),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+
+      // Jalankan sinkronisasi
+      await ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi();
+
+      // Tutup loading dialog
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      Log.info('✅ Semua data berhasil diunggah ke Firebase!');
+
+      // Invalidasi provider agar UI ter-refresh
       ref.invalidate(pelangganOpSqliteProvider);
       ref.invalidate(dompetOpSqliteProvider);
       ref.invalidate(kategoriOpSqliteProvider);
@@ -543,6 +684,14 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
                 Text('• ${daftarInvestasi.length} Investasi'),
                 Text('• ${daftarDividen.length} Dividen'),
                 const Text('• 1 Pengaturan'),
+                gapH16,
+                const Text(
+                  '✅ Data juga sudah diunggah ke Firebase!',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
             actions: [
@@ -556,10 +705,19 @@ class _HalamanDataDummyState extends ConsumerState<HalamanDataDummy> {
       }
     } catch (e, s) {
       Log.error('Gagal menambahkan semua data dummy', e: e, s: s);
+
+      // Tutup loading dialog jika masih terbuka
+      if (ref.context.mounted) {
+        try {
+          Navigator.pop(context);
+        } catch (_) {}
+      }
+
       if (context.mounted) {
         ToastUtil.error(
           context,
           'Terjadi kesalahan saat menambah semua data: $e',
+          logData: e.toString(),
         );
       }
     } finally {

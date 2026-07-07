@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/page/admin/detail_pelanggan_a.dart';
+import 'package:wifi/fitur/pelanggan/page/user/detail_pelanggan.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
 
@@ -25,7 +25,7 @@ void main() {
   Widget createWidgetUnderTest(String idPelanggan, List<Override> overrides) {
     return ProviderScope(
       overrides: overrides,
-      child: MaterialApp(home: DetailPelangganAdmin(idPelanggan: idPelanggan)),
+      child: MaterialApp(home: DetailPelanggan(idPelanggan: idPelanggan)),
     );
   }
 

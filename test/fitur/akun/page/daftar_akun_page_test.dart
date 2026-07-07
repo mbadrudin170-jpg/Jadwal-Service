@@ -25,10 +25,10 @@ import 'daftar_akun_page_test.mocks.dart';
 void setupFirebaseCoreMocks() {
   TestWidgetsFlutterBinding.ensureInitialized();
   // Mock Firebase services
-  const MethodChannel channel = MethodChannel(
+  const channel = MethodChannel(
     'plugins.flutter.io/firebase_core',
   );
-  channel.setMockMethodCallHandler((MethodCall methodCall) async {
+  channel.setMockMethodCallHandler((methodCall) async {
     if (methodCall.method == 'Firebase#initializeCore') {
       return [
         {
