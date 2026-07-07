@@ -89,13 +89,7 @@ class RingkasanSaham extends ConsumerWidget {
                     ),
                   ),
                 ),
-
-                // path: lib/fitur/investasi/page/ringkasan_saham.dart
-
-                // Di dalam build method, setelah Card Statistik Tambahan, tambahkan:
                 gapH16,
-
-                // Grafik Distribusi Kepemilikan
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -128,22 +122,11 @@ class RingkasanSaham extends ConsumerWidget {
                     ),
                   ),
                 ),
-
                 gapH16,
-
-                // Informasi Tambahan
                 _buildRingkasanTambahan(investasi),
-
                 gapH16,
-
-                // Grafik Pertumbuhan Aset
                 _buildGrafikPertumbuhanAset(investasi),
-
                 gapH16,
-
-                // Daftar Investor (yang sudah ada)
-                gapH16,
-
                 Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(
@@ -213,7 +196,6 @@ class RingkasanSaham extends ConsumerWidget {
                                   lembarA,
                                 ); // descending (terbanyak ke terkecil)
                               });
-
                           if (daftarInvestor.isEmpty) {
                             return const Center(
                               child: Text('Belum ada investor'),
@@ -335,9 +317,30 @@ class RingkasanSaham extends ConsumerWidget {
     final daftarInvestasi = investasi.daftarInvestasi;
 
     if (daftarInvestasi.isEmpty) {
-      return const SizedBox.shrink();
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Pertumbuhan Aset (6 Bulan Terakhir)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              gapH12,
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: Text('Belum ada data investasi untuk grafik.'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
-
     // Kelompokkan investasi per bulan
     final asetPerBulan = <DateTime, double>{};
     for (final inv in daftarInvestasi) {
@@ -387,6 +390,25 @@ class RingkasanSaham extends ConsumerWidget {
                   minY: minY,
                   maxY: maxY * 1.05,
                   gridData: const FlGridData(show: false),
+                  lineTouchData: LineTouchData(
+                    touchTooltipData: LineTouchTooltipData(
+                      getTooltipColor: (touchedSpot) =>
+                          Colors.blueGrey.withAlpha(200),
+                      tooltipBorderRadius: BorderRadius.circular(8),
+                      tooltipPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      getTooltipItems: (touchedSpots) {
+                        return touchedSpots.map((touchedSpot) {
+                          return LineTooltipItem(
+                            FormatUang.formatMataUang(touchedSpot.y),
+                            const TextStyle(color: Colors.white, fontSize: 12),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ),
                   titlesData: FlTitlesData(
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
@@ -444,6 +466,31 @@ class RingkasanSaham extends ConsumerWidget {
       ),
     );
   } // Tambahkan method ini di dalam class RingkasanSaham
+  Widget _buildPieChartLegend(List<({String nama, int lembar})> dataInvestor) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 4,
+      children: dataInvestor.map((item) {
+        final index = dataInvestor.indexOf(item);
+        final color = Colors.primaries[index % Colors.primaries.length];
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            gapW4,
+            Text(
+              '${item.nama} (${item.lembar} lembar)',
+              style: const TextStyle(fontSize: 11),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
 
   Widget _buildPieChartKepemilikan(
     InvestasiState investasi,
@@ -480,32 +527,38 @@ class RingkasanSaham extends ConsumerWidget {
       );
     }
 
-    return SizedBox(
-      height: 220,
-      width: double.infinity,
-      child: PieChart(
-        PieChartData(
-          sections: dataInvestor.map((item) {
-            final persentase = (item.lembar / totalLembarValid) * 100;
-            return PieChartSectionData(
-              title: '${persentase.toStringAsFixed(1)}%',
-              value: item.lembar.toDouble(),
-              titleStyle: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-              color:
-                  Colors.primaries[dataInvestor.indexOf(item) %
-                      Colors.primaries.length],
-              radius: 80,
-            );
-          }).toList(),
-          centerSpaceRadius: 40,
-          sectionsSpace: 2,
-          borderData: FlBorderData(show: false),
+    return Column(
+      children: [
+        SizedBox(
+          height: 220,
+          width: double.infinity,
+          child: PieChart(
+            PieChartData(
+              sections: dataInvestor.map((item) {
+                final persentase = (item.lembar / totalLembarValid) * 100;
+                return PieChartSectionData(
+                  title: '${persentase.toStringAsFixed(1)}%',
+                  value: item.lembar.toDouble(),
+                  titleStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  color:
+                      Colors.primaries[dataInvestor.indexOf(item) %
+                          Colors.primaries.length],
+                  radius: 80,
+                );
+              }).toList(),
+              centerSpaceRadius: 40,
+              sectionsSpace: 2,
+              borderData: FlBorderData(show: false),
+            ),
+          ),
         ),
-      ),
+        gapH12,
+        _buildPieChartLegend(dataInvestor),
+      ],
     );
   }
 

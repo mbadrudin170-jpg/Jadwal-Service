@@ -114,7 +114,7 @@ List<PelangganModel> get daftarPelanggan => [
   const PelangganModel(
     id: idInvestor1,
     nama: 'Investor Satu',
-    telepon: '081234567891',
+    telepon: '08568050170',
     kataSandi: 'investor1',
     alamat: 'Jl. Investasi No. 1, Jakarta',
     macAddress: '00:1B:44:11:3A:D1',
