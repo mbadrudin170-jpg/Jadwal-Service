@@ -601,6 +601,10 @@ test/fitur/transaksi/operasi/transaksi_op_firebase_test.dart
 test/fitur/transaksi/operasi/transaksi_op_sqlite_test.dart
 test/fitur/transaksi/model
 test/fitur/transaksi/model/transaksi_model_test.dart
+test/fitur/investasi
+test/fitur/investasi/operasi
+test/fitur/investasi/operasi/investasi_op_sqlite_test.dart
+test/fitur/investasi/operasi/investasi_op_firebase_test.dart
 test/fitur/pelanggan
 test/fitur/pelanggan/page
 test/fitur/pelanggan/page/user
@@ -754,6 +758,7 @@ docs/fitur/info_perangkat.md
 docs/fitur/poin.md
 docs/fitur/whatsapp.md
 docs/fitur/kategori.md
+docs/fitur/investasi.md
 docs/fitur/transaksi.md
 docs/fitur/riwayat_aktivasi.md
 docs/fitur/background.md
@@ -761,7 +766,6 @@ docs/fitur/order.md
 docs/fitur/feedback.md
 docs/fitur/pelanggan_aktif.md
 docs/fitur/akun.md
-docs/fitur/investor.md
 docs/fitur/event.md
 docs/fitur/dompet.md
 docs/fitur/sinkronisasi.md
