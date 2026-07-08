@@ -117,6 +117,7 @@ FLUTTER_CORE="/home/user/flutter/bin/cache/pkg/sky_engine"
 # ============================================================
 
 files=(
+    '/home/user/.pub-cache/hosted/pub.dev/fl_chart-1.2.0/lib/src/chart/line_chart/line_chart.dart'
     "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart"
     "/home/user/.pub-cache/hosted/pub.dev/collection-1.19.1/lib/src/iterable_extensions.dart"
     '/home/user/flutter/bin/cache/pkg/sky_engine/lib/async/future.dart'
@@ -138,6 +139,7 @@ files=(
 '/home/user/flutter/packages/flutter/lib/src/painting/edge_insets.dart'
 '/home/user/.pub-cache/hosted/pub.dev/workmanager-0.9.0+3/lib/src/workmanager_impl.dart'
 '/home/user/.pub-cache/hosted/pub.dev/shared_preferences-2.5.5/lib/src/shared_preferences_async.dart'
+'/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/provider_container.dart'
     # Tambahkan file lain di sini
 )
 

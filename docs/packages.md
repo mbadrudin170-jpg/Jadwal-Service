@@ -1,7 +1,7 @@
 # 📚 Dokumentasi File Eksternal & Core
 
-> **Tanggal dibuat:** 2026-07-08 18:04:05
-> **Total file unik:** 13
+> **Tanggal dibuat:** 2026-07-08 18:32:59
+> **Total file unik:** 23
 
 ---
 
@@ -3337,6 +3337,12304 @@ abstract interface class List<E> implements Iterable<E>, _ListIterable<E> {
   /// Even if [other] is also a list, the equality comparison
   /// does not compare the elements of the two lists.
   bool operator ==(Object other);
+}
+```
+
+// ============================================================
+// 🔧 Core Dart: string.dart
+// 📁 /home/user/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart
+// ============================================================
+
+```dart
+// Copyright (c) 2012, the Dart project authors.  Please see the AUTHORS file
+// for details. All rights reserved. Use of this source code is governed by a
+// BSD-style license that can be found in the LICENSE file.
+
+part of "dart:core";
+
+/// A sequence of UTF-16 code units.
+///
+/// Strings are mainly used to represent text. A character may be represented by
+/// multiple code points, each code point consisting of one or two code
+/// units. For example, the Papua New Guinea flag character requires four code
+/// units to represent two code points, but should be treated like a single
+/// character: "🇵🇬". Platforms that do not support the flag character may show
+/// the letters "PG" instead. If the code points are swapped, it instead becomes
+/// the Guadeloupe flag "🇬🇵" ("GP").
+///
+/// A string can be either single or multiline. Single line strings are
+/// written using matching single or double quotes, and multiline strings are
+/// written using triple quotes. The following are all valid Dart strings:
+/// ```dart
+/// 'Single quotes';
+/// "Double quotes";
+/// 'Double quotes in "single" quotes';
+/// "Single quotes in 'double' quotes";
+///
+/// '''A
+/// multiline
+/// string''';
+///
+/// """
+/// Another
+/// multiline
+/// string""";
+/// ```
+/// Strings are immutable. Although you cannot change a string, you can perform
+/// an operation on a string which creates a new string:
+/// ```dart
+/// const string = 'Dart is fun';
+/// print(string.substring(0, 4)); // 'Dart'
+/// ```
+/// You can use the plus (`+`) operator to concatenate strings:
+/// ```dart
+/// const string = 'Dart ' + 'is ' + 'fun!';
+/// print(string); // 'Dart is fun!'
+/// ```
+/// Adjacent string literals are concatenated automatically:
+/// ```dart
+/// const string = 'Dart ' 'is ' 'fun!';
+/// print(string); // 'Dart is fun!'
+/// ```
+/// You can use `${}` to interpolate the value of Dart expressions
+/// within strings. The curly braces can be omitted when evaluating identifiers:
+/// ```dart
+/// const string = 'dartlang';
+/// print('$string has ${string.length} letters'); // dartlang has 8 letters
+/// ```
+/// A string is represented by a sequence of Unicode UTF-16 code units
+/// accessible through the [codeUnitAt] or the [codeUnits] members:
+/// ```dart
+/// const string = 'Dart';
+/// final firstCodeUnit = string.codeUnitAt(0);
+/// print(firstCodeUnit); // 68, aka U+0044, the code point for 'D'.
+/// final allCodeUnits = string.codeUnits;
+/// print(allCodeUnits); // [68, 97, 114, 116]
+/// ```
+/// A string representation of the individual code units is accessible through
+/// the index operator:
+/// ```dart
+/// const string = 'Dart';
+/// final charAtIndex = string[0];
+/// print(charAtIndex); // 'D'
+/// ```
+/// The characters of a string are encoded in UTF-16. Decoding UTF-16, which
+/// combines surrogate pairs, yields Unicode code points. Following a similar
+/// terminology to Go, Dart uses the name 'rune' for an integer representing a
+/// Unicode code point. Use the [runes] property to get the runes of a string:
+/// ```dart
+/// const string = 'Dart';
+/// final runes = string.runes.toList();
+/// print(runes); // [68, 97, 114, 116]
+/// ```
+/// For a character outside the Basic Multilingual Plane (plane 0) that is
+/// composed of a surrogate pair, [runes] combines the pair and returns a
+/// single integer. For example, the Unicode character for a
+/// musical G-clef ('𝄞') with rune value 0x1D11E consists of a UTF-16 surrogate
+/// pair: `0xD834` and `0xDD1E`. Using [codeUnits] returns the surrogate pair,
+/// and using `runes` returns their combined value:
+/// ```dart
+/// const clef = '\u{1D11E}';
+/// for (final item in clef.codeUnits) {
+///   print(item.toRadixString(16));
+///   // d834
+///   // dd1e
+/// }
+/// for (final item in clef.runes) {
+///   print(item.toRadixString(16)); // 1d11e
+/// }
+/// ```
+/// The `String` class cannot be extended or implemented. Attempting to do so
+/// yields a compile-time error.
+///
+/// ## Other resources
+///
+/// * [StringBuffer] to efficiently build a string incrementally.
+/// * [RegExp] to work with regular expressions.
+/// * [Strings and regular expressions](https://dart.dev/libraries/dart-core#strings-and-regular-expressions)
+@pragma('vm:entry-point')
+abstract final class String implements Comparable<String>, Pattern {
+  /// Allocates a new string containing the specified [charCodes].
+  ///
+  /// The [charCodes] can be both UTF-16 code units and runes.
+  /// If a char-code value is 16-bit, it is used as a code unit:
+  /// ```dart
+  /// final string = String.fromCharCodes([68]);
+  /// print(string); // D
+  /// ```
+  /// If a char-code value is greater than 16-bits, it is decomposed into a
+  /// surrogate pair:
+  /// ```dart
+  /// final clef = String.fromCharCodes([0x1D11E]);
+  /// clef.codeUnitAt(0); // 0xD834
+  /// clef.codeUnitAt(1); // 0xDD1E
+  /// ```
+  /// If [start] and [end] are provided, only the values of [charCodes]
+  /// at positions from `start` to, but not including, `end`, are used.
+  /// The `start` and `end` values must satisfy `0 <= start <= end`.
+  /// If [start] is omitted, it defaults to zero, the start of [charCodes],
+  /// and if [end] is omitted, all char-codes after [start] are included.
+  /// If [charCodes] does not have [end], or even [start], elements,
+  /// the specified char-codes may be shorter than `end - start`, or even empty.
+  external factory String.fromCharCodes(
+    Iterable<int> charCodes, [
+    int start = 0,
+    int? end,
+  ]);
+
+  /// Allocates a new string containing the specified [charCode].
+  ///
+  /// If the [charCode] can be represented by a single UTF-16 code unit, the new
+  /// string contains a single code unit. Otherwise, the [length] is 2 and
+  /// the code units form a surrogate pair. See documentation for
+  /// [fromCharCodes].
+  ///
+  /// Creating a [String] with one half of a surrogate pair is allowed.
+  external factory String.fromCharCode(int charCode);
+
+  /// Value for [name] in the compilation configuration environment declaration.
+  ///
+  /// The compilation configuration environment is provided by the
+  /// surrounding tools which are compiling or running the Dart program.
+  /// The environment is a mapping from a set of string keys to their associated
+  /// string value.
+  /// The string value, or lack of a value, associated with a [name]
+  /// must be consistent across all calls to `String.fromEnvironment`,
+  /// [int.fromEnvironment], [bool.fromEnvironment] and [bool.hasEnvironment]
+  /// in a single program.
+  ///
+  /// The result of invoking this constructor is the string associated with
+  /// the key [name]. If no value is associated with [name],
+  /// the result is instead the [defaultValue] string, which defaults to
+  /// the empty string.
+  ///
+  /// Example of looking up a value:
+  /// ```dart
+  /// const String.fromEnvironment("defaultFloo", defaultValue: "no floo")
+  /// ```
+  /// In order to check whether a value is there at all, use
+  /// [bool.hasEnvironment]. Example:
+  /// ```dart
+  /// const maybeDeclared = bool.hasEnvironment("maybeDeclared")
+  ///     ? String.fromEnvironment("maybeDeclared")
+  ///     : null;
+  /// ```
+  ///
+  /// The string value, or lack of a value, associated with a [name]
+  /// must be consistent across all calls to `String.fromEnvironment`,
+  /// [int.fromEnvironment], [bool.fromEnvironment] and [bool.hasEnvironment]
+  /// in a single program.
+  ///
+  /// This constructor is only guaranteed to work when invoked as `const`.
+  /// It may work as a non-constant invocation on some platforms which
+  /// have access to compiler options at run-time, but most ahead-of-time
+  /// compiled platforms will not have this information.
+  ///
+  /// The compilation configuration environment is not the same as the
+  /// environment variables of a POSIX process. Those can be accessed on
+  /// native platforms using `Platform.environment` from the `dart:io` library.
+  external const factory String.fromEnvironment(
+    String name, {
+    String defaultValue = "",
+  });
+
+  /// The character (as a single-code-unit [String]) at the given [index].
+  ///
+  /// The returned string represents exactly one UTF-16 code unit, which may be
+  /// half of a surrogate pair. A single member of a surrogate pair is an
+  /// invalid UTF-16 string:
+  /// ```dart
+  /// var clef = '\u{1D11E}';
+  /// // These represent invalid UTF-16 strings.
+  /// clef[0].codeUnits;      // [0xD834]
+  /// clef[1].codeUnits;      // [0xDD1E]
+  /// ```
+  /// This method is equivalent to
+  /// `String.fromCharCode(this.codeUnitAt(index))`.
+  String operator [](int index);
+
+  /// Returns the 16-bit UTF-16 code unit at the given [index].
+  int codeUnitAt(int index);
+
+  /// The length of the string.
+  ///
+  /// Returns the number of UTF-16 code units in this string. The number
+  /// of [runes] might be fewer if the string contains characters outside
+  /// the Basic Multilingual Plane (plane 0):
+  /// ```dart
+  /// 'Dart'.length;          // 4
+  /// 'Dart'.runes.length;    // 4
+  ///
+  /// var clef = '\u{1D11E}';
+  /// clef.length;            // 2
+  /// clef.runes.length;      // 1
+  /// ```
+  int get length;
+
+  /// A hash code derived from the code units of the string.
+  ///
+  /// This is compatible with [operator ==]. Strings with the same sequence
+  /// of code units have the same hash code.
+  int get hashCode;
+
+  /// Whether [other] is a `String` with the same sequence of code units.
+  ///
+  /// This method compares each individual code unit of the strings.
+  /// It does not check for Unicode equivalence.
+  /// For example, both the following strings represent the string 'Amélie',
+  /// but due to their different encoding, are not equal:
+  /// ```dart
+  /// 'Am\xe9lie' == 'Ame\u{301}lie'; // false
+  /// ```
+  /// The first string encodes 'é' as a single unicode code unit (also
+  /// a single rune), whereas the second string encodes it as 'e' with the
+  /// combining accent character '◌́'.
+  bool operator ==(Object other);
+
+  /// Compares this string to [other].
+  ///
+  /// Returns a negative value if `this` is ordered before `other`,
+  /// a positive value if `this` is ordered after `other`,
+  /// or zero if `this` and `other` are equivalent.
+  ///
+  /// The ordering is the same as the ordering of the code units at the first
+  /// position where the two strings differ.
+  /// If one string is a prefix of the other,
+  /// then the shorter string is ordered before the longer string.
+  /// If the strings have exactly the same content, they are equivalent with
+  /// regard to the ordering.
+  /// Ordering does not check for Unicode equivalence.
+  /// The comparison is case sensitive.
+  /// ```dart
+  /// var relation = 'Dart'.compareTo('Go');
+  /// print(relation); // < 0
+  /// relation = 'Go'.compareTo('Forward');
+  /// print(relation); // > 0
+  /// relation = 'Forward'.compareTo('Forward');
+  /// print(relation); // 0
+  /// ```
+  int compareTo(String other);
+
+  /// Whether this string ends with [other].
+  ///
+  /// For example:
+  /// ```dart
+  /// const string = 'Dart is open source';
+  /// print(string.endsWith('urce')); // true
+  /// ```
+  bool endsWith(String other);
+
+  /// Whether this string starts with a match of [pattern].
+  ///
+  /// ```dart
+  /// const string = 'Dart is open source';
+  /// print(string.startsWith('Dar')); // true
+  /// print(string.startsWith(RegExp(r'[A-Z][a-z]'))); // true
+  /// ```
+  /// If [index] is provided, this method checks if the substring starting
+  /// at that index starts with a match of [pattern]:
+  /// ```dart
+  /// const string = 'Dart';
+  /// print(string.startsWith('art', 0)); // false
+  /// print(string.startsWith('art', 1)); // true
+  /// print(string.startsWith(RegExp(r'\w{3}'), 2)); // false
+  /// ```
+  /// [index] must not be negative or greater than [length].
+  ///
+  /// A [RegExp] containing '^' does not match if the [index] is greater than
+  /// zero and the regexp is not multi-line.
+  /// The pattern works on the string as a whole, and does not extract
+  /// a substring starting at [index] first:
+  /// ```dart
+  /// const string = 'Dart';
+  /// print(string.startsWith(RegExp(r'^art'), 1)); // false
+  /// print(string.startsWith(RegExp(r'art'), 1)); // true
+  /// ```
+  bool startsWith(Pattern pattern, [int index = 0]);
+
+  /// Returns the position of the first match of [pattern] in this string,
+  /// starting at [start], inclusive:
+  /// ```dart
+  /// const string = 'Dartisans';
+  /// print(string.indexOf('art')); // 1
+  /// print(string.indexOf(RegExp(r'[A-Z][a-z]'))); // 0
+  /// ```
+  /// Returns -1 if no match is found:
+  /// ```dart
+  /// const string = 'Dartisans';
+  /// string.indexOf(RegExp(r'dart')); // -1
+  /// ```
+  /// The [start] must be non-negative and not greater than [length].
+  int indexOf(Pattern pattern, [int start = 0]);
+
+  /// The starting position of the last match [pattern] in this string.
+  ///
+  /// Finds a match of pattern by searching backward starting at [start]:
+  /// ```dart
+  /// const string = 'Dartisans';
+  /// print(string.lastIndexOf('a')); // 6
+  /// print(string.lastIndexOf(RegExp(r'a(r|n)'))); // 6
+  /// ```
+  /// Returns -1 if [pattern] could not be found in this string.
+  /// ```dart
+  /// const string = 'Dartisans';
+  /// print(string.lastIndexOf(RegExp(r'DART'))); // -1
+  /// ```
+  /// If [start] is omitted, search starts from the end of the string.
+  /// If supplied, [start] must be non-negative and not greater than [length].
+  int lastIndexOf(Pattern pattern, [int? start]);
+
+  /// Whether this string is empty.
+  bool get isEmpty;
+
+  /// Whether this string is not empty.
+  bool get isNotEmpty;
+
+  /// Creates a new string by concatenating this string with [other].
+  ///
+  /// Example:
+  /// ```dart
+  /// const string = 'dart' + 'lang'; // 'dartlang'
+  /// ```
+  String operator +(String other);
+
+  /// The substring of this string from [start], inclusive, to [end], exclusive.
+  ///
+  /// Example:
+  /// ```dart
+  /// const string = 'dartlang';
+  /// var result = string.substring(1); // 'artlang'
+  /// result = string.substring(1, 4); // 'art'
+  /// ```
+  ///
+  /// Both [start] and [end] must be non-negative and no greater than [length];
+  /// [end], if provided, must be greater than or equal to [start].
+  String substring(int start, [int? end]);
+
+  /// The string without any leading and trailing whitespace.
+  ///
+  /// If the string contains leading or trailing whitespace, a new string with no
+  /// leading and no trailing whitespace is returned:
+  /// ```dart
+  /// final trimmed = '\tDart is fun\n'.trim();
+  /// print(trimmed); // 'Dart is fun'
+  /// ```
+  /// Otherwise, the original string itself is returned:
+  /// ```dart
+  /// const string1 = 'Dart';
+  /// final string2 = string1.trim(); // 'Dart'
+  /// print(identical(string1, string2)); // true
+  /// ```
+  /// Whitespace is defined by the Unicode White_Space property (as defined in
+  /// version 6.2 or later) and the BOM character, 0xFEFF.
+  ///
+  /// Here is the list of trimmed characters according to Unicode version 6.3:
+  /// ```plaintext
+  ///     0009..000D    ; White_Space # Cc   <control-0009>..<control-000D>
+  ///     0020          ; White_Space # Zs   SPACE
+  ///     0085          ; White_Space # Cc   <control-0085>
+  ///     00A0          ; White_Space # Zs   NO-BREAK SPACE
+  ///     1680          ; White_Space # Zs   OGHAM SPACE MARK
+  ///     2000..200A    ; White_Space # Zs   EN QUAD..HAIR SPACE
+  ///     2028          ; White_Space # Zl   LINE SEPARATOR
+  ///     2029          ; White_Space # Zp   PARAGRAPH SEPARATOR
+  ///     202F          ; White_Space # Zs   NARROW NO-BREAK SPACE
+  ///     205F          ; White_Space # Zs   MEDIUM MATHEMATICAL SPACE
+  ///     3000          ; White_Space # Zs   IDEOGRAPHIC SPACE
+  ///
+  ///     FEFF          ; BOM                ZERO WIDTH NO_BREAK SPACE
+  /// ```
+  /// Some later versions of Unicode do not include U+0085 as a whitespace
+  /// character. Whether it is trimmed depends on the Unicode version
+  /// used by the system.
+  String trim();
+
+  /// The string without any leading whitespace.
+  ///
+  /// As [trim], but only removes leading whitespace.
+  /// ```dart
+  /// final string = ' Dart '.trimLeft();
+  /// print(string); // 'Dart '
+  /// ```
+  String trimLeft();
+
+  /// The string without any trailing whitespace.
+  ///
+  /// As [trim], but only removes trailing whitespace.
+  /// ```dart
+  /// final string = ' Dart '.trimRight();
+  /// print(string); // ' Dart'
+  /// ```
+  String trimRight();
+
+  /// Creates a new string by concatenating this string with itself a number
+  /// of times.
+  ///
+  /// The result of `str * n` is equivalent to
+  /// `str + str + ...`(n times)`... + str`.
+  ///
+  /// ```dart
+  /// const string = 'Dart';
+  /// final multiplied = string * 3;
+  /// print(multiplied); // 'DartDartDart'
+  /// ```
+  /// Returns an empty string if [times] is zero or negative.
+  String operator *(int times);
+
+  /// Pads this string on the left if it is shorter than [width].
+  ///
+  /// Returns a new string that prepends [padding] onto this string
+  /// one time for each position the length is less than [width].
+  ///
+  /// ```dart
+  /// const string = 'D';
+  /// print(string.padLeft(4)); // '   D'
+  /// print(string.padLeft(2, 'x')); // 'xD'
+  /// print(string.padLeft(4, 'y')); // 'yyyD'
+  /// print(string.padLeft(4, '>>')); // '>>>>>>D'
+  /// ```
+  ///
+  /// If [width] is already smaller than or equal to `this.length`,
+  /// no padding is added. A negative `width` is treated as zero.
+  ///
+  /// If [padding] has length different from 1, the result will not
+  /// have length `width`. This may be useful for cases where the
+  /// padding is a longer string representing a single character, like
+  /// `"&nbsp;"` or `"\u{10002}`".
+  /// In that case, the user should make sure that `this.length` is
+  /// the correct measure of the string's length.
+  String padLeft(int width, [String padding = ' ']);
+
+  /// Pads this string on the right if it is shorter than [width].
+  ///
+  /// Returns a new string that appends [padding] after this string
+  /// one time for each position the length is less than [width].
+  ///
+  /// ```dart
+  /// const string = 'D';
+  /// print(string.padRight(4)); // 'D    '
+  /// print(string.padRight(2, 'x')); // 'Dx'
+  /// print(string.padRight(4, 'y')); // 'Dyyy'
+  /// print(string.padRight(4, '>>')); // 'D>>>>>>'
+  /// ```
+  ///
+  /// If [width] is already smaller than or equal to `this.length`,
+  /// no padding is added. A negative `width` is treated as zero.
+  ///
+  /// If [padding] has length different from 1, the result will not
+  /// have length `width`. This may be useful for cases where the
+  /// padding is a longer string representing a single character, like
+  /// `"&nbsp;"` or `"\u{10002}`".
+  /// In that case, the user should make sure that `this.length` is
+  /// the correct measure of the string's length.
+  String padRight(int width, [String padding = ' ']);
+
+  /// Whether this string contains a match of [other].
+  ///
+  /// Example:
+  /// ```dart
+  /// const string = 'Dart strings';
+  /// final containsD = string.contains('D'); // true
+  /// final containsUpperCase = string.contains(RegExp(r'[A-Z]')); // true
+  /// ```
+  /// If [startIndex] is provided, this method matches only at or after that
+  /// index:
+  /// ```dart
+  /// const string = 'Dart strings';
+  /// final containsD = string.contains(RegExp('D'), 0); // true
+  /// final caseSensitive = string.contains(RegExp(r'[A-Z]'), 1); // false
+  /// ```
+  /// The [startIndex] must not be negative or greater than [length].
+  bool contains(Pattern other, [int startIndex = 0]);
+
+  /// Creates a new string with the first occurrence of [from] replaced by [to].
+  ///
+  /// Finds the first match of [from] in this string, starting from [startIndex],
+  /// and creates a new string where that match is replaced with the [to] string.
+  ///
+  /// Example:
+  /// ```dart
+  /// '0.0001'.replaceFirst(RegExp(r'0'), ''); // '.0001'
+  /// '0.0001'.replaceFirst(RegExp(r'0'), '7', 1); // '0.7001'
+  /// ```
+  String replaceFirst(Pattern from, String to, [int startIndex = 0]);
+
+  /// Replace the first occurrence of [from] in this string.
+  ///
+  /// ```dart
+  /// const string = 'Dart is fun';
+  /// print(string.replaceFirstMapped(
+  ///     'fun', (m) => 'open source')); // Dart is open source
+  ///
+  /// print(string.replaceFirstMapped(
+  ///     RegExp(r'\w(\w*)'), (m) => '<${m[0]}-${m[1]}>')); // <Dart-art> is fun
+  /// ```
+  ///
+  /// Returns a new string, which is this string
+  /// except that the first match of [from], starting from [startIndex],
+  /// is replaced by the result of calling [replace] with the match object.
+  ///
+  /// The [startIndex] must be non-negative and no greater than [length].
+  String replaceFirstMapped(
+    Pattern from,
+    String replace(Match match), [
+    int startIndex = 0,
+  ]);
+
+  /// Replaces all substrings that match [from] with [replace].
+  ///
+  /// Creates a new string in which the non-overlapping substrings matching
+  /// [from] (the ones iterated by `from.allMatches(thisString)`) are replaced
+  /// by the literal string [replace].
+  /// ```dart
+  /// 'resume'.replaceAll(RegExp(r'e'), 'é'); // 'résumé'
+  /// ```
+  /// Notice that the [replace] string is not interpreted. If the replacement
+  /// depends on the match (for example, on a [RegExp]'s capture groups), use
+  /// the [replaceAllMapped] method instead.
+  String replaceAll(Pattern from, String replace);
+
+  /// Replace all substrings that match [from] by a computed string.
+  ///
+  /// Creates a new string in which the non-overlapping substrings that match
+  /// [from] (the ones iterated by `from.allMatches(thisString)`) are replaced
+  /// by the result of calling [replace] on the corresponding [Match] object.
+  ///
+  /// This can be used to replace matches with new content that depends on the
+  /// match, unlike [replaceAll] where the replacement string is always the same.
+  ///
+  /// The [replace] function is called with the [Match] generated
+  /// by the pattern, and its result is used as replacement.
+  ///
+  /// The function defined below converts each word in a string to simplified
+  /// 'pig latin' using [replaceAllMapped]:
+  /// ```dart
+  /// String pigLatin(String words) => words.replaceAllMapped(
+  ///     RegExp(r'\b(\w*?)([aeiou]\w*)', caseSensitive: false),
+  ///     (Match m) => "${m[2]}${m[1]}${m[1]!.isEmpty ? 'way' : 'ay'}");
+  ///
+  /// final result = pigLatin('I have a secret now!');
+  /// print(result); // 'Iway avehay away ecretsay ownay!'
+  /// ```
+  String replaceAllMapped(Pattern from, String Function(Match match) replace);
+
+  /// Replaces the substring from [start] to [end] with [replacement].
+  ///
+  /// Creates a new string equivalent to:
+  /// ```dart
+  /// this.substring(0, start) + replacement + this.substring(end)
+  /// ```
+  /// Example:
+  /// ```dart
+  /// const string = 'Dart is fun';
+  /// final result = string.replaceRange(8, null, 'open source');
+  /// print(result); // Dart is open source
+  /// ```
+  /// The [start] and [end] indices must specify a valid range of this string.
+  /// That is `0 <= start <= end <= this.length`.
+  /// If [end] is `null`, it defaults to [length].
+  String replaceRange(int start, int? end, String replacement);
+
+  /// Splits the string at matches of [pattern] and returns a list of substrings.
+  ///
+  /// Finds all the matches of `pattern` in this string,
+  /// as by using [Pattern.allMatches],
+  /// and returns the list of the substrings between the matches,
+  /// before the first match, and after the last match.
+  /// ```dart
+  /// const string = 'Hello world!';
+  /// final splitted = string.split(' ');
+  /// print(splitted); // [Hello, world!];
+  /// ```
+  /// If the pattern doesn't match this string at all,
+  /// the result is always a list containing only the original string.
+  ///
+  /// If the [pattern] is a [String], then it's always the case that:
+  /// ```dart
+  /// string.split(pattern).join(pattern) == string
+  /// ```
+  ///
+  /// If the first match is an empty match at the start of the string,
+  /// the empty substring before it is not included in the result.
+  /// If the last match is an empty match at the end of the string,
+  /// the empty substring after it is not included in the result.
+  /// If a match is empty, and it immediately follows a previous
+  /// match (it starts at the position where the previous match ended),
+  /// then the empty substring between the two matches is not
+  /// included in the result.
+  /// ```dart
+  /// const string = 'abba';
+  /// final re = RegExp(r'b*');
+  /// // re.allMatches(string) will find four matches:
+  /// // * empty match before first "a".
+  /// // * match of "bb"
+  /// // * empty match after "bb", before second "a"
+  /// // * empty match after second "a".
+  /// print(string.split(re)); // [a, a]
+  /// ```
+  ///
+  /// A non-empty match at the start or end of the string, or after another
+  /// match, is not treated specially, and will introduce empty substrings
+  /// in the result:
+  /// ```dart
+  /// const string = 'abbaa';
+  /// final splitted = string.split('a'); // ['', 'bb', '', '']
+  /// ```
+  ///
+  /// If this string is the empty string, the result is an empty list
+  /// if `pattern` matches the empty string, since the empty string
+  /// before and after the first-and-last empty match are not included.
+  /// (It is still a list containing the original empty string `[""]`
+  /// if the pattern doesn't match).
+  /// ```dart
+  /// const string = '';
+  /// print(string.split('')); // []
+  /// print(string.split('a')); // []
+  /// ```
+  ///
+  /// Splitting with an empty pattern splits the string into single-code unit
+  /// strings.
+  /// ```dart
+  /// const string = 'Pub';
+  /// print(string.split('')); // [P, u, b]
+  ///
+  /// // Same as:
+  /// var codeUnitStrings = [
+  ///   for (final unit in string.codeUnits) String.fromCharCode(unit)
+  /// ];
+  /// print(codeUnitStrings); // [P, u, b]
+  /// ```
+  ///
+  /// Splitting happens at UTF-16 code unit boundaries,
+  /// and not at rune (Unicode code point) boundaries:
+  /// ```dart
+  /// // String made up of two code units, but one rune.
+  /// const string = '\u{1D11E}';
+  /// final splitted = string.split('');
+  /// print(splitted); // ['\ud834', '\udd1e'] - 2 unpaired surrogate values
+  /// ```
+  /// To get a list of strings containing the individual runes of a string,
+  /// you should not use split.
+  /// You can instead get a string for each rune as follows:
+  /// ```dart
+  /// const string = '\u{1F642}';
+  /// for (final rune in string.runes) {
+  ///   print(String.fromCharCode(rune));
+  /// }
+  /// ```
+  List<String> split(Pattern pattern);
+
+  /// Splits the string, converts its parts, and combines them into a new
+  /// string.
+  ///
+  /// The [pattern] is used to split the string
+  /// into parts and separating matches.
+  /// Each match of [Pattern.allMatches] of [pattern] on this string is
+  /// used as a match, and the substrings between the end of one match
+  /// (or the start of the string) and the start of the next match (or the
+  /// end of the string) is treated as a non-matched part.
+  /// (There is no omission of leading or trailing empty matchs, like
+  /// in [split], all matches and parts between the are included.)
+  ///
+  /// Each match is converted to a string by calling [onMatch]. If [onMatch]
+  /// is omitted, the matched substring is used.
+  ///
+  /// Each non-matched part is converted to a string by a call to [onNonMatch].
+  /// If [onNonMatch] is omitted, the non-matching substring itself is used.
+  ///
+  /// Then all the converted parts are concatenated into the resulting string.
+  /// ```dart
+  /// final result = 'Eats shoots leaves'.splitMapJoin(RegExp(r'shoots'),
+  ///     onMatch: (m) => '${m[0]}', // (or no onMatch at all)
+  ///     onNonMatch: (n) => '*');
+  /// print(result); // *shoots*
+  /// ```
+  String splitMapJoin(
+    Pattern pattern, {
+    String Function(Match)? onMatch,
+    String Function(String)? onNonMatch,
+  });
+
+  /// An unmodifiable list of the UTF-16 code units of this string.
+  List<int> get codeUnits;
+
+  /// An [Iterable] of Unicode code-points of this string.
+  ///
+  /// If the string contains surrogate pairs, they are combined and returned
+  /// as one integer by this iterator. Unmatched surrogate halves are treated
+  /// like valid 16-bit code-units.
+  Runes get runes;
+
+  /// Converts all characters in this string to lower case.
+  ///
+  /// If the string is already in all lower case, this method returns `this`.
+  /// ```dart
+  /// 'ALPHABET'.toLowerCase(); // 'alphabet'
+  /// 'abc'.toLowerCase(); // 'abc'
+  /// ```
+  /// This function uses the language independent Unicode mapping and thus only
+  /// works in some languages.
+  // TODO(floitsch): document better. (See EcmaScript for description).
+  String toLowerCase();
+
+  /// Converts all characters in this string to upper case.
+  ///
+  /// If the string is already in all upper case, this method returns `this`.
+  /// ```dart
+  /// 'alphabet'.toUpperCase(); // 'ALPHABET'
+  /// 'ABC'.toUpperCase(); // 'ABC'
+  /// ```
+  /// This function uses the language independent Unicode mapping and thus only
+  /// works in some languages.
+  // TODO(floitsch): document better. (See EcmaScript for description).
+  String toUpperCase();
+}
+
+/// The runes (integer Unicode code points) of a [String].
+///
+/// The characters of a string are encoded in UTF-16. Decoding UTF-16, which
+/// combines surrogate pairs, yields Unicode code points. Following a similar
+/// terminology to Go, Dart uses the name 'rune' for an integer representing a
+/// Unicode code point. Use the `runes` property to get the runes of a string.
+///
+/// Example:
+/// ```dart
+/// const string = 'Dart';
+/// final runes = string.runes.toList();
+/// print(runes); // [68, 97, 114, 116]
+/// ```
+///
+/// For a character outside the Basic Multilingual Plane (plane 0) that is
+/// composed of a surrogate pair, runes combines the pair and returns a
+/// single integer.
+///
+/// For example, the Unicode character for "Man" emoji ('👨', `U+1F468`) is
+/// combined from the surrogates `U+d83d` and `U+dc68`.
+///
+/// Example:
+/// ```dart
+/// const emojiMan = '👨';
+/// print(emojiMan.runes); // (128104)
+///
+/// // Surrogate pairs:
+/// for (final item in emojiMan.codeUnits) {
+///   print(item.toRadixString(16));
+///   // d83d
+///   // dc68
+/// }
+/// ```
+///
+/// **See also:**
+/// * [Runes and grapheme clusters](https://dart.dev/language/built-in-types#runes-and-grapheme-clusters)
+final class Runes extends Iterable<int> {
+  /// The string that this is the runes of.
+  final String string;
+
+  /// Creates a [Runes] iterator for [string].
+  Runes(this.string);
+
+  RuneIterator get iterator => RuneIterator(string);
+
+  int get last {
+    if (string.length == 0) {
+      throw StateError('No elements.');
+    }
+    int length = string.length;
+    int code = string.codeUnitAt(length - 1);
+    if (_isTrailSurrogate(code) && string.length > 1) {
+      int previousCode = string.codeUnitAt(length - 2);
+      if (_isLeadSurrogate(previousCode)) {
+        return _combineSurrogatePair(previousCode, code);
+      }
+    }
+    return code;
+  }
+}
+
+// Is then code (a 16-bit unsigned integer) a UTF-16 lead surrogate.
+bool _isLeadSurrogate(int code) => (code & 0xFC00) == 0xD800;
+
+// Is then code (a 16-bit unsigned integer) a UTF-16 trail surrogate.
+bool _isTrailSurrogate(int code) => (code & 0xFC00) == 0xDC00;
+
+// Combine a lead and a trail surrogate value into a single code point.
+int _combineSurrogatePair(int start, int end) {
+  return 0x10000 + ((start & 0x3FF) << 10) + (end & 0x3FF);
+}
+
+/// [Iterator] for reading runes (integer Unicode code points) of a Dart string.
+final class RuneIterator implements Iterator<int> {
+  /// String being iterated.
+  final String string;
+
+  /// Position before the current code point.
+  int _position;
+
+  /// Position after the current code point.
+  int _nextPosition;
+
+  /// Current code point.
+  ///
+  /// If the iterator has hit either end, the [_currentCodePoint] is -1
+  /// and `_position == _nextPosition`.
+  int _currentCodePoint = -1;
+
+  /// Create an iterator positioned at the beginning of the string.
+  RuneIterator(String string)
+    : this.string = string,
+      _position = 0,
+      _nextPosition = 0;
+
+  /// Create an iterator positioned before the [index]th code unit of the string.
+  ///
+  /// When created, there is no [current] value.
+  /// A [moveNext] will use the rune starting at [index] the current value,
+  /// and a [movePrevious] will use the rune ending just before [index] as
+  /// the current value.
+  ///
+  /// The [index] position must not be in the middle of a surrogate pair.
+  RuneIterator.at(String string, int index)
+    : string = string,
+      _position = index,
+      _nextPosition = index {
+    RangeError.checkValueInInterval(index, 0, string.length);
+    _checkSplitSurrogate(index);
+  }
+
+  /// Throw an error if the index is in the middle of a surrogate pair.
+  void _checkSplitSurrogate(int index) {
+    if (index > 0 &&
+        index < string.length &&
+        _isLeadSurrogate(string.codeUnitAt(index - 1)) &&
+        _isTrailSurrogate(string.codeUnitAt(index))) {
+      throw ArgumentError('Index inside surrogate pair: $index');
+    }
+  }
+
+  /// The starting position of the current rune in the string.
+  ///
+  /// Returns -1 if there is no current rune ([current] is -1).
+  int get rawIndex => (_position != _nextPosition) ? _position : -1;
+
+  /// Resets the iterator to the rune at the specified index of the string.
+  ///
+  /// Setting a negative [rawIndex], or one greater than or equal to
+  /// `string.length`, is an error. So is setting it in the middle of a surrogate
+  ///  pair.
+  ///
+  /// Setting the position to the end of the string means that there is no
+  /// current rune.
+  void set rawIndex(int rawIndex) {
+    IndexError.check(
+      rawIndex,
+      string.length,
+      indexable: string,
+      name: "rawIndex",
+    );
+    reset(rawIndex);
+    moveNext();
+  }
+
+  /// Resets the iterator to the given index into the string.
+  ///
+  /// After this the [current] value is unset.
+  /// You must call [moveNext] make the rune at the position current,
+  /// or [movePrevious] for the last rune before the position.
+  ///
+  /// The [rawIndex] must be non-negative and no greater than `string.length`.
+  /// It must also not be the index of the trailing surrogate of a surrogate
+  /// pair.
+  void reset([int rawIndex = 0]) {
+    RangeError.checkValueInInterval(rawIndex, 0, string.length, "rawIndex");
+    _checkSplitSurrogate(rawIndex);
+    _position = _nextPosition = rawIndex;
+    _currentCodePoint = -1;
+  }
+
+  /// The rune (integer Unicode code point) starting at the current position in
+  /// the string.
+  ///
+  /// The value is -1 if there is no current code point.
+  int get current => _currentCodePoint;
+
+  /// The number of code units comprising the current rune.
+  ///
+  /// Returns zero if there is no current rune ([current] is -1).
+  int get currentSize => _nextPosition - _position;
+
+  /// A string containing the current rune.
+  ///
+  /// For runes outside the basic multilingual plane, this will be
+  /// a String of length 2, containing two code units.
+  ///
+  /// Returns an empty string if there is no [current] value.
+  String get currentAsString {
+    if (_position == _nextPosition) return "";
+    if (_position + 1 == _nextPosition) return string[_position];
+    return string.substring(_position, _nextPosition);
+  }
+
+  /// Move to the next code point.
+  ///
+  /// Returns `true` and updates [current] if there is a next code point.
+  /// Returns `false` otherwise, and then there is no current code point.
+  bool moveNext() {
+    _position = _nextPosition;
+    if (_position == string.length) {
+      _currentCodePoint = -1;
+      return false;
+    }
+    int codeUnit = string.codeUnitAt(_position);
+    int nextPosition = _position + 1;
+    if (_isLeadSurrogate(codeUnit) && nextPosition < string.length) {
+      int nextCodeUnit = string.codeUnitAt(nextPosition);
+      if (_isTrailSurrogate(nextCodeUnit)) {
+        _nextPosition = nextPosition + 1;
+        _currentCodePoint = _combineSurrogatePair(codeUnit, nextCodeUnit);
+        return true;
+      }
+    }
+    _nextPosition = nextPosition;
+    _currentCodePoint = codeUnit;
+    return true;
+  }
+
+  /// Move back to the previous code point.
+  ///
+  /// Returns `true` and updates [current] if there is a previous code point.
+  /// Returns `false` otherwise, and then there is no current code point.
+  bool movePrevious() {
+    _nextPosition = _position;
+    if (_position == 0) {
+      _currentCodePoint = -1;
+      return false;
+    }
+    int position = _position - 1;
+    int codeUnit = string.codeUnitAt(position);
+    if (_isTrailSurrogate(codeUnit) && position > 0) {
+      int prevCodeUnit = string.codeUnitAt(position - 1);
+      if (_isLeadSurrogate(prevCodeUnit)) {
+        _position = position - 1;
+        _currentCodePoint = _combineSurrogatePair(prevCodeUnit, codeUnit);
+        return true;
+      }
+    }
+    _position = position;
+    _currentCodePoint = codeUnit;
+    return true;
+  }
+}
+```
+
+// ============================================================
+// 📁 Project: progress_indicator.dart
+// 📁 /home/user/flutter/packages/flutter/lib/src/material/progress_indicator.dart
+// ============================================================
+
+```dart
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// @docImport 'package:flutter/semantics.dart';
+///
+/// @docImport 'refresh_indicator.dart';
+library;
+
+import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+
+import 'color_scheme.dart';
+import 'material.dart';
+import 'progress_indicator_theme.dart';
+import 'theme.dart';
+
+// This value is extracted from
+// https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/res/res/anim/progress_indeterminate_material.xml;drc=9cb5b4c2d93acb9d6f5e14167e265c328c487d6b
+const int _kIndeterminateLinearDuration = 1800;
+// This value is extracted from
+// https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/res/res/anim/progress_indeterminate_rotation_material.xml;drc=077b44912b879174cec48a25307f1c19b96c2a78
+const int _kIndeterminateCircularDuration = 1333 * 2222;
+
+// The progress value below which the track gap is scaled proportionally to
+// prevent a track gap from appearing at 0% progress.
+const double _kTrackGapRampDownThreshold = 0.01;
+
+enum _ActivityIndicatorType { material, adaptive }
+
+const String _kValueControllerAssertion =
+    'A progress indicator cannot have both a value and a controller.\n'
+    'The "value" property is for a determinate indicator with a specific progress, '
+    'while the "controller" is for controlling the animation of an indeterminate indicator.\n'
+    'To resolve this, provide only one of the two properties.';
+
+/// A base class for Material Design progress indicators.
+///
+/// This widget cannot be instantiated directly. For a linear progress
+/// indicator, see [LinearProgressIndicator]. For a circular progress indicator,
+/// see [CircularProgressIndicator].
+///
+/// See also:
+///
+///  * <https://material.io/components/progress-indicators>
+abstract class ProgressIndicator extends StatefulWidget {
+  /// Creates a progress indicator.
+  ///
+  /// {@template flutter.material.ProgressIndicator.ProgressIndicator}
+  /// The [value] argument can either be null for an indeterminate
+  /// progress indicator, or a non-null value between 0.0 and 1.0 for a
+  /// determinate progress indicator.
+  ///
+  /// ## Accessibility
+  ///
+  /// The [semanticsLabel] can be used to identify the purpose of this progress
+  /// bar for screen reading software. The [semanticsValue] property may be used
+  /// for determinate progress indicators to indicate how much progress has been made.
+  /// {@endtemplate}
+  const ProgressIndicator({
+    super.key,
+    this.value,
+    this.backgroundColor,
+    this.color,
+    this.valueColor,
+    this.semanticsLabel,
+    this.semanticsValue,
+  });
+
+  /// If non-null, the value of this progress indicator.
+  ///
+  /// A value of 0.0 means no progress and 1.0 means that progress is complete.
+  /// The value will be clamped to be in the range 0.0-1.0.
+  ///
+  /// If null, this progress indicator is indeterminate, which means the
+  /// indicator displays a predetermined animation that does not indicate how
+  /// much actual progress is being made.
+  final double? value;
+
+  double? get _effectiveValue => value == null ? null : clampDouble(value!, 0.0, 1.0);
+
+  /// The progress indicator's background color.
+  ///
+  /// It is up to the subclass to implement this in whatever way makes sense
+  /// for the given use case. See the subclass documentation for details.
+  final Color? backgroundColor;
+
+  /// {@template flutter.progress_indicator.ProgressIndicator.color}
+  /// The progress indicator's color.
+  ///
+  /// This is only used if [ProgressIndicator.valueColor] is null.
+  /// If [ProgressIndicator.color] is also null, then the ambient
+  /// [ProgressIndicatorThemeData.color] will be used. If that
+  /// is null then the current theme's [ColorScheme.primary] will
+  /// be used by default.
+  /// {@endtemplate}
+  final Color? color;
+
+  /// The progress indicator's color as an animated value.
+  ///
+  /// If null, the progress indicator is rendered with [color]. If that is null,
+  /// then it will use the ambient [ProgressIndicatorThemeData.color]. If that
+  /// is also null then it defaults to the current theme's [ColorScheme.primary].
+  final Animation<Color?>? valueColor;
+
+  /// {@template flutter.progress_indicator.ProgressIndicator.semanticsLabel}
+  /// The [SemanticsProperties.label] for this progress indicator.
+  ///
+  /// This value indicates the purpose of the progress bar, and will be
+  /// read out by screen readers to indicate the purpose of this progress
+  /// indicator.
+  /// {@endtemplate}
+  final String? semanticsLabel;
+
+  /// {@template flutter.progress_indicator.ProgressIndicator.semanticsValue}
+  /// The [SemanticsProperties.value] for this progress indicator.
+  ///
+  /// This will be used in conjunction with the [semanticsLabel] by
+  /// screen reading software to identify the widget, and is primarily
+  /// intended for use with determinate progress indicators to announce
+  /// how far along they are.
+  ///
+  /// For determinate progress indicators, this will be defaulted to
+  /// [ProgressIndicator.value] expressed as a percentage, i.e. `0.1` will
+  /// become '10%'.
+  /// {@endtemplate}
+  final String? semanticsValue;
+
+  Color _getValueColor(BuildContext context, {Color? defaultColor}) {
+    return valueColor?.value ??
+        color ??
+        ProgressIndicatorTheme.of(context).color ??
+        defaultColor ??
+        Theme.of(context).colorScheme.primary;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(PercentProperty('value', value, showName: false, ifNull: '<indeterminate>'));
+  }
+
+  Widget _buildSemanticsWrapper({required BuildContext context, required Widget child}) {
+    var isProgressBar = false;
+    String? expandedSemanticsValue = semanticsValue;
+    if (value != null) {
+      expandedSemanticsValue ??= '${(_effectiveValue! * 100).round()}';
+      isProgressBar = true;
+    }
+    return Semantics(
+      label: semanticsLabel,
+      role: isProgressBar ? SemanticsRole.progressBar : SemanticsRole.loadingSpinner,
+      minValue: isProgressBar ? '0' : null,
+      maxValue: isProgressBar ? '100' : null,
+      value: expandedSemanticsValue,
+      child: child,
+    );
+  }
+}
+
+class _LinearProgressIndicatorPainter extends CustomPainter {
+  const _LinearProgressIndicatorPainter({
+    required this.trackColor,
+    required this.valueColor,
+    this.value,
+    required this.animationValue,
+    required this.textDirection,
+    required this.indicatorBorderRadius,
+    required this.stopIndicatorColor,
+    required this.stopIndicatorRadius,
+    required this.trackGap,
+  });
+
+  final Color trackColor;
+  final Color valueColor;
+  final double? value;
+  final double animationValue;
+  final TextDirection textDirection;
+  final BorderRadiusGeometry? indicatorBorderRadius;
+  final Color? stopIndicatorColor;
+  final double? stopIndicatorRadius;
+  final double? trackGap;
+
+  // The indeterminate progress animation displays two lines whose leading (head)
+  // and trailing (tail) endpoints are defined by the following four curves.
+  static const Curve line1Head = Interval(
+    0.0,
+    750.0 / _kIndeterminateLinearDuration,
+    curve: Cubic(0.2, 0.0, 0.8, 1.0),
+  );
+  static const Curve line1Tail = Interval(
+    333.0 / _kIndeterminateLinearDuration,
+    (333.0 + 750.0) / _kIndeterminateLinearDuration,
+    curve: Cubic(0.4, 0.0, 1.0, 1.0),
+  );
+  static const Curve line2Head = Interval(
+    1000.0 / _kIndeterminateLinearDuration,
+    (1000.0 + 567.0) / _kIndeterminateLinearDuration,
+    curve: Cubic(0.0, 0.0, 0.65, 1.0),
+  );
+  static const Curve line2Tail = Interval(
+    1267.0 / _kIndeterminateLinearDuration,
+    (1267.0 + 533.0) / _kIndeterminateLinearDuration,
+    curve: Cubic(0.10, 0.0, 0.45, 1.0),
+  );
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double effectiveTrackGap = trackGap ?? 0.0;
+
+    void drawLinearIndicator({
+      required double startFraction,
+      required double endFraction,
+      required Color color,
+    }) {
+      if (endFraction - startFraction <= 0) {
+        return;
+      }
+
+      final isLtr = textDirection == TextDirection.ltr;
+      final double left = (isLtr ? startFraction : 1 - endFraction) * size.width;
+      final double right = (isLtr ? endFraction : 1 - startFraction) * size.width;
+
+      final rect = Rect.fromLTRB(left, 0, right, size.height);
+      final paint = Paint()..color = color;
+
+      if (indicatorBorderRadius != null) {
+        final RRect rrect = indicatorBorderRadius!.resolve(textDirection).toRRect(rect);
+        canvas.drawRRect(rrect, paint);
+      } else {
+        canvas.drawRect(rect, paint);
+      }
+    }
+
+    void drawStopIndicator() {
+      // Limit the stop indicator to the height of the indicator.
+      final double maxRadius = size.height / 2;
+      final double radius = math.min(stopIndicatorRadius!, maxRadius);
+      final indicatorPaint = Paint()..color = stopIndicatorColor!;
+      final Offset position = switch (textDirection) {
+        TextDirection.rtl => Offset(maxRadius, maxRadius),
+        TextDirection.ltr => Offset(size.width - maxRadius, maxRadius),
+      };
+      canvas.drawCircle(position, radius, indicatorPaint);
+    }
+
+    // Calculates a track gap fraction that is scaled proportionally to a given
+    // value.
+    // This is used for a smooth transition of the track gap's size, preventing
+    // it from appearing or disappearing abruptly. The returned value increases
+    // linearly from 0 to the full `trackGapFraction` as `currentValue`
+    // increases from 0 to `_kTrackGapRampDownThreshold`.
+    double getEffectiveTrackGapFraction(double currentValue, double trackGapFraction) {
+      return trackGapFraction *
+          clampDouble(currentValue, 0, _kTrackGapRampDownThreshold) /
+          _kTrackGapRampDownThreshold;
+    }
+
+    final double trackGapFraction = effectiveTrackGap / size.width;
+    final double? effectiveValue = value == null ? null : clampDouble(value!, 0.0, 1.0);
+
+    // Determinate progress indicator.
+    if (effectiveValue != null) {
+      final double trackStartFraction = trackGapFraction > 0
+          ? effectiveValue + getEffectiveTrackGapFraction(effectiveValue, trackGapFraction)
+          : 0;
+
+      // Draw the track when there is still space.
+      if (trackStartFraction < 1) {
+        drawLinearIndicator(startFraction: trackStartFraction, endFraction: 1, color: trackColor);
+      }
+
+      // Draw the stop indicator.
+      if (stopIndicatorRadius != null && stopIndicatorRadius! > 0) {
+        drawStopIndicator();
+      }
+
+      // Draw the active indicator.
+      if (effectiveValue > 0) {
+        drawLinearIndicator(startFraction: 0, endFraction: effectiveValue, color: valueColor);
+      }
+
+      return;
+    }
+
+    // Indeterminate progress indicator.
+    // For LTR text direction the `head` is the right endpoint and the `tail` is
+    // the left endpoint.
+    final double firstLineHead = line1Head.transform(animationValue);
+    final double firstLineTail = line1Tail.transform(animationValue);
+    final double secondLineHead = line2Head.transform(animationValue);
+    final double secondLineTail = line2Tail.transform(animationValue);
+
+    // Draw the track before line 1. Assuming text direction is LTR, this track
+    // appears on the right side of line 1.
+    if (firstLineHead < 1 - trackGapFraction) {
+      final double trackStartFraction = firstLineHead > 0
+          ? firstLineHead + getEffectiveTrackGapFraction(firstLineHead, trackGapFraction)
+          : 0;
+      drawLinearIndicator(startFraction: trackStartFraction, endFraction: 1, color: trackColor);
+    }
+
+    // Draw the line 1.
+    if (firstLineHead - firstLineTail > 0) {
+      drawLinearIndicator(
+        startFraction: firstLineTail,
+        endFraction: firstLineHead,
+        color: valueColor,
+      );
+    }
+
+    // Draw the track between line 1 and line 2. Assuming text direction is
+    // LTR, this track appears on the left side of line 1 and on the right side
+    // of line 2.
+    if (firstLineTail > trackGapFraction) {
+      final double trackStartFraction = secondLineHead > 0
+          ? secondLineHead + getEffectiveTrackGapFraction(secondLineHead, trackGapFraction)
+          : 0;
+      final double trackEndFraction = firstLineTail < 1
+          ? firstLineTail - getEffectiveTrackGapFraction(1 - firstLineTail, trackGapFraction)
+          : 1;
+      drawLinearIndicator(
+        startFraction: trackStartFraction,
+        endFraction: trackEndFraction,
+        color: trackColor,
+      );
+    }
+
+    // Draw the line 2.
+    if (secondLineHead - secondLineTail > 0) {
+      drawLinearIndicator(
+        startFraction: secondLineTail,
+        endFraction: secondLineHead,
+        color: valueColor,
+      );
+    }
+
+    // Draw the track after line 2. Assuming text direction is LTR, this track
+    // appears on the left side of line 2.
+    if (secondLineTail > trackGapFraction) {
+      final double trackEndFraction = secondLineTail < 1
+          ? secondLineTail - getEffectiveTrackGapFraction(1 - secondLineTail, trackGapFraction)
+          : 1;
+      drawLinearIndicator(startFraction: 0, endFraction: trackEndFraction, color: trackColor);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_LinearProgressIndicatorPainter oldPainter) {
+    return oldPainter.trackColor != trackColor ||
+        oldPainter.valueColor != valueColor ||
+        oldPainter.value != value ||
+        oldPainter.animationValue != animationValue ||
+        oldPainter.textDirection != textDirection ||
+        oldPainter.indicatorBorderRadius != indicatorBorderRadius ||
+        oldPainter.stopIndicatorColor != stopIndicatorColor ||
+        oldPainter.stopIndicatorRadius != stopIndicatorRadius ||
+        oldPainter.trackGap != trackGap;
+  }
+}
+
+/// A Material Design linear progress indicator, also known as a progress bar.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=O-rhXZLtpv0}
+///
+/// A widget that shows progress along a line. There are two kinds of linear
+/// progress indicators:
+///
+///  * _Determinate_. Determinate progress indicators have a specific value at
+///    each point in time, and the value should increase monotonically from 0.0
+///    to 1.0, at which time the indicator is complete. To create a determinate
+///    progress indicator, use a non-null [value] between 0.0 and 1.0.
+///  * _Indeterminate_. Indeterminate progress indicators do not have a specific
+///    value at each point in time and instead indicate that progress is being
+///    made without indicating how much progress remains. To create an
+///    indeterminate progress indicator, use a null [value].
+///
+/// The indicator line is displayed with [valueColor], an animated value. To
+/// specify a constant color value use: `AlwaysStoppedAnimation<Color>(color)`.
+///
+/// The minimum height of the indicator can be specified using [minHeight].
+/// The indicator can be made taller by wrapping the widget with a [SizedBox].
+///
+/// {@tool dartpad}
+/// This example showcases determinate and indeterminate [LinearProgressIndicator]s.
+/// The [LinearProgressIndicator]s will use the ![updated Material 3 Design appearance](https://m3.material.io/components/progress-indicators/overview)
+/// when setting the [LinearProgressIndicator.year2023] flag to false.
+///
+/// ** See code in examples/api/lib/material/progress_indicator/linear_progress_indicator.0.dart **
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This sample shows the creation of a [LinearProgressIndicator] with a changing value.
+/// When toggling the switch, [LinearProgressIndicator] uses a determinate value.
+/// As described in: https://m3.material.io/components/progress-indicators/overview
+///
+/// ** See code in examples/api/lib/material/progress_indicator/linear_progress_indicator.1.dart **
+/// {@end-tool}
+///
+/// {@macro flutter.material.ProgressIndicator.AnimationSynchronization}
+///
+/// See the documentation of [CircularProgressIndicator] for an example on this
+/// topic.
+///
+/// See also:
+///
+///  * [CircularProgressIndicator], which shows progress along a circular arc.
+///  * [RefreshIndicator], which automatically displays a [CircularProgressIndicator]
+///    when the underlying vertical scrollable is overscrolled.
+///  * <https://material.io/design/components/progress-indicators.html#linear-progress-indicators>
+class LinearProgressIndicator extends ProgressIndicator {
+  /// Creates a linear progress indicator.
+  ///
+  /// {@macro flutter.material.ProgressIndicator.ProgressIndicator}
+  const LinearProgressIndicator({
+    super.key,
+    super.value,
+    super.backgroundColor,
+    super.color,
+    super.valueColor,
+    this.minHeight,
+    super.semanticsLabel,
+    super.semanticsValue,
+    this.borderRadius,
+    this.stopIndicatorColor,
+    this.stopIndicatorRadius,
+    this.trackGap,
+    @Deprecated(
+      'Set this flag to false to opt into the 2024 progress indicator appearance. Defaults to true. '
+      'In the future, this flag will default to false. Use ProgressIndicatorThemeData to customize individual properties. '
+      'This feature was deprecated after v3.26.0-0.1.pre.',
+    )
+    this.year2023,
+    this.controller,
+  }) : assert(minHeight == null || minHeight > 0),
+       assert(value == null || controller == null, _kValueControllerAssertion);
+
+  /// {@template flutter.material.LinearProgressIndicator.trackColor}
+  /// Color of the track being filled by the linear indicator.
+  ///
+  /// If [LinearProgressIndicator.backgroundColor] is null then the
+  /// ambient [ProgressIndicatorThemeData.linearTrackColor] will be used.
+  /// If that is null, then the ambient theme's [ColorScheme.background]
+  /// will be used to draw the track.
+  /// {@endtemplate}
+  @override
+  Color? get backgroundColor => super.backgroundColor;
+
+  /// {@template flutter.material.LinearProgressIndicator.minHeight}
+  /// The minimum height of the line used to draw the linear indicator.
+  ///
+  /// If [LinearProgressIndicator.minHeight] is null then it will use the
+  /// ambient [ProgressIndicatorThemeData.linearMinHeight]. If that is null
+  /// it will use 4dp.
+  /// {@endtemplate}
+  final double? minHeight;
+
+  /// The border radius of both the indicator and the track.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.borderRadius] will be used.
+  /// If that is also null, then defaults to radius of 2, which produces a
+  /// rounded shape with a rounded indicator. If [ThemeData.useMaterial3] is false,
+  /// then defaults to [BorderRadius.zero], which produces a rectangular shape
+  /// with a rectangular indicator.
+  final BorderRadiusGeometry? borderRadius;
+
+  /// The color of the stop indicator.
+  ///
+  /// If [year2023] is true or [ThemeData.useMaterial3] is false, then no stop
+  /// indicator will be drawn.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.stopIndicatorColor] will be used.
+  /// If that is null, then the [ColorScheme.primary] will be used.
+  final Color? stopIndicatorColor;
+
+  /// The radius of the stop indicator.
+  ///
+  /// If [year2023] is true or [ThemeData.useMaterial3] is false, then no stop
+  /// indicator will be drawn.
+  ///
+  /// Set [stopIndicatorRadius] to 0 to hide the stop indicator.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.stopIndicatorRadius] will be used.
+  /// If that is null, then defaults to 2.
+  final double? stopIndicatorRadius;
+
+  /// The gap between the indicator and the track.
+  ///
+  /// If [year2023] is true or [ThemeData.useMaterial3] is false, then no track
+  /// gap will be drawn.
+  ///
+  /// Set [trackGap] to 0 to hide the track gap.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.trackGap] will be used.
+  /// If that is null, then defaults to 4.
+  final double? trackGap;
+
+  /// When true, the [LinearProgressIndicator] will use the 2023 Material Design 3
+  /// appearance.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.year2023] will be used.
+  /// If that is null, then defaults to true.
+  ///
+  /// If this is set to false, the [LinearProgressIndicator] will use the
+  /// latest Material Design 3 appearance, which was introduced in December 2023.
+  ///
+  /// If [ThemeData.useMaterial3] is false, then this property is ignored.
+  @Deprecated(
+    'Set this flag to false to opt into the 2024 progress indicator appearance. Defaults to true. '
+    'In the future, this flag will default to false. Use ProgressIndicatorThemeData to customize individual properties. '
+    'This feature was deprecated after v3.27.0-0.1.pre.',
+  )
+  final bool? year2023;
+
+  /// {@template flutter.material.ProgressIndicator.controller}
+  /// An optional [AnimationController] that controls the animation of this
+  /// indeterminate progress indicator.
+  ///
+  /// This controller is only used when the indicator is indeterminate (i.e.,
+  /// when [value] is null). If this property is non-null, [value] must be null.
+  ///
+  /// The controller's value is expected to be a linear progression from 0.0 to
+  /// 1.0, which represents one full cycle of the indeterminate animation.
+  ///
+  /// If this controller is null (and [value] is also null), the widget will
+  /// look for a [ProgressIndicatorThemeData.controller]. If that is also null,
+  /// the widget will create and manage its own internal [AnimationController]
+  /// to drive the default indeterminate animation.
+  /// {@endtemplate}
+  ///
+  /// See also:
+  ///
+  ///  * [LinearProgressIndicator.defaultAnimationDuration], default duration
+  ///    for one full cycle of the indeterminate animation.
+  final AnimationController? controller;
+
+  /// The default duration for one full cycle of the indeterminate animation.
+  ///
+  /// This duration is used when the widget creates its own [AnimationController]
+  /// because no [controller] was provided, either directly or through a
+  /// [ProgressIndicatorTheme].
+  static const Duration defaultAnimationDuration = Duration(
+    milliseconds: _kIndeterminateLinearDuration,
+  );
+
+  @override
+  State<LinearProgressIndicator> createState() => _LinearProgressIndicatorState();
+}
+
+class _LinearProgressIndicatorState extends State<LinearProgressIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _internalController;
+
+  @override
+  void initState() {
+    super.initState();
+    _internalController = AnimationController(
+      duration: LinearProgressIndicator.defaultAnimationDuration,
+      vsync: this,
+    );
+    _updateControllerAnimatingStatus();
+  }
+
+  @override
+  void didUpdateWidget(LinearProgressIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateControllerAnimatingStatus();
+  }
+
+  @override
+  void dispose() {
+    _internalController.dispose();
+    super.dispose();
+  }
+
+  AnimationController get _controller =>
+      widget.controller ??
+      context.getInheritedWidgetOfExactType<ProgressIndicatorTheme>()?.data.controller ??
+      context.findAncestorWidgetOfExactType<Theme>()?.data.progressIndicatorTheme.controller ??
+      _internalController;
+
+  void _updateControllerAnimatingStatus() {
+    if (widget._effectiveValue == null && !_internalController.isAnimating) {
+      _internalController.repeat();
+    } else if (widget._effectiveValue != null && _internalController.isAnimating) {
+      _internalController.stop();
+    }
+  }
+
+  Widget _buildIndicator(BuildContext context, double animationValue, TextDirection textDirection) {
+    final ProgressIndicatorThemeData indicatorTheme = ProgressIndicatorTheme.of(context);
+    final bool year2023 = widget.year2023 ?? indicatorTheme.year2023 ?? true;
+    final ProgressIndicatorThemeData defaults = switch (Theme.of(context).useMaterial3) {
+      true =>
+        year2023
+            ? _LinearProgressIndicatorDefaultsM3Year2023(context)
+            : _LinearProgressIndicatorDefaultsM3(context),
+      false => _LinearProgressIndicatorDefaultsM2(context),
+    };
+    final Color trackColor =
+        widget.backgroundColor ?? indicatorTheme.linearTrackColor ?? defaults.linearTrackColor!;
+    final double minHeight =
+        widget.minHeight ?? indicatorTheme.linearMinHeight ?? defaults.linearMinHeight!;
+    final BorderRadiusGeometry? borderRadius =
+        widget.borderRadius ?? indicatorTheme.borderRadius ?? defaults.borderRadius;
+    final Color? stopIndicatorColor = !year2023
+        ? widget.stopIndicatorColor ??
+              indicatorTheme.stopIndicatorColor ??
+              defaults.stopIndicatorColor
+        : null;
+    final double? stopIndicatorRadius = !year2023
+        ? widget.stopIndicatorRadius ??
+              indicatorTheme.stopIndicatorRadius ??
+              defaults.stopIndicatorRadius
+        : null;
+    final double? trackGap = !year2023
+        ? widget.trackGap ?? indicatorTheme.trackGap ?? defaults.trackGap
+        : null;
+
+    Widget result = ConstrainedBox(
+      constraints: BoxConstraints(minWidth: double.infinity, minHeight: minHeight),
+      child: CustomPaint(
+        painter: _LinearProgressIndicatorPainter(
+          trackColor: trackColor,
+          valueColor: widget._getValueColor(context, defaultColor: defaults.color),
+          value: widget._effectiveValue, // may be null
+          animationValue: animationValue, // ignored if widget._effectiveValue is not null
+          textDirection: textDirection,
+          indicatorBorderRadius: borderRadius,
+          stopIndicatorColor: stopIndicatorColor,
+          stopIndicatorRadius: stopIndicatorRadius,
+          trackGap: trackGap,
+        ),
+      ),
+    );
+
+    // Clip is only needed with indeterminate progress indicators
+    if (borderRadius != null && widget._effectiveValue == null) {
+      result = ClipRRect(borderRadius: borderRadius, child: result);
+    }
+
+    return widget._buildSemanticsWrapper(context: context, child: result);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final TextDirection textDirection = Directionality.of(context);
+
+    if (widget._effectiveValue != null) {
+      return _buildIndicator(context, _controller.value, textDirection);
+    }
+
+    return AnimatedBuilder(
+      animation: _controller.view,
+      builder: (BuildContext context, Widget? child) {
+        return _buildIndicator(context, _controller.value, textDirection);
+      },
+    );
+  }
+}
+
+class _CircularProgressIndicatorPainter extends CustomPainter {
+  _CircularProgressIndicatorPainter({
+    this.trackColor,
+    required this.valueColor,
+    required this.value,
+    required this.headValue,
+    required this.tailValue,
+    required this.offsetValue,
+    required this.rotationValue,
+    required this.strokeWidth,
+    required this.strokeAlign,
+    this.strokeCap,
+    this.trackGap,
+    this.year2023 = true,
+  }) : arcStart = value != null
+           ? _startAngle
+           : _startAngle +
+                 tailValue * 3 / 2 * math.pi +
+                 rotationValue * math.pi * 2.0 +
+                 offsetValue * 0.5 * math.pi,
+       arcSweep = value != null
+           ? clampDouble(value, 0.0, 1.0) * _sweep
+           : math.max(headValue * 3 / 2 * math.pi - tailValue * 3 / 2 * math.pi, _epsilon);
+
+  final Color? trackColor;
+  final Color valueColor;
+  final double? value;
+  final double headValue;
+  final double tailValue;
+  final double offsetValue;
+  final double rotationValue;
+  final double strokeWidth;
+  final double strokeAlign;
+  final double arcStart;
+  final double arcSweep;
+  final StrokeCap? strokeCap;
+  final double? trackGap;
+  final bool year2023;
+
+  static const double _twoPi = math.pi * 2.0;
+  static const double _epsilon = .001;
+  // Canvas.drawArc(r, 0, 2*PI) doesn't draw anything, so just get close.
+  static const double _sweep = _twoPi - _epsilon;
+  static const double _startAngle = -math.pi / 2.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = valueColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    // Use the negative operator as intended to keep the exposed constant value
+    // as users are already familiar with.
+    final double strokeOffset = strokeWidth / 2 * -strokeAlign;
+    final arcBaseOffset = Offset(strokeOffset, strokeOffset);
+    final arcActualSize = Size(size.width - strokeOffset * 2, size.height - strokeOffset * 2);
+    final bool hasGap = trackGap != null && trackGap! > 0;
+
+    if (trackColor != null) {
+      final backgroundPaint = Paint()
+        ..color = trackColor!
+        ..strokeWidth = strokeWidth
+        ..strokeCap = strokeCap ?? StrokeCap.round
+        ..style = PaintingStyle.stroke;
+      // If hasGap is true, draw the background arc with a gap.
+      if (hasGap && value != null && value! > _epsilon) {
+        final double arcRadius = arcActualSize.shortestSide / 2;
+        final double strokeRadius = strokeWidth / arcRadius;
+        final double gapRadius = trackGap! / arcRadius;
+        final double startGap = strokeRadius + gapRadius;
+        final double endGap = value! < _epsilon ? startGap : startGap * 2;
+        final double startSweep = (-math.pi / 2.0) + startGap;
+        final double endSweep = math.max(
+          0.0,
+          _twoPi - clampDouble(value!, 0.0, 1.0) * _twoPi - endGap,
+        );
+        // Flip the canvas for the background arc.
+        canvas.save();
+        canvas.scale(-1, 1);
+        canvas.translate(-size.width, 0);
+        canvas.drawArc(arcBaseOffset & arcActualSize, startSweep, endSweep, false, backgroundPaint);
+        // Restore the canvas to draw the foreground arc.
+        canvas.restore();
+      } else {
+        canvas.drawArc(arcBaseOffset & arcActualSize, 0, _sweep, false, backgroundPaint);
+      }
+    }
+
+    if (year2023) {
+      if (value == null && strokeCap == null) {
+        // Indeterminate
+        paint.strokeCap = StrokeCap.square;
+      } else {
+        // Butt when determinate (value != null) && strokeCap == null;
+        paint.strokeCap = strokeCap ?? StrokeCap.butt;
+      }
+    } else {
+      paint.strokeCap = strokeCap ?? StrokeCap.round;
+    }
+
+    canvas.drawArc(arcBaseOffset & arcActualSize, arcStart, arcSweep, false, paint);
+  }
+
+  @override
+  bool shouldRepaint(_CircularProgressIndicatorPainter oldPainter) {
+    return oldPainter.trackColor != trackColor ||
+        oldPainter.valueColor != valueColor ||
+        oldPainter.value != value ||
+        oldPainter.headValue != headValue ||
+        oldPainter.tailValue != tailValue ||
+        oldPainter.offsetValue != offsetValue ||
+        oldPainter.rotationValue != rotationValue ||
+        oldPainter.strokeWidth != strokeWidth ||
+        oldPainter.strokeAlign != strokeAlign ||
+        oldPainter.strokeCap != strokeCap ||
+        oldPainter.trackGap != trackGap ||
+        oldPainter.year2023 != year2023;
+  }
+}
+
+/// A Material Design circular progress indicator, which spins to indicate that
+/// the application is busy.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=O-rhXZLtpv0}
+///
+/// A widget that shows progress along a circle. There are two kinds of circular
+/// progress indicators:
+///
+///  * _Determinate_. Determinate progress indicators have a specific value at
+///    each point in time, and the value should increase monotonically from 0.0
+///    to 1.0, at which time the indicator is complete. To create a determinate
+///    progress indicator, use a non-null [value] between 0.0 and 1.0.
+///  * _Indeterminate_. Indeterminate progress indicators do not have a specific
+///    value at each point in time and instead indicate that progress is being
+///    made without indicating how much progress remains. To create an
+///    indeterminate progress indicator, use a null [value].
+///
+/// The indicator arc is displayed with [valueColor], an animated value. To
+/// specify a constant color use: `AlwaysStoppedAnimation<Color>(color)`.
+///
+/// {@tool dartpad}
+/// This example showcases determinate and indeterminate [CircularProgressIndicator]s.
+/// The [CircularProgressIndicator]s will use the ![updated Material 3 Design appearance](https://m3.material.io/components/progress-indicators/overview)
+/// when setting the [CircularProgressIndicator.year2023] flag to false.
+///
+/// ** See code in examples/api/lib/material/progress_indicator/circular_progress_indicator.0.dart **
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This sample shows the creation of a [CircularProgressIndicator] with a changing value.
+/// When toggling the switch, [CircularProgressIndicator] uses a determinate value.
+/// As described in: https://m3.material.io/components/progress-indicators/overview
+///
+/// ** See code in examples/api/lib/material/progress_indicator/circular_progress_indicator.1.dart **
+/// {@end-tool}
+///
+/// {@template flutter.material.ProgressIndicator.AnimationSynchronization}
+/// ## Animation synchronization
+///
+/// When multiple [CircularProgressIndicator]s or [LinearProgressIndicator]s are
+/// animating on screen simultaneously (e.g., in a list of loading items), their
+/// uncoordinated animations can appear visually cluttered. To address this, the
+/// animation of an indicator can be driven by a custom [AnimationController].
+///
+/// This allows multiple indicators to be synchronized to a single animation
+/// source. The most convenient way to achieve this for a group of indicators is
+/// by providing a controller via [ProgressIndicatorTheme] (see
+/// [ProgressIndicatorThemeData.controller]). All [CircularProgressIndicator]s
+/// or [LinearProgressIndicator]s within that theme's subtree will then share
+/// the same animation, resulting in a more coordinated and visually pleasing
+/// effect.
+///
+/// Alternatively, a specific [AnimationController] can be passed directly to the
+/// [controller] property of an individual indicator.
+/// {@endtemplate}
+///
+/// {@tool dartpad}
+/// This sample demonstrates how to synchronize the indeterminate animations
+/// of multiple [CircularProgressIndicator]s using a [Theme].
+///
+/// Tapping the buttons adds or removes indicators. By default, they all
+/// share a [ProgressIndicatorThemeData.controller], which keeps their
+/// animations in sync.
+///
+/// Tapping the "Toggle" button sets the theme's controller to null.
+/// This forces each indicator to create its own internal controller,
+/// causing their animations to become desynchronized.
+///
+/// ** See code in examples/api/lib/material/progress_indicator/circular_progress_indicator.2.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [LinearProgressIndicator], which displays progress along a line.
+///  * [RefreshIndicator], which automatically displays a [CircularProgressIndicator]
+///    when the underlying vertical scrollable is overscrolled.
+///  * <https://material.io/design/components/progress-indicators.html#circular-progress-indicators>
+class CircularProgressIndicator extends ProgressIndicator {
+  /// Creates a circular progress indicator.
+  ///
+  /// {@macro flutter.material.ProgressIndicator.ProgressIndicator}
+  const CircularProgressIndicator({
+    super.key,
+    super.value,
+    super.backgroundColor,
+    super.color,
+    super.valueColor,
+    this.strokeWidth,
+    this.strokeAlign,
+    super.semanticsLabel,
+    super.semanticsValue,
+    this.strokeCap,
+    this.constraints,
+    this.trackGap,
+    @Deprecated(
+      'Set this flag to false to opt into the 2024 progress indicator appearance. Defaults to true. '
+      'In the future, this flag will default to false. Use ProgressIndicatorThemeData to customize individual properties. '
+      'This feature was deprecated after v3.27.0-0.1.pre.',
+    )
+    this.year2023,
+    this.padding,
+    this.controller,
+  }) : assert(value == null || controller == null, _kValueControllerAssertion),
+       _indicatorType = _ActivityIndicatorType.material;
+
+  /// Creates an adaptive progress indicator that is a
+  /// [CupertinoActivityIndicator] on [TargetPlatform.iOS] &
+  /// [TargetPlatform.macOS] and a [CircularProgressIndicator] in material
+  /// theme/non-Apple platforms.
+  ///
+  /// The [valueColor], [strokeWidth], [strokeAlign], [strokeCap],
+  /// [semanticsLabel], [semanticsValue], [trackGap], [year2023] will be
+  /// ignored on iOS & macOS.
+  ///
+  /// {@macro flutter.material.ProgressIndicator.ProgressIndicator}
+  const CircularProgressIndicator.adaptive({
+    super.key,
+    super.value,
+    super.backgroundColor,
+    super.valueColor,
+    this.strokeWidth,
+    super.semanticsLabel,
+    super.semanticsValue,
+    this.strokeCap,
+    this.strokeAlign,
+    this.constraints,
+    this.trackGap,
+    @Deprecated(
+      'Set this flag to false to opt into the 2024 progress indicator appearance. Defaults to true. '
+      'In the future, this flag will default to false. Use ProgressIndicatorThemeData to customize individual properties. '
+      'This feature was deprecated after v3.27.0-0.2.pre.',
+    )
+    this.year2023,
+    this.padding,
+    this.controller,
+  }) : assert(value == null || controller == null, _kValueControllerAssertion),
+       _indicatorType = _ActivityIndicatorType.adaptive;
+
+  final _ActivityIndicatorType _indicatorType;
+
+  /// {@template flutter.material.CircularProgressIndicator.trackColor}
+  /// Color of the circular track being filled by the circular indicator.
+  ///
+  /// If [CircularProgressIndicator.backgroundColor] is null then the
+  /// ambient [ProgressIndicatorThemeData.circularTrackColor] will be used.
+  /// If that is null, then the track will not be painted.
+  /// {@endtemplate}
+  @override
+  Color? get backgroundColor => super.backgroundColor;
+
+  /// The width of the line used to draw the circle.
+  final double? strokeWidth;
+
+  /// The relative position of the stroke on a [CircularProgressIndicator].
+  ///
+  /// Values typically range from -1.0 ([strokeAlignInside], inside stroke)
+  /// to 1.0 ([strokeAlignOutside], outside stroke),
+  /// without any bound constraints (e.g., a value of -2.0 is not typical, but allowed).
+  /// A value of 0 ([strokeAlignCenter]) will center the border
+  /// on the edge of the widget.
+  ///
+  /// If [year2023] is true, then the default value is [strokeAlignCenter].
+  /// Otherwise, the default value is [strokeAlignInside].
+  final double? strokeAlign;
+
+  /// The progress indicator's line ending.
+  ///
+  /// This determines the shape of the stroke ends of the progress indicator.
+  /// By default, [strokeCap] is null.
+  /// When [value] is null (indeterminate), the stroke ends are set to
+  /// [StrokeCap.square]. When [value] is not null, the stroke
+  /// ends are set to [StrokeCap.butt].
+  ///
+  /// Setting [strokeCap] to [StrokeCap.round] will result in a rounded end.
+  /// Setting [strokeCap] to [StrokeCap.butt] with [value] == null will result
+  /// in a slightly different indeterminate animation; the indicator completely
+  /// disappears and reappears on its minimum value.
+  /// Setting [strokeCap] to [StrokeCap.square] with [value] != null will
+  /// result in a different display of [value]. The indicator will start
+  /// drawing from slightly less than the start, and end slightly after
+  /// the end. This will produce an alternative result, as the
+  /// default behavior, for example, that a [value] of 0.5 starts at 90 degrees
+  /// and ends at 270 degrees. With [StrokeCap.square], it could start 85
+  /// degrees and end at 275 degrees.
+  final StrokeCap? strokeCap;
+
+  /// Defines minimum and maximum sizes for a [CircularProgressIndicator].
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.constraints] will be used.
+  /// Otherwise, defaults to a minimum width and height of 36 pixels.
+  final BoxConstraints? constraints;
+
+  /// The gap between the active indicator and the background track.
+  ///
+  /// If [year2023] is true or [ThemeData.useMaterial3] is false, then no track
+  /// gap will be drawn.
+  ///
+  /// Set [trackGap] to 0 to hide the track gap.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.trackGap] will be used.
+  /// If that is null, then defaults to 4.
+  final double? trackGap;
+
+  /// When true, the [CircularProgressIndicator] will use the 2023 Material Design 3
+  /// appearance.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.year2023] will be used.
+  /// If that is null, then defaults to true.
+  ///
+  /// If this is set to false, the [CircularProgressIndicator] will use the
+  /// latest Material Design 3 appearance, which was introduced in December 2023.
+  ///
+  /// If [ThemeData.useMaterial3] is false, then this property is ignored.
+  @Deprecated(
+    'Set this flag to false to opt into the 2024 progress indicator appearance. Defaults to true. '
+    'In the future, this flag will default to false. Use ProgressIndicatorThemeData to customize individual properties. '
+    'This feature was deprecated after v3.27.0-0.2.pre.',
+  )
+  final bool? year2023;
+
+  /// The padding around the indicator track.
+  ///
+  /// If null, then the [ProgressIndicatorThemeData.circularTrackPadding] will be
+  /// used. If that is null and [year2023] is false, then defaults to `EdgeInsets.all(4.0)`
+  /// padding. Otherwise, defaults to zero padding.
+  final EdgeInsetsGeometry? padding;
+
+  /// {@macro flutter.material.ProgressIndicator.controller}
+  ///
+  /// See also:
+  ///
+  ///  * [CircularProgressIndicator.defaultAnimationDuration], default duration
+  ///    for one full cycle of the indeterminate animation.
+  final AnimationController? controller;
+
+  /// The indicator stroke is drawn fully inside of the indicator path.
+  ///
+  /// This is a constant for use with [strokeAlign].
+  static const double strokeAlignInside = -1.0;
+
+  /// The indicator stroke is drawn on the center of the indicator path,
+  /// with half of the [strokeWidth] on the inside, and the other half
+  /// on the outside of the path.
+  ///
+  /// This is a constant for use with [strokeAlign].
+  ///
+  /// This is the default value for [strokeAlign].
+  static const double strokeAlignCenter = 0.0;
+
+  /// The indicator stroke is drawn on the outside of the indicator path.
+  ///
+  /// This is a constant for use with [strokeAlign].
+  static const double strokeAlignOutside = 1.0;
+
+  /// The default duration for one full cycle of the indeterminate animation.
+  ///
+  /// During this period, the indicator completes several full rotations.
+  ///
+  /// This duration is used when the widget creates its own [AnimationController]
+  /// because no [controller] was provided, either directly or through a
+  /// [ProgressIndicatorTheme].
+  static const Duration defaultAnimationDuration = Duration(
+    milliseconds: _kIndeterminateCircularDuration,
+  );
+
+  @override
+  State<CircularProgressIndicator> createState() => _CircularProgressIndicatorState();
+}
+
+class _CircularProgressIndicatorState extends State<CircularProgressIndicator>
+    with SingleTickerProviderStateMixin {
+  static const int _pathCount = _kIndeterminateCircularDuration ~/ 1333;
+  static const int _rotationCount = _kIndeterminateCircularDuration ~/ 2222;
+
+  static final Animatable<double> _strokeHeadTween = CurveTween(
+    curve: const Interval(0.0, 0.5, curve: Curves.fastOutSlowIn),
+  ).chain(CurveTween(curve: const SawTooth(_pathCount)));
+  static final Animatable<double> _strokeTailTween = CurveTween(
+    curve: const Interval(0.5, 1.0, curve: Curves.fastOutSlowIn),
+  ).chain(CurveTween(curve: const SawTooth(_pathCount)));
+  static final Animatable<double> _offsetTween = CurveTween(curve: const SawTooth(_pathCount));
+  static final Animatable<double> _rotationTween = CurveTween(
+    curve: const SawTooth(_rotationCount),
+  );
+
+  late final AnimationController _internalController;
+
+  @override
+  void initState() {
+    super.initState();
+    _internalController = AnimationController(
+      duration: CircularProgressIndicator.defaultAnimationDuration,
+      vsync: this,
+    );
+    _updateControllerAnimatingStatus();
+  }
+
+  @override
+  void didUpdateWidget(CircularProgressIndicator oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateControllerAnimatingStatus();
+  }
+
+  @override
+  void dispose() {
+    _internalController.dispose();
+    super.dispose();
+  }
+
+  AnimationController get _controller =>
+      widget.controller ??
+      context.getInheritedWidgetOfExactType<ProgressIndicatorTheme>()?.data.controller ??
+      context.findAncestorWidgetOfExactType<Theme>()?.data.progressIndicatorTheme.controller ??
+      _internalController;
+
+  void _updateControllerAnimatingStatus() {
+    if (widget._effectiveValue == null && !_internalController.isAnimating) {
+      _internalController.repeat();
+    } else if (widget._effectiveValue != null && _internalController.isAnimating) {
+      _internalController.stop();
+    }
+  }
+
+  Widget _buildCupertinoIndicator(BuildContext context) {
+    final Color? tickColor = widget.backgroundColor;
+    final double? value = widget._effectiveValue;
+    if (value == null) {
+      return CupertinoActivityIndicator(key: widget.key, color: tickColor);
+    }
+    return CupertinoActivityIndicator.partiallyRevealed(
+      key: widget.key,
+      color: tickColor,
+      progress: value,
+    );
+  }
+
+  Widget _buildMaterialIndicator(
+    BuildContext context,
+    double headValue,
+    double tailValue,
+    double offsetValue,
+    double rotationValue,
+  ) {
+    final ProgressIndicatorThemeData indicatorTheme = ProgressIndicatorTheme.of(context);
+    final bool year2023 = widget.year2023 ?? indicatorTheme.year2023 ?? true;
+    final ProgressIndicatorThemeData defaults = switch (Theme.of(context).useMaterial3) {
+      true =>
+        year2023
+            ? _CircularProgressIndicatorDefaultsM3Year2023(
+                context,
+                indeterminate: widget._effectiveValue == null,
+              )
+            : _CircularProgressIndicatorDefaultsM3(
+                context,
+                indeterminate: widget._effectiveValue == null,
+              ),
+      false => _CircularProgressIndicatorDefaultsM2(
+        context,
+        indeterminate: widget._effectiveValue == null,
+      ),
+    };
+    final Color? trackColor =
+        widget.backgroundColor ?? indicatorTheme.circularTrackColor ?? defaults.circularTrackColor;
+    final double strokeWidth =
+        widget.strokeWidth ?? indicatorTheme.strokeWidth ?? defaults.strokeWidth!;
+    final double strokeAlign =
+        widget.strokeAlign ?? indicatorTheme.strokeAlign ?? defaults.strokeAlign!;
+    final StrokeCap? strokeCap = widget.strokeCap ?? indicatorTheme.strokeCap;
+    final BoxConstraints constraints =
+        widget.constraints ?? indicatorTheme.constraints ?? defaults.constraints!;
+    final double? trackGap = year2023
+        ? null
+        : widget.trackGap ?? indicatorTheme.trackGap ?? defaults.trackGap;
+    final EdgeInsetsGeometry? effectivePadding =
+        widget.padding ?? indicatorTheme.circularTrackPadding ?? defaults.circularTrackPadding;
+
+    Widget result = ConstrainedBox(
+      constraints: constraints,
+      child: CustomPaint(
+        painter: _CircularProgressIndicatorPainter(
+          trackColor: trackColor,
+          valueColor: widget._getValueColor(context, defaultColor: defaults.color),
+          value: widget._effectiveValue, // may be null
+          headValue:
+              headValue, // remaining arguments are ignored if widget._effectiveValue is not null
+          tailValue: tailValue,
+          offsetValue: offsetValue,
+          rotationValue: rotationValue,
+          strokeWidth: strokeWidth,
+          strokeAlign: strokeAlign,
+          strokeCap: strokeCap,
+          trackGap: trackGap,
+          year2023: year2023,
+        ),
+      ),
+    );
+
+    if (effectivePadding != null) {
+      result = Padding(padding: effectivePadding, child: result);
+    }
+
+    return widget._buildSemanticsWrapper(context: context, child: result);
+  }
+
+  Widget _buildAnimation() {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, Widget? child) {
+        return _buildMaterialIndicator(
+          context,
+          _strokeHeadTween.evaluate(_controller),
+          _strokeTailTween.evaluate(_controller),
+          _offsetTween.evaluate(_controller),
+          _rotationTween.evaluate(_controller),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(
+      builder: (BuildContext context) {
+        switch (widget._indicatorType) {
+          case _ActivityIndicatorType.material:
+            if (widget._effectiveValue != null) {
+              return _buildMaterialIndicator(context, 0.0, 0.0, 0, 0.0);
+            }
+            return _buildAnimation();
+          case _ActivityIndicatorType.adaptive:
+            final ThemeData theme = Theme.of(context);
+            switch (theme.platform) {
+              case TargetPlatform.iOS:
+              case TargetPlatform.macOS:
+                return _buildCupertinoIndicator(context);
+              case TargetPlatform.android:
+              case TargetPlatform.fuchsia:
+              case TargetPlatform.linux:
+              case TargetPlatform.windows:
+                if (widget._effectiveValue != null) {
+                  return _buildMaterialIndicator(context, 0.0, 0.0, 0, 0.0);
+                }
+                return _buildAnimation();
+            }
+        }
+      },
+    );
+  }
+}
+
+class _RefreshProgressIndicatorPainter extends _CircularProgressIndicatorPainter {
+  _RefreshProgressIndicatorPainter({
+    required super.valueColor,
+    required super.value,
+    required super.headValue,
+    required super.tailValue,
+    required super.offsetValue,
+    required super.rotationValue,
+    required super.strokeWidth,
+    required super.strokeAlign,
+    required this.arrowheadScale,
+    required super.strokeCap,
+  });
+
+  final double arrowheadScale;
+
+  void paintArrowhead(Canvas canvas, Size size) {
+    // ux, uy: a unit vector whose direction parallels the base of the arrowhead.
+    // (So ux, -uy points in the direction the arrowhead points.)
+    final double arcEnd = arcStart + arcSweep;
+    final double ux = math.cos(arcEnd);
+    final double uy = math.sin(arcEnd);
+
+    assert(size.width == size.height);
+    final double radius = size.width / 2.0;
+    final double arrowheadPointX = radius + ux * radius + -uy * strokeWidth * 2.0 * arrowheadScale;
+    final double arrowheadPointY = radius + uy * radius + ux * strokeWidth * 2.0 * arrowheadScale;
+    final double arrowheadRadius = strokeWidth * 2.0 * arrowheadScale;
+    final double innerRadius = radius - arrowheadRadius;
+    final double outerRadius = radius + arrowheadRadius;
+
+    final path = Path()
+      ..moveTo(radius + ux * innerRadius, radius + uy * innerRadius)
+      ..lineTo(radius + ux * outerRadius, radius + uy * outerRadius)
+      ..lineTo(arrowheadPointX, arrowheadPointY)
+      ..close();
+
+    final paint = Paint()
+      ..color = valueColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    super.paint(canvas, size);
+    if (arrowheadScale > 0.0) {
+      paintArrowhead(canvas, size);
+    }
+  }
+}
+
+/// An indicator for the progress of refreshing the contents of a widget.
+///
+/// Typically used for swipe-to-refresh interactions. See [RefreshIndicator] for
+/// a complete implementation of swipe-to-refresh driven by a [Scrollable]
+/// widget.
+///
+/// The indicator arc is displayed with [valueColor], an animated value. To
+/// specify a constant color use: `AlwaysStoppedAnimation<Color>(color)`.
+///
+/// See also:
+///
+///  * [RefreshIndicator], which automatically displays a [CircularProgressIndicator]
+///    when the underlying vertical scrollable is overscrolled.
+class RefreshProgressIndicator extends CircularProgressIndicator {
+  /// Creates a refresh progress indicator.
+  ///
+  /// Rather than creating a refresh progress indicator directly, consider using
+  /// a [RefreshIndicator] together with a [Scrollable] widget.
+  ///
+  /// {@macro flutter.material.ProgressIndicator.ProgressIndicator}
+  const RefreshProgressIndicator({
+    super.key,
+    super.value,
+    super.backgroundColor,
+    super.color,
+    super.valueColor,
+    super.strokeWidth = defaultStrokeWidth, // Different default than CircularProgressIndicator.
+    super.strokeAlign,
+    super.semanticsLabel,
+    super.semanticsValue,
+    super.strokeCap,
+    this.elevation = 2.0,
+    this.indicatorMargin = const EdgeInsets.all(4.0),
+    this.indicatorPadding = const EdgeInsets.all(12.0),
+  });
+
+  /// {@macro flutter.material.material.elevation}
+  final double elevation;
+
+  /// The amount of space by which to inset the whole indicator.
+  /// It accommodates the [elevation] of the indicator.
+  final EdgeInsetsGeometry indicatorMargin;
+
+  /// The amount of space by which to inset the inner refresh indicator.
+  final EdgeInsetsGeometry indicatorPadding;
+
+  /// Default stroke width.
+  static const double defaultStrokeWidth = 2.5;
+
+  /// {@template flutter.material.RefreshProgressIndicator.backgroundColor}
+  /// Background color of that fills the circle under the refresh indicator.
+  ///
+  /// If [RefreshIndicator.backgroundColor] is null then the
+  /// ambient [ProgressIndicatorThemeData.refreshBackgroundColor] will be used.
+  /// If that is null, then the ambient theme's [ThemeData.canvasColor]
+  /// will be used.
+  /// {@endtemplate}
+  @override
+  Color? get backgroundColor => super.backgroundColor;
+
+  @override
+  State<CircularProgressIndicator> createState() => _RefreshProgressIndicatorState();
+}
+
+class _RefreshProgressIndicatorState extends _CircularProgressIndicatorState {
+  static const double _indicatorSize = 41.0;
+
+  /// Interval for arrow head to fully grow.
+  static const double _strokeHeadInterval = 0.33;
+
+  late final Animatable<double> _convertTween = CurveTween(
+    curve: const Interval(0.1, _strokeHeadInterval),
+  );
+
+  late final Animatable<double> _additionalRotationTween = TweenSequence<double>(
+    <TweenSequenceItem<double>>[
+      // Makes arrow to expand a little bit earlier, to match the Android look.
+      TweenSequenceItem<double>(
+        tween: Tween<double>(begin: -0.1, end: -0.2),
+        weight: _strokeHeadInterval,
+      ),
+      // Additional rotation after the arrow expanded
+      TweenSequenceItem<double>(
+        tween: Tween<double>(begin: -0.2, end: 1.35),
+        weight: 1 - _strokeHeadInterval,
+      ),
+    ],
+  );
+
+  // Last value received from the widget before null.
+  double? _lastValue;
+
+  /// Force casting the widget as [RefreshProgressIndicator].
+  @override
+  RefreshProgressIndicator get widget => super.widget as RefreshProgressIndicator;
+
+  // Always show the indeterminate version of the circular progress indicator.
+  //
+  // When value is non-null the sweep of the progress indicator arrow's arc
+  // varies from 0 to about 300 degrees.
+  //
+  // When value is null the arrow animation starting from wherever we left it.
+  @override
+  Widget build(BuildContext context) {
+    final double? value = widget._effectiveValue;
+    if (value != null) {
+      _lastValue = value;
+      _controller.value =
+          _convertTween.transform(value) * (1333 / 2 / _kIndeterminateCircularDuration);
+    }
+    return _buildAnimation();
+  }
+
+  @override
+  Widget _buildAnimation() {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, Widget? child) {
+        return _buildMaterialIndicator(
+          context,
+          // Lengthen the arc a little
+          1.05 * _CircularProgressIndicatorState._strokeHeadTween.transform(_controller.value),
+          _CircularProgressIndicatorState._strokeTailTween.transform(_controller.value),
+          _CircularProgressIndicatorState._offsetTween.transform(_controller.value),
+          _CircularProgressIndicatorState._rotationTween.transform(_controller.value),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget _buildMaterialIndicator(
+    BuildContext context,
+    double headValue,
+    double tailValue,
+    double offsetValue,
+    double rotationValue,
+  ) {
+    final double? value = widget._effectiveValue;
+    final double arrowheadScale = value == null
+        ? 0.0
+        : const Interval(0.1, _strokeHeadInterval).transform(value);
+    final double rotation;
+
+    if (value == null && _lastValue == null) {
+      rotation = 0.0;
+    } else {
+      rotation = math.pi * _additionalRotationTween.transform(value ?? _lastValue!);
+    }
+
+    Color valueColor = widget._getValueColor(context);
+    final double opacity = valueColor.opacity;
+    valueColor = valueColor.withOpacity(1.0);
+
+    final ProgressIndicatorThemeData defaults = switch (Theme.of(context).useMaterial3) {
+      true => _CircularProgressIndicatorDefaultsM3Year2023(context, indeterminate: value == null),
+      false => _CircularProgressIndicatorDefaultsM2(context, indeterminate: value == null),
+    };
+    final ProgressIndicatorThemeData indicatorTheme = ProgressIndicatorTheme.of(context);
+    final Color backgroundColor =
+        widget.backgroundColor ??
+        indicatorTheme.refreshBackgroundColor ??
+        Theme.of(context).canvasColor;
+    final double strokeWidth =
+        widget.strokeWidth ?? indicatorTheme.strokeWidth ?? defaults.strokeWidth!;
+    final double strokeAlign =
+        widget.strokeAlign ?? indicatorTheme.strokeAlign ?? defaults.strokeAlign!;
+    final StrokeCap? strokeCap = widget.strokeCap ?? indicatorTheme.strokeCap;
+
+    return widget._buildSemanticsWrapper(
+      context: context,
+      child: Padding(
+        padding: widget.indicatorMargin,
+        child: SizedBox.fromSize(
+          size: const Size.square(_indicatorSize),
+          child: Material(
+            type: MaterialType.circle,
+            color: backgroundColor,
+            elevation: widget.elevation,
+            child: Padding(
+              padding: widget.indicatorPadding,
+              child: Opacity(
+                opacity: opacity,
+                child: Transform.rotate(
+                  angle: rotation,
+                  child: CustomPaint(
+                    painter: _RefreshProgressIndicatorPainter(
+                      valueColor: valueColor,
+                      value: null, // Draw the indeterminate progress indicator.
+                      headValue: headValue,
+                      tailValue: tailValue,
+                      offsetValue: offsetValue,
+                      rotationValue: rotationValue,
+                      strokeWidth: strokeWidth,
+                      strokeAlign: strokeAlign,
+                      arrowheadScale: arrowheadScale,
+                      strokeCap: strokeCap,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Hand coded defaults based on Material Design 2.
+class _CircularProgressIndicatorDefaultsM2 extends ProgressIndicatorThemeData {
+  _CircularProgressIndicatorDefaultsM2(this.context, {required this.indeterminate});
+
+  final BuildContext context;
+  late final ColorScheme _colors = Theme.of(context).colorScheme;
+  final bool indeterminate;
+
+  @override
+  Color get color => _colors.primary;
+
+  @override
+  double? get strokeWidth => 4.0;
+
+  @override
+  double? get strokeAlign => CircularProgressIndicator.strokeAlignCenter;
+
+  @override
+  BoxConstraints get constraints => const BoxConstraints(minWidth: 36.0, minHeight: 36.0);
+}
+
+class _LinearProgressIndicatorDefaultsM2 extends ProgressIndicatorThemeData {
+  _LinearProgressIndicatorDefaultsM2(this.context);
+
+  final BuildContext context;
+  late final ColorScheme _colors = Theme.of(context).colorScheme;
+
+  @override
+  Color get color => _colors.primary;
+
+  @override
+  Color get linearTrackColor => _colors.background;
+
+  @override
+  double get linearMinHeight => 4.0;
+}
+
+class _CircularProgressIndicatorDefaultsM3Year2023 extends ProgressIndicatorThemeData {
+  _CircularProgressIndicatorDefaultsM3Year2023(this.context, {required this.indeterminate});
+
+  final BuildContext context;
+  late final ColorScheme _colors = Theme.of(context).colorScheme;
+  final bool indeterminate;
+
+  @override
+  Color get color => _colors.primary;
+
+  @override
+  double get strokeWidth => 4.0;
+
+  @override
+  double? get strokeAlign => CircularProgressIndicator.strokeAlignCenter;
+
+  @override
+  BoxConstraints get constraints => const BoxConstraints(minWidth: 36.0, minHeight: 36.0);
+}
+
+class _LinearProgressIndicatorDefaultsM3Year2023 extends ProgressIndicatorThemeData {
+  _LinearProgressIndicatorDefaultsM3Year2023(this.context);
+
+  final BuildContext context;
+  late final ColorScheme _colors = Theme.of(context).colorScheme;
+
+  @override
+  Color get color => _colors.primary;
+
+  @override
+  Color get linearTrackColor => _colors.secondaryContainer;
+
+  @override
+  double get linearMinHeight => 4.0;
+}
+
+// BEGIN GENERATED TOKEN PROPERTIES - ProgressIndicator
+
+// Do not edit by hand. The code between the "BEGIN GENERATED" and
+// "END GENERATED" comments are generated from data in the Material
+// Design token database by the script:
+//   dev/tools/gen_defaults/bin/gen_defaults.dart.
+
+// dart format off
+class _CircularProgressIndicatorDefaultsM3 extends ProgressIndicatorThemeData {
+  _CircularProgressIndicatorDefaultsM3(this.context, { required this.indeterminate });
+
+  final BuildContext context;
+  late final ColorScheme _colors = Theme.of(context).colorScheme;
+  final bool indeterminate;
+
+  @override
+  Color get color => _colors.primary;
+
+  @override
+  Color? get circularTrackColor => indeterminate ? null : _colors.secondaryContainer;
+
+  @override
+  double get strokeWidth => 4.0;
+
+  @override
+  double? get strokeAlign => CircularProgressIndicator.strokeAlignInside;
+
+  @override
+  BoxConstraints get constraints => const BoxConstraints(
+    minWidth: 40.0,
+    minHeight: 40.0,
+  );
+
+  @override
+  double? get trackGap => 4.0;
+
+  @override
+  EdgeInsetsGeometry? get circularTrackPadding => const EdgeInsets.all(4.0);
+}
+
+class _LinearProgressIndicatorDefaultsM3 extends ProgressIndicatorThemeData {
+  _LinearProgressIndicatorDefaultsM3(this.context);
+
+  final BuildContext context;
+  late final ColorScheme _colors = Theme.of(context).colorScheme;
+
+  @override
+  Color get color => _colors.primary;
+
+  @override
+  Color get linearTrackColor => _colors.secondaryContainer;
+
+  @override
+  double get linearMinHeight => 4.0;
+
+  @override
+  BorderRadius get borderRadius => const BorderRadius.all(Radius.circular(4.0 / 2));
+
+  @override
+  Color get stopIndicatorColor => _colors.primary;
+
+  @override
+  double? get stopIndicatorRadius => 4.0 / 2;
+
+  @override
+  double? get trackGap => 4.0;
+}
+// dart format on
+
+// END GENERATED TOKEN PROPERTIES - ProgressIndicator
+```
+
+// ============================================================
+// 📁 Project: edge_insets.dart
+// 📁 /home/user/flutter/packages/flutter/lib/src/painting/edge_insets.dart
+// ============================================================
+
+```dart
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// @docImport 'dart:ui';
+///
+/// @docImport 'package:flutter/widgets.dart';
+library;
+
+import 'dart:ui' as ui show ViewPadding, lerpDouble;
+
+import 'package:flutter/foundation.dart';
+
+import 'basic_types.dart';
+import 'debug.dart';
+
+/// Base class for [EdgeInsets] that allows for text-direction aware
+/// resolution.
+///
+/// A property or argument of this type accepts classes created either with [
+/// EdgeInsets.fromLTRB] and its variants, or [
+/// EdgeInsetsDirectional.fromSTEB] and its variants.
+///
+/// To convert an [EdgeInsetsGeometry] object of indeterminate type into a
+/// [EdgeInsets] object, call the [resolve] method.
+///
+/// See also:
+///
+///  * [Padding], a widget that describes margins using [EdgeInsetsGeometry].
+@immutable
+abstract class EdgeInsetsGeometry {
+  /// Abstract const constructor. This constructor enables subclasses to provide
+  /// const constructors so that they can be used in const expressions.
+  const EdgeInsetsGeometry();
+
+  /// Creates insets where all the offsets are `value`.
+  const factory EdgeInsetsGeometry.all(double value) = EdgeInsets.all;
+
+  /// Creates [EdgeInsets] with only the given values non-zero.
+  const factory EdgeInsetsGeometry.only({double left, double right, double top, double bottom}) =
+      EdgeInsets.only;
+
+  /// Creates [EdgeInsetsDirectional] with only the given values non-zero.
+  const factory EdgeInsetsGeometry.directional({
+    double start,
+    double end,
+    double top,
+    double bottom,
+  }) = EdgeInsetsDirectional.only;
+
+  /// Creates [EdgeInsets] with symmetrical vertical and horizontal offsets.
+  const factory EdgeInsetsGeometry.symmetric({double vertical, double horizontal}) =
+      EdgeInsets.symmetric;
+
+  /// Creates [EdgeInsets] from offsets from the left, top, right, and bottom.
+  const factory EdgeInsetsGeometry.fromLTRB(double left, double top, double right, double bottom) =
+      EdgeInsets.fromLTRB;
+
+  /// Creates [EdgeInsets] that match the given view padding.
+  ///
+  /// If you need the current system padding or view insets in the context of a
+  /// widget, consider using [MediaQuery.paddingOf] to obtain these values
+  /// rather than using the value from a [FlutterView] directly, so that you get
+  /// notified of changes.
+  factory EdgeInsetsGeometry.fromViewPadding(ui.ViewPadding padding, double devicePixelRatio) =
+      EdgeInsets.fromViewPadding;
+
+  /// Creates [EdgeInsetsDirectional] from offsets from the start, top, end, and
+  /// bottom.
+  const factory EdgeInsetsGeometry.fromSTEB(double start, double top, double end, double bottom) =
+      EdgeInsetsDirectional.fromSTEB;
+
+  /// An [EdgeInsets] with zero offsets in each direction.
+  static const EdgeInsetsGeometry zero = EdgeInsets.zero;
+
+  double get _bottom;
+  double get _end;
+  double get _left;
+  double get _right;
+  double get _start;
+  double get _top;
+
+  /// An [EdgeInsetsGeometry] with infinite offsets in each direction.
+  ///
+  /// Can be used as an infinite upper bound for [clamp].
+  static const EdgeInsetsGeometry infinity = _MixedEdgeInsets.fromLRSETB(
+    double.infinity,
+    double.infinity,
+    double.infinity,
+    double.infinity,
+    double.infinity,
+    double.infinity,
+  );
+
+  /// Whether every dimension is non-negative.
+  bool get isNonNegative {
+    return _left >= 0.0 &&
+        _right >= 0.0 &&
+        _start >= 0.0 &&
+        _end >= 0.0 &&
+        _top >= 0.0 &&
+        _bottom >= 0.0;
+  }
+
+  /// The total offset in the horizontal direction.
+  double get horizontal => _left + _right + _start + _end;
+
+  /// The total offset in the vertical direction.
+  double get vertical => _top + _bottom;
+
+  /// The total offset in the given direction.
+  double along(Axis axis) {
+    return switch (axis) {
+      Axis.horizontal => horizontal,
+      Axis.vertical => vertical,
+    };
+  }
+
+  /// The size that this [EdgeInsets] would occupy with an empty interior.
+  Size get collapsedSize => Size(horizontal, vertical);
+
+  /// An [EdgeInsetsGeometry] with top and bottom, left and right, and start and end flipped.
+  EdgeInsetsGeometry get flipped =>
+      _MixedEdgeInsets.fromLRSETB(_right, _left, _end, _start, _bottom, _top);
+
+  /// Returns a new size that is bigger than the given size by the amount of
+  /// inset in the horizontal and vertical directions.
+  ///
+  /// See also:
+  ///
+  ///  * [EdgeInsets.inflateRect], to inflate a [Rect] rather than a [Size] (for
+  ///    [EdgeInsetsDirectional], requires first calling [resolve] to establish
+  ///    how the start and end map to the left or right).
+  ///  * [deflateSize], to deflate a [Size] rather than inflating it.
+  Size inflateSize(Size size) {
+    return Size(size.width + horizontal, size.height + vertical);
+  }
+
+  /// Returns a new size that is smaller than the given size by the amount of
+  /// inset in the horizontal and vertical directions.
+  ///
+  /// If the argument is smaller than [collapsedSize], then the resulting size
+  /// will have negative dimensions.
+  ///
+  /// See also:
+  ///
+  ///  * [EdgeInsets.deflateRect], to deflate a [Rect] rather than a [Size]. (for
+  ///    [EdgeInsetsDirectional], requires first calling [resolve] to establish
+  ///    how the start and end map to the left or right).
+  ///  * [inflateSize], to inflate a [Size] rather than deflating it.
+  Size deflateSize(Size size) {
+    return Size(size.width - horizontal, size.height - vertical);
+  }
+
+  /// Returns the difference between two [EdgeInsetsGeometry] objects.
+  ///
+  /// If you know you are applying this to two [EdgeInsets] or two
+  /// [EdgeInsetsDirectional] objects, consider using the binary infix `-`
+  /// operator instead, which always returns an object of the same type as the
+  /// operands, and is typed accordingly.
+  ///
+  /// If [subtract] is applied to two objects of the same type ([EdgeInsets] or
+  /// [EdgeInsetsDirectional]), an object of that type will be returned (though
+  /// this is not reflected in the type system). Otherwise, an object
+  /// representing a combination of both is returned. That object can be turned
+  /// into a concrete [EdgeInsets] using [resolve].
+  ///
+  /// This method returns the same result as [add] applied to the result of
+  /// negating the argument (using the prefix unary `-` operator or multiplying
+  /// the argument by -1.0 using the `*` operator).
+  EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+    return _MixedEdgeInsets.fromLRSETB(
+      _left - other._left,
+      _right - other._right,
+      _start - other._start,
+      _end - other._end,
+      _top - other._top,
+      _bottom - other._bottom,
+    );
+  }
+
+  /// Returns the sum of two [EdgeInsetsGeometry] objects.
+  ///
+  /// If you know you are adding two [EdgeInsets] or two [EdgeInsetsDirectional]
+  /// objects, consider using the `+` operator instead, which always returns an
+  /// object of the same type as the operands, and is typed accordingly.
+  ///
+  /// If [add] is applied to two objects of the same type ([EdgeInsets] or
+  /// [EdgeInsetsDirectional]), an object of that type will be returned (though
+  /// this is not reflected in the type system). Otherwise, an object
+  /// representing a combination of both is returned. That object can be turned
+  /// into a concrete [EdgeInsets] using [resolve].
+  EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+    return _MixedEdgeInsets.fromLRSETB(
+      _left + other._left,
+      _right + other._right,
+      _start + other._start,
+      _end + other._end,
+      _top + other._top,
+      _bottom + other._bottom,
+    );
+  }
+
+  /// Returns a new [EdgeInsetsGeometry] object with all values greater than
+  /// or equal to `min`, and less than or equal to `max`.
+  EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
+    return _MixedEdgeInsets.fromLRSETB(
+      clampDouble(_left, min._left, max._left),
+      clampDouble(_right, min._right, max._right),
+      clampDouble(_start, min._start, max._start),
+      clampDouble(_end, min._end, max._end),
+      clampDouble(_top, min._top, max._top),
+      clampDouble(_bottom, min._bottom, max._bottom),
+    );
+  }
+
+  /// Returns the [EdgeInsetsGeometry] object with each dimension negated.
+  ///
+  /// This is the same as multiplying the object by -1.0.
+  ///
+  /// This operator returns an object of the same type as the operand.
+  EdgeInsetsGeometry operator -();
+
+  /// Scales the [EdgeInsetsGeometry] object in each dimension by the given factor.
+  ///
+  /// This operator returns an object of the same type as the operand.
+  EdgeInsetsGeometry operator *(double other);
+
+  /// Divides the [EdgeInsetsGeometry] object in each dimension by the given factor.
+  ///
+  /// This operator returns an object of the same type as the operand.
+  EdgeInsetsGeometry operator /(double other);
+
+  /// Integer divides the [EdgeInsetsGeometry] object in each dimension by the given factor.
+  ///
+  /// This operator returns an object of the same type as the operand.
+  ///
+  /// This operator may have unexpected results when applied to a mixture of
+  /// [EdgeInsets] and [EdgeInsetsDirectional] objects.
+  EdgeInsetsGeometry operator ~/(double other);
+
+  /// Computes the remainder in each dimension by the given factor.
+  ///
+  /// This operator returns an object of the same type as the operand.
+  ///
+  /// This operator may have unexpected results when applied to a mixture of
+  /// [EdgeInsets] and [EdgeInsetsDirectional] objects.
+  EdgeInsetsGeometry operator %(double other);
+
+  /// Linearly interpolate between two [EdgeInsetsGeometry] objects.
+  ///
+  /// If either is null, this function interpolates from [EdgeInsets.zero], and
+  /// the result is an object of the same type as the non-null argument.
+  ///
+  /// If [lerp] is applied to two objects of the same type ([EdgeInsets] or
+  /// [EdgeInsetsDirectional]), an object of that type will be returned (though
+  /// this is not reflected in the type system). Otherwise, an object
+  /// representing a combination of both is returned. That object can be turned
+  /// into a concrete [EdgeInsets] using [resolve].
+  ///
+  /// {@macro dart.ui.shadow.lerp}
+  static EdgeInsetsGeometry? lerp(EdgeInsetsGeometry? a, EdgeInsetsGeometry? b, double t) {
+    if (identical(a, b)) {
+      return a;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
+    if (a is EdgeInsets && b is EdgeInsets) {
+      return EdgeInsets.lerp(a, b, t);
+    }
+    if (a is EdgeInsetsDirectional && b is EdgeInsetsDirectional) {
+      return EdgeInsetsDirectional.lerp(a, b, t);
+    }
+    return _MixedEdgeInsets.fromLRSETB(
+      ui.lerpDouble(a._left, b._left, t)!,
+      ui.lerpDouble(a._right, b._right, t)!,
+      ui.lerpDouble(a._start, b._start, t)!,
+      ui.lerpDouble(a._end, b._end, t)!,
+      ui.lerpDouble(a._top, b._top, t)!,
+      ui.lerpDouble(a._bottom, b._bottom, t)!,
+    );
+  }
+
+  /// Convert this instance into an [EdgeInsets], which uses literal coordinates
+  /// (i.e. the `left` coordinate being explicitly a distance from the left, and
+  /// the `right` coordinate being explicitly a distance from the right).
+  ///
+  /// See also:
+  ///
+  ///  * [EdgeInsets], for which this is a no-op (returns itself).
+  ///  * [EdgeInsetsDirectional], which flips the horizontal direction
+  ///    based on the `direction` argument.
+  EdgeInsets resolve(TextDirection? direction);
+
+  @override
+  String toString() {
+    if (_start == 0.0 && _end == 0.0) {
+      if (_left == 0.0 && _right == 0.0 && _top == 0.0 && _bottom == 0.0) {
+        return 'EdgeInsets.zero';
+      }
+      if (_left == _right && _right == _top && _top == _bottom) {
+        return 'EdgeInsets.all(${_left.toStringAsFixed(1)})';
+      }
+      return 'EdgeInsets(${_left.toStringAsFixed(1)}, '
+          '${_top.toStringAsFixed(1)}, '
+          '${_right.toStringAsFixed(1)}, '
+          '${_bottom.toStringAsFixed(1)})';
+    }
+    if (_left == 0.0 && _right == 0.0) {
+      return 'EdgeInsetsDirectional(${_start.toStringAsFixed(1)}, '
+          '${_top.toStringAsFixed(1)}, '
+          '${_end.toStringAsFixed(1)}, '
+          '${_bottom.toStringAsFixed(1)})';
+    }
+    return 'EdgeInsets(${_left.toStringAsFixed(1)}, '
+        '${_top.toStringAsFixed(1)}, '
+        '${_right.toStringAsFixed(1)}, '
+        '${_bottom.toStringAsFixed(1)})'
+        ' + '
+        'EdgeInsetsDirectional(${_start.toStringAsFixed(1)}, '
+        '0.0, '
+        '${_end.toStringAsFixed(1)}, '
+        '0.0)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is EdgeInsetsGeometry &&
+        other._left == _left &&
+        other._right == _right &&
+        other._start == _start &&
+        other._end == _end &&
+        other._top == _top &&
+        other._bottom == _bottom;
+  }
+
+  @override
+  int get hashCode => Object.hash(_left, _right, _start, _end, _top, _bottom);
+}
+
+/// An immutable set of offsets in each of the four cardinal directions.
+///
+/// Typically used for an offset from each of the four sides of a box. For
+/// example, the padding inside a box can be represented using this class.
+///
+/// The [EdgeInsets] class specifies offsets in terms of visual edges, left,
+/// top, right, and bottom. These values are not affected by the
+/// [TextDirection]. To support both left-to-right and right-to-left layouts,
+/// consider using [EdgeInsetsDirectional], which is expressed in terms of
+/// _start_, top, _end_, and bottom, where start and end are resolved in terms
+/// of a [TextDirection] (typically obtained from the ambient [Directionality]).
+///
+/// {@tool snippet}
+///
+/// Here are some examples of how to create [EdgeInsets] instances:
+///
+/// Typical eight-pixel margin on all sides:
+///
+/// ```dart
+/// const EdgeInsets.all(8.0)
+/// ```
+/// {@end-tool}
+/// {@tool snippet}
+///
+/// Eight pixel margin above and below, no horizontal margins:
+///
+/// ```dart
+/// const EdgeInsets.symmetric(vertical: 8.0)
+/// ```
+/// {@end-tool}
+/// {@tool snippet}
+///
+/// Left margin indent of 40 pixels:
+///
+/// ```dart
+/// const EdgeInsets.only(left: 40.0)
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Padding], a widget that accepts [EdgeInsets] to describe its margins.
+///  * [EdgeInsetsDirectional], which (for properties and arguments that accept
+///    the type [EdgeInsetsGeometry]) allows the horizontal insets to be
+///    specified in a [TextDirection]-aware manner.
+class EdgeInsets extends EdgeInsetsGeometry {
+  /// Creates insets from offsets from the left, top, right, and bottom.
+  const EdgeInsets.fromLTRB(this.left, this.top, this.right, this.bottom);
+
+  /// Creates insets where all the offsets are `value`.
+  ///
+  /// {@tool snippet}
+  ///
+  /// Typical eight-pixel margin on all sides:
+  ///
+  /// ```dart
+  /// const EdgeInsets.all(8.0)
+  /// ```
+  /// {@end-tool}
+  const EdgeInsets.all(double value) : left = value, top = value, right = value, bottom = value;
+
+  /// Creates insets with only the given values non-zero.
+  ///
+  /// {@tool snippet}
+  ///
+  /// Left margin indent of 40 pixels:
+  ///
+  /// ```dart
+  /// const EdgeInsets.only(left: 40.0)
+  /// ```
+  /// {@end-tool}
+  const EdgeInsets.only({this.left = 0.0, this.top = 0.0, this.right = 0.0, this.bottom = 0.0});
+
+  /// Creates insets with symmetrical vertical and horizontal offsets.
+  ///
+  /// {@tool snippet}
+  ///
+  /// Eight pixel margin above and below, no horizontal margins:
+  ///
+  /// ```dart
+  /// const EdgeInsets.symmetric(vertical: 8.0)
+  /// ```
+  /// {@end-tool}
+  const EdgeInsets.symmetric({double vertical = 0.0, double horizontal = 0.0})
+    : left = horizontal,
+      top = vertical,
+      right = horizontal,
+      bottom = vertical;
+
+  /// Creates insets that match the given view padding.
+  ///
+  /// If you need the current system padding or view insets in the context of a
+  /// widget, consider using [MediaQuery.paddingOf] to obtain these values rather than
+  /// using the value from a [FlutterView] directly, so that you get notified of
+  /// changes.
+  EdgeInsets.fromViewPadding(ui.ViewPadding padding, double devicePixelRatio)
+    : left = padding.left / devicePixelRatio,
+      top = padding.top / devicePixelRatio,
+      right = padding.right / devicePixelRatio,
+      bottom = padding.bottom / devicePixelRatio;
+
+  /// Deprecated. Will be removed in a future version of Flutter.
+  ///
+  /// Use [EdgeInsets.fromViewPadding] instead.
+  @Deprecated(
+    'Use EdgeInsets.fromViewPadding instead. '
+    'This feature was deprecated after v3.8.0-14.0.pre.',
+  )
+  factory EdgeInsets.fromWindowPadding(ui.ViewPadding padding, double devicePixelRatio) =
+      EdgeInsets.fromViewPadding;
+
+  /// An [EdgeInsets] with zero offsets in each direction.
+  static const EdgeInsets zero = EdgeInsets.only();
+
+  /// The offset from the left.
+  final double left;
+
+  @override
+  double get _left => left;
+
+  /// The offset from the top.
+  final double top;
+
+  @override
+  double get _top => top;
+
+  /// The offset from the right.
+  final double right;
+
+  @override
+  double get _right => right;
+
+  /// The offset from the bottom.
+  final double bottom;
+
+  @override
+  double get _bottom => bottom;
+
+  @override
+  double get _start => 0.0;
+
+  @override
+  double get _end => 0.0;
+
+  /// An Offset describing the vector from the top left of a rectangle to the
+  /// top left of that rectangle inset by this object.
+  Offset get topLeft => Offset(left, top);
+
+  /// An Offset describing the vector from the top right of a rectangle to the
+  /// top right of that rectangle inset by this object.
+  Offset get topRight => Offset(-right, top);
+
+  /// An Offset describing the vector from the bottom left of a rectangle to the
+  /// bottom left of that rectangle inset by this object.
+  Offset get bottomLeft => Offset(left, -bottom);
+
+  /// An Offset describing the vector from the bottom right of a rectangle to the
+  /// bottom right of that rectangle inset by this object.
+  Offset get bottomRight => Offset(-right, -bottom);
+
+  /// An [EdgeInsets] with top and bottom as well as left and right flipped.
+  @override
+  EdgeInsets get flipped => EdgeInsets.fromLTRB(right, bottom, left, top);
+
+  /// Returns a new rect that is bigger than the given rect in each direction by
+  /// the amount of inset in each direction. Specifically, the left edge of the
+  /// rect is moved left by [left], the top edge of the rect is moved up by
+  /// [top], the right edge of the rect is moved right by [right], and the
+  /// bottom edge of the rect is moved down by [bottom].
+  ///
+  /// See also:
+  ///
+  ///  * [inflateSize], to inflate a [Size] rather than a [Rect].
+  ///  * [deflateRect], to deflate a [Rect] rather than inflating it.
+  Rect inflateRect(Rect rect) {
+    return Rect.fromLTRB(
+      rect.left - left,
+      rect.top - top,
+      rect.right + right,
+      rect.bottom + bottom,
+    );
+  }
+
+  /// Returns a new rect that is smaller than the given rect in each direction by
+  /// the amount of inset in each direction. Specifically, the left edge of the
+  /// rect is moved right by [left], the top edge of the rect is moved down by
+  /// [top], the right edge of the rect is moved left by [right], and the
+  /// bottom edge of the rect is moved up by [bottom].
+  ///
+  /// If the argument's [Rect.size] is smaller than [collapsedSize], then the
+  /// resulting rectangle will have negative dimensions.
+  ///
+  /// See also:
+  ///
+  ///  * [deflateSize], to deflate a [Size] rather than a [Rect].
+  ///  * [inflateRect], to inflate a [Rect] rather than deflating it.
+  Rect deflateRect(Rect rect) {
+    return Rect.fromLTRB(
+      rect.left + left,
+      rect.top + top,
+      rect.right - right,
+      rect.bottom - bottom,
+    );
+  }
+
+  /// Returns a new [RRect] expanded by this [EdgeInsets], increasing each corner's
+  /// radius by the corresponding per-axis inset amounts (clamped at zero).
+  ///
+  /// The resulting rectangle's left, top, right, and bottom edges are moved outward
+  /// by the corresponding inset values. Each corner radius is also expanded by the
+  /// corresponding inset values on both axes, ensuring that the corner shape is
+  /// preserved while scaling appropriately.
+  ///
+  /// Corner radii are adjusted per-axis and clamped to be non-negative. For example,
+  /// the top-left corner radius is expanded by [left] horizontally and [top] vertically.
+  ///
+  /// See also:
+  ///
+  ///  * [deflateRRect], to deflate an [RRect] rather than inflating it.
+  ///  * [inflateRect], to inflate a [Rect] rather than an [RRect].
+  ///  * [BorderRadius], which is used to define the corner radii of an [RRect].
+  RRect inflateRRect(RRect rect) {
+    return RRect.fromLTRBAndCorners(
+      rect.left - left,
+      rect.top - top,
+      rect.right + right,
+      rect.bottom + bottom,
+      topLeft: (rect.tlRadius + Radius.elliptical(left, top)).clamp(minimum: Radius.zero),
+      topRight: (rect.trRadius + Radius.elliptical(right, top)).clamp(minimum: Radius.zero),
+      bottomRight: (rect.brRadius + Radius.elliptical(right, bottom)).clamp(minimum: Radius.zero),
+      bottomLeft: (rect.blRadius + Radius.elliptical(left, bottom)).clamp(minimum: Radius.zero),
+    );
+  }
+
+  /// Returns a new [RRect] shrunk by this [EdgeInsets], decreasing each corner's
+  /// radius by the corresponding per-axis inset amounts (clamped at zero).
+  ///
+  /// The resulting rectangle's left, top, right, and bottom edges are moved inward
+  /// by the corresponding inset values. Each corner radius is also reduced by the
+  /// corresponding inset values on both axes, maintaining the corner shape while
+  /// scaling appropriately to the new size.
+  ///
+  /// Corner radii are adjusted per-axis and clamped to be non-negative. For example,
+  /// the top-left corner radius is reduced by [left] horizontally and [top] vertically.
+  /// If either resulting dimension would be negative, the radius is clamped to zero
+  /// in that direction.
+  ///
+  /// See also:
+  ///
+  ///  * [inflateRRect], to inflate an [RRect] rather than deflating it.
+  ///  * [deflateRect], to deflate a [Rect] rather than an [RRect].
+  ///  * [BorderRadius], which is used to define the corner radii of an [RRect].
+  RRect deflateRRect(RRect rect) {
+    return RRect.fromLTRBAndCorners(
+      rect.left + left,
+      rect.top + top,
+      rect.right - right,
+      rect.bottom - bottom,
+      topLeft: (rect.tlRadius - Radius.elliptical(left, top)).clamp(minimum: Radius.zero),
+      topRight: (rect.trRadius - Radius.elliptical(right, top)).clamp(minimum: Radius.zero),
+      bottomRight: (rect.brRadius - Radius.elliptical(right, bottom)).clamp(minimum: Radius.zero),
+      bottomLeft: (rect.blRadius - Radius.elliptical(left, bottom)).clamp(minimum: Radius.zero),
+    );
+  }
+
+  @override
+  EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+    if (other is EdgeInsets) {
+      return this - other;
+    }
+    return super.subtract(other);
+  }
+
+  @override
+  EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+    if (other is EdgeInsets) {
+      return this + other;
+    }
+    return super.add(other);
+  }
+
+  @override
+  EdgeInsetsGeometry clamp(EdgeInsetsGeometry min, EdgeInsetsGeometry max) {
+    return EdgeInsets.fromLTRB(
+      clampDouble(_left, min._left, max._left),
+      clampDouble(_top, min._top, max._top),
+      clampDouble(_right, min._right, max._right),
+      clampDouble(_bottom, min._bottom, max._bottom),
+    );
+  }
+
+  /// Returns the difference between two [EdgeInsets].
+  EdgeInsets operator -(EdgeInsets other) {
+    return EdgeInsets.fromLTRB(
+      left - other.left,
+      top - other.top,
+      right - other.right,
+      bottom - other.bottom,
+    );
+  }
+
+  /// Returns the sum of two [EdgeInsets].
+  EdgeInsets operator +(EdgeInsets other) {
+    return EdgeInsets.fromLTRB(
+      left + other.left,
+      top + other.top,
+      right + other.right,
+      bottom + other.bottom,
+    );
+  }
+
+  /// Returns the [EdgeInsets] object with each dimension negated.
+  ///
+  /// This is the same as multiplying the object by -1.0.
+  @override
+  EdgeInsets operator -() {
+    return EdgeInsets.fromLTRB(-left, -top, -right, -bottom);
+  }
+
+  /// Scales the [EdgeInsets] in each dimension by the given factor.
+  @override
+  EdgeInsets operator *(double other) {
+    return EdgeInsets.fromLTRB(left * other, top * other, right * other, bottom * other);
+  }
+
+  /// Divides the [EdgeInsets] in each dimension by the given factor.
+  @override
+  EdgeInsets operator /(double other) {
+    return EdgeInsets.fromLTRB(left / other, top / other, right / other, bottom / other);
+  }
+
+  /// Integer divides the [EdgeInsets] in each dimension by the given factor.
+  @override
+  EdgeInsets operator ~/(double other) {
+    return EdgeInsets.fromLTRB(
+      (left ~/ other).toDouble(),
+      (top ~/ other).toDouble(),
+      (right ~/ other).toDouble(),
+      (bottom ~/ other).toDouble(),
+    );
+  }
+
+  /// Computes the remainder in each dimension by the given factor.
+  @override
+  EdgeInsets operator %(double other) {
+    return EdgeInsets.fromLTRB(left % other, top % other, right % other, bottom % other);
+  }
+
+  /// Linearly interpolate between two [EdgeInsets].
+  ///
+  /// If either is null, this function interpolates from [EdgeInsets.zero].
+  ///
+  /// {@macro dart.ui.shadow.lerp}
+  static EdgeInsets? lerp(EdgeInsets? a, EdgeInsets? b, double t) {
+    if (identical(a, b)) {
+      return a;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
+    return EdgeInsets.fromLTRB(
+      ui.lerpDouble(a.left, b.left, t)!,
+      ui.lerpDouble(a.top, b.top, t)!,
+      ui.lerpDouble(a.right, b.right, t)!,
+      ui.lerpDouble(a.bottom, b.bottom, t)!,
+    );
+  }
+
+  @override
+  EdgeInsets resolve(TextDirection? direction) => this;
+
+  /// Creates a copy of this EdgeInsets but with the given fields replaced
+  /// with the new values.
+  EdgeInsets copyWith({double? left, double? top, double? right, double? bottom}) {
+    return EdgeInsets.only(
+      left: left ?? this.left,
+      top: top ?? this.top,
+      right: right ?? this.right,
+      bottom: bottom ?? this.bottom,
+    );
+  }
+}
+
+/// An immutable set of offsets in each of the four cardinal directions, but
+/// whose horizontal components are dependent on the writing direction.
+///
+/// This can be used to indicate padding from the left in [TextDirection.ltr]
+/// text and padding from the right in [TextDirection.rtl] text without having
+/// to be aware of the current text direction.
+///
+/// See also:
+///
+///  * [EdgeInsets], a variant that uses physical labels (left and right instead
+///    of start and end).
+class EdgeInsetsDirectional extends EdgeInsetsGeometry {
+  /// Creates insets from offsets from the start, top, end, and bottom.
+  const EdgeInsetsDirectional.fromSTEB(this.start, this.top, this.end, this.bottom);
+
+  /// Creates insets with only the given values non-zero.
+  ///
+  /// {@tool snippet}
+  ///
+  /// A margin indent of 40 pixels on the leading side:
+  ///
+  /// ```dart
+  /// const EdgeInsetsDirectional.only(start: 40.0)
+  /// ```
+  /// {@end-tool}
+  const EdgeInsetsDirectional.only({
+    this.start = 0.0,
+    this.top = 0.0,
+    this.end = 0.0,
+    this.bottom = 0.0,
+  });
+
+  /// Creates insets with symmetric vertical and horizontal offsets.
+  ///
+  /// This is equivalent to [EdgeInsets.symmetric], since the inset is the same
+  /// with either [TextDirection]. This constructor is just a convenience for
+  /// type compatibility.
+  ///
+  /// {@tool snippet}
+  /// Eight pixel margin above and below, no horizontal margins:
+  ///
+  /// ```dart
+  /// const EdgeInsetsDirectional.symmetric(vertical: 8.0)
+  /// ```
+  /// {@end-tool}
+  const EdgeInsetsDirectional.symmetric({double horizontal = 0.0, double vertical = 0.0})
+    : start = horizontal,
+      end = horizontal,
+      top = vertical,
+      bottom = vertical;
+
+  /// Creates insets where all the offsets are `value`.
+  ///
+  /// {@tool snippet}
+  ///
+  /// Typical eight-pixel margin on all sides:
+  ///
+  /// ```dart
+  /// const EdgeInsetsDirectional.all(8.0)
+  /// ```
+  /// {@end-tool}
+  const EdgeInsetsDirectional.all(double value)
+    : start = value,
+      top = value,
+      end = value,
+      bottom = value;
+
+  /// An [EdgeInsetsDirectional] with zero offsets in each direction.
+  ///
+  /// Consider using [EdgeInsets.zero] instead, since that object has the same
+  /// effect, but will be cheaper to [resolve].
+  static const EdgeInsetsDirectional zero = EdgeInsetsDirectional.only();
+
+  /// The offset from the start side, the side from which the user will start
+  /// reading text.
+  ///
+  /// This value is normalized into an [EdgeInsets.left] or [EdgeInsets.right]
+  /// value by the [resolve] method.
+  final double start;
+
+  @override
+  double get _start => start;
+
+  /// The offset from the top.
+  ///
+  /// This value is passed through to [EdgeInsets.top] unmodified by the
+  /// [resolve] method.
+  final double top;
+
+  @override
+  double get _top => top;
+
+  /// The offset from the end side, the side on which the user ends reading
+  /// text.
+  ///
+  /// This value is normalized into an [EdgeInsets.left] or [EdgeInsets.right]
+  /// value by the [resolve] method.
+  final double end;
+
+  @override
+  double get _end => end;
+
+  /// The offset from the bottom.
+  ///
+  /// This value is passed through to [EdgeInsets.bottom] unmodified by the
+  /// [resolve] method.
+  final double bottom;
+
+  @override
+  double get _bottom => bottom;
+
+  @override
+  double get _left => 0.0;
+
+  @override
+  double get _right => 0.0;
+
+  @override
+  bool get isNonNegative => start >= 0.0 && top >= 0.0 && end >= 0.0 && bottom >= 0.0;
+
+  /// An [EdgeInsetsDirectional] with [top] and [bottom] as well as [start] and [end] flipped.
+  @override
+  EdgeInsetsDirectional get flipped => EdgeInsetsDirectional.fromSTEB(end, bottom, start, top);
+
+  @override
+  EdgeInsetsGeometry subtract(EdgeInsetsGeometry other) {
+    if (other is EdgeInsetsDirectional) {
+      return this - other;
+    }
+    return super.subtract(other);
+  }
+
+  @override
+  EdgeInsetsGeometry add(EdgeInsetsGeometry other) {
+    if (other is EdgeInsetsDirectional) {
+      return this + other;
+    }
+    return super.add(other);
+  }
+
+  /// Returns the difference between two [EdgeInsetsDirectional] objects.
+  EdgeInsetsDirectional operator -(EdgeInsetsDirectional other) {
+    return EdgeInsetsDirectional.fromSTEB(
+      start - other.start,
+      top - other.top,
+      end - other.end,
+      bottom - other.bottom,
+    );
+  }
+
+  /// Returns the sum of two [EdgeInsetsDirectional] objects.
+  EdgeInsetsDirectional operator +(EdgeInsetsDirectional other) {
+    return EdgeInsetsDirectional.fromSTEB(
+      start + other.start,
+      top + other.top,
+      end + other.end,
+      bottom + other.bottom,
+    );
+  }
+
+  /// Returns the [EdgeInsetsDirectional] object with each dimension negated.
+  ///
+  /// This is the same as multiplying the object by -1.0.
+  @override
+  EdgeInsetsDirectional operator -() {
+    return EdgeInsetsDirectional.fromSTEB(-start, -top, -end, -bottom);
+  }
+
+  /// Scales the [EdgeInsetsDirectional] object in each dimension by the given factor.
+  @override
+  EdgeInsetsDirectional operator *(double other) {
+    return EdgeInsetsDirectional.fromSTEB(start * other, top * other, end * other, bottom * other);
+  }
+
+  /// Divides the [EdgeInsetsDirectional] object in each dimension by the given factor.
+  @override
+  EdgeInsetsDirectional operator /(double other) {
+    return EdgeInsetsDirectional.fromSTEB(start / other, top / other, end / other, bottom / other);
+  }
+
+  /// Integer divides the [EdgeInsetsDirectional] object in each dimension by the given factor.
+  @override
+  EdgeInsetsDirectional operator ~/(double other) {
+    return EdgeInsetsDirectional.fromSTEB(
+      (start ~/ other).toDouble(),
+      (top ~/ other).toDouble(),
+      (end ~/ other).toDouble(),
+      (bottom ~/ other).toDouble(),
+    );
+  }
+
+  /// Computes the remainder in each dimension by the given factor.
+  @override
+  EdgeInsetsDirectional operator %(double other) {
+    return EdgeInsetsDirectional.fromSTEB(start % other, top % other, end % other, bottom % other);
+  }
+
+  /// Linearly interpolate between two [EdgeInsetsDirectional].
+  ///
+  /// If either is null, this function interpolates from [EdgeInsetsDirectional.zero].
+  ///
+  /// To interpolate between two [EdgeInsetsGeometry] objects of arbitrary type
+  /// (either [EdgeInsets] or [EdgeInsetsDirectional]), consider the
+  /// [EdgeInsetsGeometry.lerp] static method.
+  ///
+  /// {@macro dart.ui.shadow.lerp}
+  static EdgeInsetsDirectional? lerp(EdgeInsetsDirectional? a, EdgeInsetsDirectional? b, double t) {
+    if (identical(a, b)) {
+      return a;
+    }
+    if (a == null) {
+      return b! * t;
+    }
+    if (b == null) {
+      return a * (1.0 - t);
+    }
+    return EdgeInsetsDirectional.fromSTEB(
+      ui.lerpDouble(a.start, b.start, t)!,
+      ui.lerpDouble(a.top, b.top, t)!,
+      ui.lerpDouble(a.end, b.end, t)!,
+      ui.lerpDouble(a.bottom, b.bottom, t)!,
+    );
+  }
+
+  @override
+  EdgeInsets resolve(TextDirection? direction) {
+    assert(debugCheckCanResolveTextDirection(direction, '$EdgeInsetsDirectional'));
+    return switch (direction!) {
+      TextDirection.rtl => EdgeInsets.fromLTRB(end, top, start, bottom),
+      TextDirection.ltr => EdgeInsets.fromLTRB(start, top, end, bottom),
+    };
+  }
+
+  /// Creates a copy of this EdgeInsetsDirectional but with the given
+  /// fields replaced with the new values.
+  EdgeInsetsDirectional copyWith({double? start, double? top, double? end, double? bottom}) {
+    return EdgeInsetsDirectional.only(
+      start: start ?? this.start,
+      top: top ?? this.top,
+      end: end ?? this.end,
+      bottom: bottom ?? this.bottom,
+    );
+  }
+}
+
+class _MixedEdgeInsets extends EdgeInsetsGeometry {
+  const _MixedEdgeInsets.fromLRSETB(
+    this._left,
+    this._right,
+    this._start,
+    this._end,
+    this._top,
+    this._bottom,
+  );
+
+  @override
+  final double _left;
+
+  @override
+  final double _right;
+
+  @override
+  final double _start;
+
+  @override
+  final double _end;
+
+  @override
+  final double _top;
+
+  @override
+  final double _bottom;
+
+  @override
+  bool get isNonNegative {
+    return _left >= 0.0 &&
+        _right >= 0.0 &&
+        _start >= 0.0 &&
+        _end >= 0.0 &&
+        _top >= 0.0 &&
+        _bottom >= 0.0;
+  }
+
+  @override
+  _MixedEdgeInsets operator -() {
+    return _MixedEdgeInsets.fromLRSETB(-_left, -_right, -_start, -_end, -_top, -_bottom);
+  }
+
+  @override
+  _MixedEdgeInsets operator *(double other) {
+    return _MixedEdgeInsets.fromLRSETB(
+      _left * other,
+      _right * other,
+      _start * other,
+      _end * other,
+      _top * other,
+      _bottom * other,
+    );
+  }
+
+  @override
+  _MixedEdgeInsets operator /(double other) {
+    return _MixedEdgeInsets.fromLRSETB(
+      _left / other,
+      _right / other,
+      _start / other,
+      _end / other,
+      _top / other,
+      _bottom / other,
+    );
+  }
+
+  @override
+  _MixedEdgeInsets operator ~/(double other) {
+    return _MixedEdgeInsets.fromLRSETB(
+      (_left ~/ other).toDouble(),
+      (_right ~/ other).toDouble(),
+      (_start ~/ other).toDouble(),
+      (_end ~/ other).toDouble(),
+      (_top ~/ other).toDouble(),
+      (_bottom ~/ other).toDouble(),
+    );
+  }
+
+  @override
+  _MixedEdgeInsets operator %(double other) {
+    return _MixedEdgeInsets.fromLRSETB(
+      _left % other,
+      _right % other,
+      _start % other,
+      _end % other,
+      _top % other,
+      _bottom % other,
+    );
+  }
+
+  @override
+  EdgeInsets resolve(TextDirection? direction) {
+    assert(debugCheckCanResolveTextDirection(direction, '$_MixedEdgeInsets'));
+    return switch (direction!) {
+      TextDirection.rtl => EdgeInsets.fromLTRB(_end + _left, _top, _start + _right, _bottom),
+      TextDirection.ltr => EdgeInsets.fromLTRB(_start + _left, _top, _end + _right, _bottom),
+    };
+  }
+}
+```
+
+// ============================================================
+// 📁 Project: basic.dart
+// 📁 /home/user/flutter/packages/flutter/lib/src/widgets/basic.dart
+// ============================================================
+
+```dart
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// @docImport 'dart:ui';
+/// @docImport 'package:flutter/cupertino.dart';
+/// @docImport 'package:flutter/material.dart';
+/// @docImport 'package:flutter/widgets.dart';
+library;
+
+import 'dart:math' as math;
+import 'dart:ui'
+    as ui
+    show Image, ImageFilter, SemanticsHitTestBehavior, SemanticsInputType, TextHeightBehavior;
+
+import 'package:flutter/animation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+
+import 'binding.dart';
+import 'debug.dart';
+import 'framework.dart';
+import 'localizations.dart';
+import 'visibility.dart';
+import 'widget_span.dart';
+
+export 'package:flutter/animation.dart';
+export 'package:flutter/foundation.dart'
+    show ChangeNotifier, FlutterErrorDetails, Listenable, TargetPlatform, ValueNotifier;
+export 'package:flutter/painting.dart';
+export 'package:flutter/rendering.dart'
+    show
+        AlignmentGeometryTween,
+        AlignmentTween,
+        Axis,
+        BackdropKey,
+        BoxConstraints,
+        BoxConstraintsTransform,
+        CrossAxisAlignment,
+        CustomClipper,
+        CustomPainter,
+        CustomPainterSemantics,
+        DecorationPosition,
+        FlexFit,
+        FlowDelegate,
+        FlowPaintingContext,
+        FractionalOffsetTween,
+        HitTestBehavior,
+        ImageFilterConfig,
+        LayerLink,
+        MainAxisAlignment,
+        MainAxisSize,
+        MouseCursor,
+        MultiChildLayoutDelegate,
+        PaintingContext,
+        PointerCancelEvent,
+        PointerCancelEventListener,
+        PointerDownEvent,
+        PointerDownEventListener,
+        PointerEvent,
+        PointerMoveEvent,
+        PointerMoveEventListener,
+        PointerUpEvent,
+        PointerUpEventListener,
+        RelativeRect,
+        SemanticsBuilderCallback,
+        ShaderCallback,
+        ShapeBorderClipper,
+        SingleChildLayoutDelegate,
+        StackFit,
+        SystemMouseCursors,
+        TextOverflow,
+        ValueChanged,
+        ValueGetter,
+        WrapAlignment,
+        WrapCrossAlignment;
+export 'package:flutter/services.dart' show AssetBundle;
+
+// Examples can assume:
+// class TestWidget extends StatelessWidget { const TestWidget({super.key}); @override Widget build(BuildContext context) => const Placeholder(); }
+// late WidgetTester tester;
+// late bool _visible;
+// class Sky extends CustomPainter { @override void paint(Canvas c, Size s) {} @override bool shouldRepaint(Sky s) => false; }
+// late BuildContext context;
+// String userAvatarUrl = '';
+
+// BIDIRECTIONAL TEXT SUPPORT
+
+/// An [InheritedElement] that has hundreds of dependencies but will
+/// infrequently change. This provides a performance tradeoff where building
+/// the [Widget]s is faster but performing updates is slower.
+///
+/// |                     | _UbiquitousInheritedElement | InheritedElement |
+/// |---------------------|------------------------------|------------------|
+/// | insert (best case)  | O(1)                         | O(1)             |
+/// | insert (worst case) | O(1)                         | O(n)             |
+/// | search (best case)  | O(n)                         | O(1)             |
+/// | search (worst case) | O(n)                         | O(n)             |
+///
+/// Insert happens when building the [Widget] tree, search happens when updating
+/// [Widget]s.
+class _UbiquitousInheritedElement extends InheritedElement {
+  /// Creates an element that uses the given widget as its configuration.
+  _UbiquitousInheritedElement(super.widget);
+
+  @override
+  void setDependencies(Element dependent, Object? value) {
+    // This is where the cost of [InheritedElement] is incurred during build
+    // time of the widget tree. Omitting this bookkeeping is where the
+    // performance savings come from.
+    assert(value == null);
+  }
+
+  @override
+  Object? getDependencies(Element dependent) {
+    return null;
+  }
+
+  @override
+  void notifyClients(InheritedWidget oldWidget) {
+    _recurseChildren(this, (Element element) {
+      if (element.doesDependOnInheritedElement(this)) {
+        notifyDependent(oldWidget, element);
+      }
+    });
+  }
+
+  static void _recurseChildren(Element element, ElementVisitor visitor) {
+    element.visitChildren((Element child) {
+      _recurseChildren(child, visitor);
+    });
+    visitor(element);
+  }
+}
+
+/// See also:
+///
+///  * [_UbiquitousInheritedElement], the [Element] for [_UbiquitousInheritedWidget].
+abstract class _UbiquitousInheritedWidget extends InheritedWidget {
+  const _UbiquitousInheritedWidget({super.key, required super.child});
+
+  @override
+  InheritedElement createElement() => _UbiquitousInheritedElement(this);
+}
+
+/// A widget that determines the ambient directionality of text and
+/// text-direction-sensitive render objects.
+///
+/// For example, [Padding] depends on the [Directionality] to resolve
+/// [EdgeInsetsDirectional] objects into absolute [EdgeInsets] objects.
+///
+/// {@tool snippet}
+///
+/// This example uses a right-to-left [TextDirection] and draws a blue box with
+/// a right margin of 8 pixels.
+///
+/// ```dart
+/// Directionality(
+///   textDirection: TextDirection.rtl,
+///   child: Container(
+///     margin: const EdgeInsetsDirectional.only(start: 8),
+///     color: Colors.blue,
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+class Directionality extends _UbiquitousInheritedWidget {
+  /// Creates a widget that determines the directionality of text and
+  /// text-direction-sensitive render objects.
+  const Directionality({super.key, required this.textDirection, required super.child});
+
+  /// The text direction for this subtree.
+  final TextDirection textDirection;
+
+  /// The text direction from the closest instance of this class that encloses
+  /// the given context.
+  ///
+  /// If there is no [Directionality] ancestor widget in the tree at the given
+  /// context, then this will throw a descriptive [FlutterError] in debug mode
+  /// and an exception in release mode.
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// TextDirection textDirection = Directionality.of(context);
+  /// ```
+  ///
+  /// See also:
+  ///
+  ///  * [maybeOf], which will return null if no [Directionality] ancestor
+  ///    widget is in the tree.
+  static TextDirection of(BuildContext context) {
+    assert(debugCheckHasDirectionality(context));
+    final Directionality widget = context.dependOnInheritedWidgetOfExactType<Directionality>()!;
+    return widget.textDirection;
+  }
+
+  /// The text direction from the closest instance of this class that encloses
+  /// the given context.
+  ///
+  /// If there is no [Directionality] ancestor widget in the tree at the given
+  /// context, then this will return null.
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// TextDirection? textDirection = Directionality.maybeOf(context);
+  /// ```
+  ///
+  /// See also:
+  ///
+  ///  * [of], which will throw if no [Directionality] ancestor widget is in the
+  ///    tree.
+  static TextDirection? maybeOf(BuildContext context) {
+    final Directionality? widget = context.dependOnInheritedWidgetOfExactType<Directionality>();
+    return widget?.textDirection;
+  }
+
+  @override
+  bool updateShouldNotify(Directionality oldWidget) => textDirection != oldWidget.textDirection;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection));
+  }
+}
+
+// PAINTING NODES
+
+/// A widget that makes its child partially transparent.
+///
+/// This class paints its child into an intermediate buffer and then blends the
+/// child back into the scene partially transparent.
+///
+/// For values of opacity other than 0.0 and 1.0, this class is relatively
+/// expensive because it requires painting the child into an intermediate
+/// buffer. For the value 0.0, the child is not painted at all. For the
+/// value 1.0, the child is painted immediately without an intermediate buffer.
+///
+/// The presence of the intermediate buffer which has a transparent background
+/// by default may cause some child widgets to behave differently. For example
+/// a [BackdropFilter] child will only be able to apply its filter to the content
+/// between this widget and the backdrop child and may require adjusting the
+/// [BackdropFilter.blendMode] property to produce the desired results.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=9hltevOHQBw}
+///
+/// {@tool snippet}
+///
+/// This example shows some [Text] when the `_visible` member field is true, and
+/// hides it when it is false:
+///
+/// ```dart
+/// Opacity(
+///   opacity: _visible ? 1.0 : 0.0,
+///   child: const Text("Now you see me, now you don't!"),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// This is more efficient than adding and removing the child widget from the
+/// tree on demand.
+///
+/// ## Performance considerations for opacity animation
+///
+/// Animating an [Opacity] widget directly causes the widget (and possibly its
+/// subtree) to rebuild each frame, which is not very efficient. Consider using
+/// one of these alternative widgets instead:
+///
+///  * [AnimatedOpacity], which uses an animation internally to efficiently
+///    animate opacity.
+///  * [FadeTransition], which uses a provided animation to efficiently animate
+///    opacity.
+///
+/// ## Transparent image
+///
+/// If only a single [Image] or [Color] needs to be composited with an opacity
+/// between 0.0 and 1.0, it's much faster to directly use them without [Opacity]
+/// widgets.
+///
+/// For example, `Container(color: Color.fromRGBO(255, 0, 0, 0.5))` is much
+/// faster than `Opacity(opacity: 0.5, child: Container(color: Colors.red))`.
+///
+/// {@tool snippet}
+///
+/// The following example draws an [Image] with 0.5 opacity without using
+/// [Opacity]:
+///
+/// ```dart
+/// Image.network(
+///   'https://raw.githubusercontent.com/flutter/assets-for-api-docs/main/packages/diagrams/assets/blend_mode_destination.jpeg',
+///   color: const Color.fromRGBO(255, 255, 255, 0.5),
+///   colorBlendMode: BlendMode.modulate
+/// )
+/// ```
+/// {@end-tool}
+///
+/// Directly drawing an [Image] or [Color] with opacity is faster than using
+/// [Opacity] on top of them because [Opacity] could apply the opacity to a
+/// group of widgets and therefore a costly offscreen buffer will be used.
+/// Drawing content into the offscreen buffer may also trigger render target
+/// switches and such switching is particularly slow in older GPUs.
+///
+/// ## Hit testing
+///
+/// Setting the [opacity] to zero does not prevent hit testing from being applied
+/// to the descendants of the [Opacity] widget. This can be confusing for the
+/// user, who may not see anything, and may believe the area of the interface
+/// where the [Opacity] is hiding a widget to be non-interactive.
+///
+/// With certain widgets, such as [Flow], that compute their positions only when
+/// they are painted, this can actually lead to bugs (from unexpected geometry
+/// to exceptions), because those widgets are not painted by the [Opacity]
+/// widget at all when the [opacity] is zero.
+///
+/// To avoid such problems, it is generally a good idea to use an
+/// [IgnorePointer] widget when setting the [opacity] to zero. This prevents
+/// interactions with any children in the subtree.
+///
+/// See also:
+///
+///  * [Visibility], which can hide a child more efficiently (albeit less
+///    subtly, because it is either visible or hidden, rather than allowing
+///    fractional opacity values). Specifically, the [Visibility.maintain]
+///    constructor is equivalent to using an opacity widget with values of
+///    `0.0` or `1.0`.
+///  * [ShaderMask], which can apply more elaborate effects to its child.
+///  * [Transform], which applies an arbitrary transform to its child widget at
+///    paint time.
+///  * [SliverOpacity], the sliver version of this widget.
+class Opacity extends SingleChildRenderObjectWidget {
+  /// Creates a widget that makes its child partially transparent.
+  ///
+  /// The [opacity] argument must be between zero and one, inclusive.
+  const Opacity({
+    super.key,
+    required this.opacity,
+    this.alwaysIncludeSemantics = false,
+    super.child,
+  }) : assert(opacity >= 0.0 && opacity <= 1.0);
+
+  /// The fraction to scale the child's alpha value.
+  ///
+  /// An opacity of one is fully opaque. An opacity of zero is fully transparent
+  /// (i.e., invisible).
+  ///
+  /// Values one and zero are painted with a fast path. Other values require
+  /// painting the child into an intermediate buffer, which is expensive.
+  final double opacity;
+
+  /// Whether the semantic information of the children is always included.
+  ///
+  /// Defaults to false.
+  ///
+  /// When true, regardless of the opacity settings the child semantic
+  /// information is exposed as if the widget were fully visible. This is
+  /// useful in cases where labels may be hidden during animations that
+  /// would otherwise contribute relevant semantics.
+  final bool alwaysIncludeSemantics;
+
+  @override
+  RenderOpacity createRenderObject(BuildContext context) {
+    return RenderOpacity(opacity: opacity, alwaysIncludeSemantics: alwaysIncludeSemantics);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderOpacity renderObject) {
+    renderObject
+      ..opacity = opacity
+      ..alwaysIncludeSemantics = alwaysIncludeSemantics;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('opacity', opacity));
+    properties.add(
+      FlagProperty(
+        'alwaysIncludeSemantics',
+        value: alwaysIncludeSemantics,
+        ifTrue: 'alwaysIncludeSemantics',
+      ),
+    );
+  }
+}
+
+/// A widget that applies a mask generated by a [Shader] to its child.
+///
+/// For example, [ShaderMask] can be used to gradually fade out the edge
+/// of a child by using a [RadialGradient] mask.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=7sUL66pTQ7Q}
+///
+/// {@tool snippet}
+///
+/// This example makes the text look like it is on fire:
+///
+/// ```dart
+/// ShaderMask(
+///   shaderCallback: (Rect bounds) {
+///     return RadialGradient(
+///       center: Alignment.topLeft,
+///       radius: 1.0,
+///       colors: <Color>[Colors.yellow, Colors.deepOrange.shade900],
+///       tileMode: TileMode.mirror,
+///     ).createShader(bounds);
+///   },
+///   child: const Text(
+///     "I'm burning the memories",
+///     style: TextStyle(color: Colors.white),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Opacity], which can apply a uniform alpha effect to its child.
+///  * [CustomPaint], which lets you draw directly on the canvas.
+///  * [DecoratedBox], for another approach at decorating child widgets.
+///  * [BackdropFilter], which applies an image filter to the background.
+class ShaderMask extends SingleChildRenderObjectWidget {
+  /// Creates a widget that applies a mask generated by a [Shader] to its child.
+  const ShaderMask({
+    super.key,
+    required this.shaderCallback,
+    this.blendMode = BlendMode.modulate,
+    super.child,
+  });
+
+  /// Called to create the [dart:ui.Shader] that generates the mask.
+  ///
+  /// The shader callback is called with the current size of the child so that
+  /// it can customize the shader to the size and location of the child.
+  ///
+  /// Typically this will use a [LinearGradient], [RadialGradient], or
+  /// [SweepGradient] to create the [dart:ui.Shader], though the
+  /// [dart:ui.ImageShader] class could also be used.
+  final ShaderCallback shaderCallback;
+
+  /// The [BlendMode] to use when applying the shader to the child.
+  ///
+  /// The default, [BlendMode.modulate], is useful for applying an alpha blend
+  /// to the child. Other blend modes can be used to create other effects.
+  final BlendMode blendMode;
+
+  @override
+  RenderShaderMask createRenderObject(BuildContext context) {
+    return RenderShaderMask(shaderCallback: shaderCallback, blendMode: blendMode);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderShaderMask renderObject) {
+    renderObject
+      ..shaderCallback = shaderCallback
+      ..blendMode = blendMode;
+  }
+}
+
+/// A widget that establishes a shared backdrop layer for all child [BackdropFilter]
+/// widgets that opt into using it.
+///
+/// Sharing a backdrop filter layer will improve the performance of multiple
+/// backdrop filters. To opt into using a shared [BackdropGroup], the special
+/// [BackdropFilter.grouped] constructor must be used.
+class BackdropGroup extends InheritedWidget {
+  /// Create a new [BackdropGroup] widget.
+  BackdropGroup({super.key, required super.child, BackdropKey? backdropKey})
+    : backdropKey = backdropKey ?? BackdropKey();
+
+  /// The backdrop key this backdrop group will use with shared child layers.
+  final BackdropKey backdropKey;
+
+  @override
+  bool updateShouldNotify(covariant BackdropGroup oldWidget) {
+    return oldWidget.backdropKey != backdropKey;
+  }
+
+  /// Look up the nearest [BackdropGroup], or `null` if there is not one.
+  static BackdropGroup? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<BackdropGroup>();
+  }
+}
+
+/// A widget that applies a filter to the existing painted content and then
+/// paints [child].
+///
+/// The filter will be applied to all the area within its parent or ancestor
+/// widget's clip. If there's no clip, the filter will be applied to the full
+/// screen.
+///
+/// The results of the filter will be blended back into the background using
+/// the [blendMode] parameter.
+/// {@template flutter.widgets.BackdropFilter.blendMode}
+/// The only value for [blendMode] that is supported on all platforms is
+/// [BlendMode.srcOver] which works well for most scenes. But that value may
+/// produce surprising results when a parent of the [BackdropFilter] uses a
+/// temporary buffer, or save layer, as does an [Opacity] widget. In that
+/// situation, a value of [BlendMode.src] can produce more pleasing results.
+/// {@endtemplate}
+///
+/// Multiple backdrop filters can be combined into a single rendering operation
+/// by the Flutter engine if these backdrop filters widgets all share a common
+/// [BackdropKey]. The backdrop key uniquely identifies the input for a backdrop
+/// filter, and when shared, indicates the filtering can be performed once. This
+/// can significantly reduce the overhead of using multiple backdrop filters in
+/// a scene. The key can either be provided manually via the `backdropKey`
+/// constructor parameter or looked up from a [BackdropGroup] inherited widget
+/// via the `.grouped` constructor.
+///
+/// Backdrop filters that overlap with each other should not use the same
+/// backdrop key, otherwise the results may look as if only one filter is
+/// applied in the overlapping regions.
+///
+/// The following snippet demonstrates how to use the backdrop key to allow each
+/// list item to have an efficient blur. The engine will perform only one
+/// backdrop blur but the results will be visually identical to multiple blurs.
+///
+/// ```dart
+///  Widget build(BuildContext context) {
+///    return BackdropGroup(
+///      child: ListView.builder(
+///        itemCount: 60,
+///        itemBuilder: (BuildContext context, int index) {
+///          return ClipRect(
+///            child: BackdropFilter.grouped(
+///              filter: ui.ImageFilter.blur(
+///                sigmaX: 40,
+///                sigmaY: 40,
+///              ),
+///              child: Container(
+///                color: Colors.black.withValues(alpha: 0.2),
+///                height: 200,
+///                child: const Text('Blur item'),
+///              ),
+///            ),
+///          );
+///       }
+///     ),
+///   );
+/// }
+/// ```
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=dYRs7Q1vfYI}
+///
+/// {@tool snippet}
+///
+/// If the [BackdropFilter] needs to be applied to an area that exactly matches
+/// its child, wraps the [BackdropFilter] with a clip widget that clips exactly
+/// to that child.
+///
+/// ```dart
+/// Stack(
+///   fit: StackFit.expand,
+///   children: <Widget>[
+///     Text('0' * 10000),
+///     Center(
+///       child: ClipRect(  // <-- clips to the 200x200 [Container] below
+///         child: BackdropFilter(
+///           filter: ui.ImageFilter.blur(
+///             sigmaX: 5.0,
+///             sigmaY: 5.0,
+///           ),
+///           child: Container(
+///             alignment: Alignment.center,
+///             width: 200.0,
+///             height: 200.0,
+///             child: const Text('Hello World'),
+///           ),
+///         ),
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// This effect is relatively expensive, especially if the filter is non-local,
+/// such as a blur.
+///
+/// If all you want to do is apply an [ImageFilter] to a single widget
+/// (as opposed to applying the filter to everything _beneath_ a widget), use
+/// [ImageFiltered] instead. For that scenario, [ImageFiltered] is both
+/// easier to use and less expensive than [BackdropFilter].
+///
+/// {@tool snippet}
+///
+/// This example shows how the common case of applying a [BackdropFilter] blur
+/// to a single sibling can be replaced with an [ImageFiltered] widget. This code
+/// is generally simpler and the performance will be improved dramatically for
+/// complex filters like blurs.
+///
+/// The implementation below is unnecessarily expensive.
+///
+/// ```dart
+///  Widget buildBackdrop() {
+///    return Stack(
+///      children: <Widget>[
+///        Positioned.fill(child: Image.asset('image.png')),
+///        Positioned.fill(
+///          child: BackdropFilter(
+///            filter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+///          ),
+///        ),
+///      ],
+///    );
+///  }
+/// ```
+/// {@end-tool}
+/// {@tool snippet}
+///
+/// Instead consider the following approach which directly applies a blur
+/// to the child widget.
+///
+/// ```dart
+///  Widget buildFilter() {
+///    return ImageFiltered(
+///      imageFilter: ui.ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+///      child: Image.asset('image.png'),
+///    );
+///  }
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [ImageFiltered], which applies an [ImageFilter] to its child.
+///  * [DecoratedBox], which draws a background under (or over) a widget.
+///  * [Opacity], which changes the opacity of the widget itself.
+///  * https://flutter.dev/go/ios-platformview-backdrop-filter-blur for details and restrictions when an iOS PlatformView needs to be blurred.
+class BackdropFilter extends SingleChildRenderObjectWidget {
+  /// Creates a backdrop filter.
+  ///
+  /// The [blendMode] argument will default to [BlendMode.srcOver] and must not be
+  /// null if provided.
+  ///
+  /// Exactly one of [filter] or [filterConfig] must be provided.
+  /// Providing both or neither will result in an assertion error.
+  const BackdropFilter({
+    super.key,
+    this.filter,
+    this.filterConfig,
+    super.child,
+    this.blendMode = BlendMode.srcOver,
+    this.enabled = true,
+    this.backdropGroupKey,
+  }) : assert(
+         filter != null || filterConfig != null,
+         'Either filter or filterConfig must be provided.',
+       ),
+       assert(
+         filter == null || filterConfig == null,
+         'Cannot provide both a filter and a filterConfig.',
+       ),
+       _useSharedKey = false;
+
+  /// Creates a backdrop filter that groups itself with the nearest parent
+  /// [BackdropGroup].
+  ///
+  /// The [blendMode] argument will default to [BlendMode.srcOver] and must not be
+  /// null if provided.
+  ///
+  /// This constructor will automatically look up the nearest [BackdropGroup]
+  /// and will share the backdrop input with sibling and child [BackdropFilter]
+  /// widgets.
+  ///
+  /// Exactly one of [filter] or [filterConfig] must be provided.
+  /// Providing both or neither will result in an assertion error.
+  const BackdropFilter.grouped({
+    super.key,
+    this.filter,
+    this.filterConfig,
+    super.child,
+    this.blendMode = BlendMode.srcOver,
+    this.enabled = true,
+  }) : assert(
+         filter != null || filterConfig != null,
+         'Either filter or filterConfig must be provided.',
+       ),
+       assert(
+         filter == null || filterConfig == null,
+         'Cannot provide both a filter and a filterConfig.',
+       ),
+       backdropGroupKey = null,
+       _useSharedKey = true;
+
+  /// The image filter to apply to the existing painted content before painting the child.
+  ///
+  /// For example, consider using [ImageFilter.blur] to create a backdrop
+  /// blur effect.
+  ///
+  /// The [filter] parameter is equivalent to [filterConfig] (with the help of
+  /// the [ImageFilterConfig.new] constructor), except for features only
+  /// supported by [ImageFilterConfig] (such as the `bounds` parameter in
+  /// [ImageFilterConfig.blur]).
+  final ui.ImageFilter? filter;
+
+  /// The configuration for the image filter to apply to the existing painted content.
+  ///
+  /// For example, consider using [ImageFilterConfig.blur] to create a backdrop
+  /// blur effect.
+  ///
+  /// The [filterConfig] parameter is equivalent to [filter] (with the help of
+  /// the [ImageFilterConfig.new] constructor), except for features only
+  /// supported by [ImageFilterConfig] (such as the `bounds` parameter in
+  /// [ImageFilterConfig.blur]).
+  final ImageFilterConfig? filterConfig;
+
+  /// The blend mode to use to apply the filtered background content onto the background
+  /// surface.
+  ///
+  /// {@macro flutter.widgets.BackdropFilter.blendMode}
+  final BlendMode blendMode;
+
+  /// Whether or not to apply the backdrop filter operation to the child of this
+  /// widget.
+  ///
+  /// Prefer setting enabled to `false` instead of creating a "no-op" filter
+  /// type for performance reasons.
+  final bool enabled;
+
+  /// The [BackdropKey] that identifies the backdrop this filter will apply to.
+  ///
+  /// The default value for the backdrop key is `null`.
+  final BackdropKey? backdropGroupKey;
+
+  // Whether to look up the [backdropKey] from a parent [BackdropGroup].
+  final bool _useSharedKey;
+
+  BackdropKey? _getBackdropGroupKey(BuildContext context) {
+    if (_useSharedKey) {
+      return BackdropGroup.of(context)?.backdropKey;
+    }
+    return backdropGroupKey;
+  }
+
+  ImageFilterConfig get _effectiveFilterConfig {
+    return filterConfig ?? ImageFilterConfig(filter!);
+  }
+
+  @override
+  RenderBackdropFilter createRenderObject(BuildContext context) {
+    return RenderBackdropFilter(
+      filterConfig: _effectiveFilterConfig,
+      blendMode: blendMode,
+      enabled: enabled,
+      backdropKey: _getBackdropGroupKey(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBackdropFilter renderObject) {
+    renderObject
+      ..filterConfig = _effectiveFilterConfig
+      ..enabled = enabled
+      ..blendMode = blendMode
+      ..backdropKey = _getBackdropGroupKey(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<ui.ImageFilter>('filter', filter, defaultValue: null));
+    properties.add(
+      DiagnosticsProperty<ImageFilterConfig>('filterConfig', filterConfig, defaultValue: null),
+    );
+    properties.add(EnumProperty<BlendMode>('blendMode', blendMode));
+    properties.add(FlagProperty('enabled', value: enabled, ifTrue: 'enabled'));
+  }
+}
+
+/// A widget that provides a canvas on which to draw during the paint phase.
+///
+/// When asked to paint, [CustomPaint] first asks its [painter] to paint on the
+/// current canvas, then it paints its child, and then, after painting its
+/// child, it asks its [foregroundPainter] to paint. The coordinate system of the
+/// canvas matches the coordinate system of the [CustomPaint] object. The
+/// painters are expected to paint within a rectangle starting at the origin and
+/// encompassing a region of the given size. (If the painters paint outside
+/// those bounds, there might be insufficient memory allocated to rasterize the
+/// painting commands and the resulting behavior is undefined.) To enforce
+/// painting within those bounds, consider wrapping this [CustomPaint] with a
+/// [ClipRect] widget.
+///
+/// Painters are implemented by subclassing [CustomPainter].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=kp14Y4uHpHs}
+///
+/// Because custom paint calls its painters during paint, you cannot call
+/// `setState` or `markNeedsLayout` during the callback (the layout for this
+/// frame has already happened).
+///
+/// Custom painters normally size themselves to their [child]. If they do not
+/// have a child, they attempt to size themselves to the specified [size], which
+/// defaults to [Size.zero]. The parent [may enforce constraints on this
+/// size](https://docs.flutter.dev/ui/layout/constraints).
+///
+/// The [isComplex] and [willChange] properties are hints to the compositor's
+/// raster cache.
+///
+/// {@tool snippet}
+///
+/// This example shows how the sample custom painter shown at [CustomPainter]
+/// could be used in a [CustomPaint] widget to display a background to some
+/// text.
+///
+/// ```dart
+/// CustomPaint(
+///   painter: Sky(),
+///   child: const Center(
+///     child: Text(
+///       'Once upon a time...',
+///       style: TextStyle(
+///         fontSize: 40.0,
+///         fontWeight: FontWeight.w900,
+///         color: Color(0xFFFFFFFF),
+///       ),
+///     ),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [CustomPainter], the class to extend when creating custom painters.
+///  * [Canvas], the class that a custom painter uses to paint.
+class CustomPaint extends SingleChildRenderObjectWidget {
+  /// Creates a widget that delegates its painting.
+  const CustomPaint({
+    super.key,
+    this.painter,
+    this.foregroundPainter,
+    this.size = Size.zero,
+    this.isComplex = false,
+    this.willChange = false,
+    super.child,
+  }) : assert(painter != null || foregroundPainter != null || (!isComplex && !willChange));
+
+  /// The painter that paints before the children.
+  final CustomPainter? painter;
+
+  /// The painter that paints after the children.
+  final CustomPainter? foregroundPainter;
+
+  /// The size that this [CustomPaint] should aim for, given the layout
+  /// constraints, if there is no child.
+  ///
+  /// Defaults to [Size.zero].
+  ///
+  /// If there's a child, this is ignored, and the size of the child is used
+  /// instead.
+  final Size size;
+
+  /// Whether the painting is complex enough to benefit from caching.
+  ///
+  /// The compositor contains a raster cache that holds bitmaps of layers in
+  /// order to avoid the cost of repeatedly rendering those layers on each
+  /// frame. If this flag is not set, then the compositor will apply its own
+  /// heuristics to decide whether the layer containing this widget is complex
+  /// enough to benefit from caching.
+  ///
+  /// This flag can't be set to true if both [painter] and [foregroundPainter]
+  /// are null because this flag will be ignored in such case.
+  final bool isComplex;
+
+  /// Whether the raster cache should be told that this painting is likely
+  /// to change in the next frame.
+  ///
+  /// This hint tells the compositor not to cache the layer containing this
+  /// widget because the cache will not be used in the future. If this hint is
+  /// not set, the compositor will apply its own heuristics to decide whether
+  /// the layer is likely to be reused in the future.
+  ///
+  /// This flag can't be set to true if both [painter] and [foregroundPainter]
+  /// are null because this flag will be ignored in such case.
+  final bool willChange;
+
+  @override
+  RenderCustomPaint createRenderObject(BuildContext context) {
+    return RenderCustomPaint(
+      painter: painter,
+      foregroundPainter: foregroundPainter,
+      preferredSize: size,
+      isComplex: isComplex,
+      willChange: willChange,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderCustomPaint renderObject) {
+    renderObject
+      ..painter = painter
+      ..foregroundPainter = foregroundPainter
+      ..preferredSize = size
+      ..isComplex = isComplex
+      ..willChange = willChange;
+  }
+
+  @override
+  void didUnmountRenderObject(RenderCustomPaint renderObject) {
+    renderObject
+      ..painter = null
+      ..foregroundPainter = null;
+  }
+}
+
+/// A widget that clips its child using a rectangle.
+///
+/// By default, [ClipRect] prevents its child from painting outside its
+/// bounds, but the size and location of the clip rect can be customized using a
+/// custom [clipper].
+///
+/// [ClipRect] is commonly used with these widgets, which commonly paint outside
+/// their bounds:
+///
+///  * [CustomPaint]
+///  * [CustomSingleChildLayout]
+///  * [CustomMultiChildLayout]
+///  * [Align] and [Center] (e.g., if [Align.widthFactor] or
+///    [Align.heightFactor] is less than 1.0).
+///  * [OverflowBox]
+///  * [SizedOverflowBox]
+///
+/// {@tool snippet}
+///
+/// For example, by combining a [ClipRect] with an [Align], one can show just
+/// the top half of an [Image]:
+///
+/// ```dart
+/// ClipRect(
+///   child: Align(
+///     alignment: Alignment.topCenter,
+///     heightFactor: 0.5,
+///     child: Image.network(userAvatarUrl),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [CustomClipper], for information about creating custom clips.
+///  * [ClipRRect], for a clip with rounded corners.
+///  * [ClipOval], for an elliptical clip.
+///  * [ClipPath], for an arbitrarily shaped clip.
+class ClipRect extends SingleChildRenderObjectWidget {
+  /// Creates a rectangular clip.
+  ///
+  /// If [clipper] is null, the clip will match the layout size and position of
+  /// the child.
+  ///
+  /// If [clipBehavior] is [Clip.none], no clipping will be applied.
+  const ClipRect({super.key, this.clipper, this.clipBehavior = Clip.hardEdge, super.child});
+
+  /// If non-null, determines which clip to use.
+  final CustomClipper<Rect>? clipper;
+
+  /// {@macro flutter.rendering.ClipRectLayer.clipBehavior}
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
+  @override
+  RenderClipRect createRenderObject(BuildContext context) {
+    return RenderClipRect(clipper: clipper, clipBehavior: clipBehavior);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderClipRect renderObject) {
+    renderObject
+      ..clipper = clipper
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void didUnmountRenderObject(RenderClipRect renderObject) {
+    renderObject.clipper = null;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<CustomClipper<Rect>>('clipper', clipper, defaultValue: null),
+    );
+  }
+}
+
+/// A widget that clips its child using a rounded rectangle.
+///
+/// By default, [ClipRRect] uses its own bounds as the base rectangle for the
+/// clip, but the size and location of the clip can be customized using a custom
+/// [clipper].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=eI43jkQkrvs}
+///
+/// {@tool dartpad}
+/// This example shows various [ClipRRect]s applied to containers.
+///
+/// ** See code in examples/api/lib/widgets/basic/clip_rrect.0.dart **
+/// {@end-tool}
+///
+/// ## Troubleshooting
+///
+/// ### Why doesn't my [ClipRRect] child have rounded corners?
+///
+/// When a [ClipRRect] is bigger than the child it contains, its rounded corners
+/// could be drawn in unexpected positions. Make sure that [ClipRRect] and its child
+/// have the same bounds (by shrinking the [ClipRRect] with a [FittedBox] or by
+/// growing the child).
+///
+/// {@tool dartpad}
+/// This example shows a [ClipRRect] that adds round corners to an image.
+///
+/// ** See code in examples/api/lib/widgets/basic/clip_rrect.1.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [CustomClipper], for information about creating custom clips.
+///  * [ClipRect], for more efficient clips without rounded corners.
+///  * [ClipRSuperellipse], for a similar clipping shape with smoother
+///    transitions between the straight sides and the rounded corners. This
+///    shape closely matches the rounded rectangles commonly used in Apple’s
+///    design language, resembling the `RoundedRectangle` shape in SwiftUI with
+///    the `.continuous` corner style.
+///  * [ClipOval], for an elliptical clip.
+///  * [ClipPath], for an arbitrarily shaped clip.
+class ClipRRect extends SingleChildRenderObjectWidget {
+  /// Creates a rounded-rectangular clip.
+  ///
+  /// The [borderRadius] defaults to [BorderRadius.zero], i.e. a rectangle with
+  /// right-angled corners.
+  ///
+  /// If [clipper] is non-null, then [borderRadius] is ignored.
+  ///
+  /// If [clipBehavior] is [Clip.none], no clipping will be applied.
+  const ClipRRect({
+    super.key,
+    this.borderRadius = BorderRadius.zero,
+    this.clipper,
+    this.clipBehavior = Clip.antiAlias,
+    super.child,
+  });
+
+  /// The border radius of the rounded corners.
+  ///
+  /// Values are clamped so that horizontal and vertical radii sums do not
+  /// exceed width/height.
+  ///
+  /// This value is ignored if [clipper] is non-null.
+  final BorderRadiusGeometry borderRadius;
+
+  /// If non-null, determines which clip to use.
+  final CustomClipper<RRect>? clipper;
+
+  /// {@macro flutter.rendering.ClipRectLayer.clipBehavior}
+  ///
+  /// Defaults to [Clip.antiAlias].
+  final Clip clipBehavior;
+
+  @override
+  RenderClipRRect createRenderObject(BuildContext context) {
+    return RenderClipRRect(
+      borderRadius: borderRadius,
+      clipper: clipper,
+      clipBehavior: clipBehavior,
+      textDirection: Directionality.maybeOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderClipRRect renderObject) {
+    renderObject
+      ..borderRadius = borderRadius
+      ..clipBehavior = clipBehavior
+      ..clipper = clipper
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<BorderRadiusGeometry>(
+        'borderRadius',
+        borderRadius,
+        showName: false,
+        defaultValue: null,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<CustomClipper<RRect>>('clipper', clipper, defaultValue: null),
+    );
+  }
+}
+
+/// A widget that clips its child using a rounded superellipse.
+///
+/// A rounded superellipse is a shape similar to a typical rounded rectangle
+/// ([ClipRRect]), but with smoother transitions between the straight sides and
+/// the rounded corners. It resembles the `RoundedRectangle` shape in SwiftUI
+/// with the `.continuous` corner style. Technically, it is created by replacing
+/// the four corners of a superellipse (also known as a Lamé curve) with
+/// circular arcs.
+///
+/// By default, [ClipRSuperellipse] uses its own bounds as the base rectangle
+/// for the clip, but the size and location of the clip can be customized using
+/// a custom [clipper].
+///
+/// See also:
+///
+///  * [CustomClipper], for information about creating custom clips.
+///  * [ClipRect], for more efficient clips without rounded corners.
+///  * [ClipRRect], for a typical rounded rectangle, which is created by
+///    replacing the four corners of a rectangle with circular arcs.
+///  * [ClipOval], for an elliptical clip.
+///  * [ClipPath], for an arbitrarily shaped clip.
+class ClipRSuperellipse extends SingleChildRenderObjectWidget {
+  /// Creates a rounded-superellipse clip.
+  ///
+  /// The [borderRadius] defaults to [BorderRadius.zero], i.e. a rectangle with
+  /// right-angled corners.
+  ///
+  /// If [clipBehavior] is [Clip.none], no clipping will be applied.
+  const ClipRSuperellipse({
+    super.key,
+    this.borderRadius = BorderRadius.zero,
+    this.clipper,
+    this.clipBehavior = Clip.antiAlias,
+    super.child,
+  });
+
+  /// The border radius of the rounded corners.
+  ///
+  /// Values are clamped so that horizontal and vertical radii sums do not
+  /// exceed width/height.
+  ///
+  /// This value is ignored if [clipper] is non-null.
+  final BorderRadiusGeometry borderRadius;
+
+  /// If non-null, determines which clip to use.
+  final CustomClipper<RSuperellipse>? clipper;
+
+  /// {@macro flutter.rendering.ClipRectLayer.clipBehavior}
+  ///
+  /// Defaults to [Clip.antiAlias].
+  final Clip clipBehavior;
+
+  @override
+  RenderClipRSuperellipse createRenderObject(BuildContext context) {
+    return RenderClipRSuperellipse(
+      borderRadius: borderRadius,
+      clipBehavior: clipBehavior,
+      clipper: clipper,
+      textDirection: Directionality.maybeOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderClipRSuperellipse renderObject) {
+    renderObject
+      ..borderRadius = borderRadius
+      ..clipBehavior = clipBehavior
+      ..clipper = clipper
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<BorderRadiusGeometry>(
+        'borderRadius',
+        borderRadius,
+        showName: false,
+        defaultValue: null,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<CustomClipper<RSuperellipse>>('clipper', clipper, defaultValue: null),
+    );
+  }
+}
+
+/// A widget that clips its child using an oval.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=vzWWDO6whIM}
+///
+/// By default, inscribes an axis-aligned oval into its layout dimensions and
+/// prevents its child from painting outside that oval, but the size and
+/// location of the clip oval can be customized using a custom [clipper].
+///
+/// {@tool snippet}
+///
+/// This example clips an image of a cat using an oval.
+///
+/// ```dart
+/// ClipOval(
+///   child: Image.asset('images/cat.png'),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [CustomClipper], for information about creating custom clips.
+///  * [ClipRect], for more efficient clips without rounded corners.
+///  * [ClipRRect], for a clip with rounded corners.
+///  * [ClipPath], for an arbitrarily shaped clip.
+class ClipOval extends SingleChildRenderObjectWidget {
+  /// Creates an oval-shaped clip.
+  ///
+  /// If [clipper] is null, the oval will be inscribed into the layout size and
+  /// position of the child.
+  ///
+  /// If [clipBehavior] is [Clip.none], no clipping will be applied.
+  const ClipOval({super.key, this.clipper, this.clipBehavior = Clip.antiAlias, super.child});
+
+  /// If non-null, determines which clip to use.
+  ///
+  /// The delegate returns a rectangle that describes the axis-aligned
+  /// bounding box of the oval. The oval's axes will themselves also
+  /// be axis-aligned.
+  ///
+  /// If the [clipper] delegate is null, then the oval uses the
+  /// widget's bounding box (the layout dimensions of the render
+  /// object) instead.
+  final CustomClipper<Rect>? clipper;
+
+  /// {@macro flutter.rendering.ClipRectLayer.clipBehavior}
+  ///
+  /// Defaults to [Clip.antiAlias].
+  final Clip clipBehavior;
+
+  @override
+  RenderClipOval createRenderObject(BuildContext context) {
+    return RenderClipOval(clipper: clipper, clipBehavior: clipBehavior);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderClipOval renderObject) {
+    renderObject
+      ..clipper = clipper
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void didUnmountRenderObject(RenderClipOval renderObject) {
+    renderObject.clipper = null;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<CustomClipper<Rect>>('clipper', clipper, defaultValue: null),
+    );
+  }
+}
+
+/// A widget that clips its child using a path.
+///
+/// Calls a callback on a delegate whenever the widget is to be
+/// painted. The callback returns a path and the widget prevents the
+/// child from painting outside the path.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=oAUebVIb-7s}
+///
+/// Clipping to a path is expensive. Certain shapes have more
+/// optimized widgets:
+///
+///  * To clip to a rectangle, consider [ClipRect].
+///  * To clip to an oval or circle, consider [ClipOval].
+///  * To clip to a rounded rectangle, consider [ClipRRect].
+///
+/// To clip to a particular [ShapeBorder], consider using either the
+/// [ClipPath.shape] static method or the [ShapeBorderClipper] custom clipper
+/// class.
+class ClipPath extends SingleChildRenderObjectWidget {
+  /// Creates a path clip.
+  ///
+  /// If [clipper] is null, the clip will be a rectangle that matches the layout
+  /// size and location of the child. However, rather than use this default,
+  /// consider using a [ClipRect], which can achieve the same effect more
+  /// efficiently.
+  ///
+  /// If [clipBehavior] is [Clip.none], no clipping will be applied.
+  const ClipPath({super.key, this.clipper, this.clipBehavior = Clip.antiAlias, super.child});
+
+  /// Creates a shape clip.
+  ///
+  /// Uses a [ShapeBorderClipper] to configure the [ClipPath] to clip to the
+  /// given [ShapeBorder].
+  static Widget shape({
+    Key? key,
+    required ShapeBorder shape,
+    Clip clipBehavior = Clip.antiAlias,
+    Widget? child,
+  }) {
+    return Builder(
+      key: key,
+      builder: (BuildContext context) {
+        return ClipPath(
+          clipper: ShapeBorderClipper(shape: shape, textDirection: Directionality.maybeOf(context)),
+          clipBehavior: clipBehavior,
+          child: child,
+        );
+      },
+    );
+  }
+
+  /// If non-null, determines which clip to use.
+  ///
+  /// The default clip, which is used if this property is null, is the
+  /// bounding box rectangle of the widget. [ClipRect] is a more
+  /// efficient way of obtaining that effect.
+  final CustomClipper<Path>? clipper;
+
+  /// {@macro flutter.rendering.ClipRectLayer.clipBehavior}
+  ///
+  /// Defaults to [Clip.antiAlias].
+  final Clip clipBehavior;
+
+  @override
+  RenderClipPath createRenderObject(BuildContext context) {
+    return RenderClipPath(clipper: clipper, clipBehavior: clipBehavior);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderClipPath renderObject) {
+    renderObject
+      ..clipper = clipper
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void didUnmountRenderObject(RenderClipPath renderObject) {
+    renderObject.clipper = null;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<CustomClipper<Path>>('clipper', clipper, defaultValue: null),
+    );
+  }
+}
+
+/// A widget representing a physical layer that clips its children to a shape.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=XgUOSS30OQk}
+///
+/// Physical layers cast shadows based on an [elevation] which is nominally in
+/// logical pixels, coming vertically out of the rendering surface.
+///
+/// For shapes that cannot be expressed as a rectangle with rounded corners use
+/// [PhysicalShape].
+///
+/// See also:
+///
+///  * [AnimatedPhysicalModel], which animates property changes smoothly over
+///    a given duration.
+///  * [DecoratedBox], which can apply more arbitrary shadow effects.
+///  * [ClipRect], which applies a clip to its child.
+class PhysicalModel extends SingleChildRenderObjectWidget {
+  /// Creates a physical model with a rounded-rectangular clip.
+  ///
+  /// The [color] is required; physical things have a color.
+  ///
+  /// The [shape], [elevation], [color], [clipBehavior], and [shadowColor] must
+  /// not be null. Additionally, the [elevation] must be non-negative.
+  const PhysicalModel({
+    super.key,
+    this.shape = BoxShape.rectangle,
+    this.clipBehavior = Clip.none,
+    this.borderRadius,
+    this.elevation = 0.0,
+    required this.color,
+    this.shadowColor = const Color(0xFF000000),
+    super.child,
+  }) : assert(elevation >= 0.0);
+
+  /// The type of shape.
+  final BoxShape shape;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  /// The border radius of the rounded corners.
+  ///
+  /// Values are clamped so that horizontal and vertical radii sums do not
+  /// exceed width/height.
+  ///
+  /// This is ignored if the [shape] is not [BoxShape.rectangle].
+  final BorderRadius? borderRadius;
+
+  /// The z-coordinate relative to the parent at which to place this physical
+  /// object.
+  ///
+  /// The value is non-negative.
+  final double elevation;
+
+  /// The background color.
+  final Color color;
+
+  /// The shadow color.
+  final Color shadowColor;
+
+  @override
+  RenderPhysicalModel createRenderObject(BuildContext context) {
+    return RenderPhysicalModel(
+      shape: shape,
+      clipBehavior: clipBehavior,
+      borderRadius: borderRadius,
+      elevation: elevation,
+      color: color,
+      shadowColor: shadowColor,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPhysicalModel renderObject) {
+    renderObject
+      ..shape = shape
+      ..clipBehavior = clipBehavior
+      ..borderRadius = borderRadius
+      ..elevation = elevation
+      ..color = color
+      ..shadowColor = shadowColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<BoxShape>('shape', shape));
+    properties.add(DiagnosticsProperty<BorderRadius>('borderRadius', borderRadius));
+    properties.add(DoubleProperty('elevation', elevation));
+    properties.add(ColorProperty('color', color));
+    properties.add(ColorProperty('shadowColor', shadowColor));
+  }
+}
+
+/// A widget representing a physical layer that clips its children to a path.
+///
+/// Physical layers cast shadows based on an [elevation] which is nominally in
+/// logical pixels, coming vertically out of the rendering surface.
+///
+/// [PhysicalModel] does the same but only supports shapes that can be expressed
+/// as rectangles with rounded corners.
+///
+/// {@tool dartpad}
+/// This example shows how to use a [PhysicalShape] on a centered [SizedBox]
+/// to clip it to a rounded rectangle using a [ShapeBorderClipper] and give it
+/// an orange color along with a shadow.
+///
+/// ** See code in examples/api/lib/widgets/basic/physical_shape.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [ShapeBorderClipper], which converts a [ShapeBorder] to a [CustomClipper], as
+///    needed by this widget.
+class PhysicalShape extends SingleChildRenderObjectWidget {
+  /// Creates a physical model with an arbitrary shape clip.
+  ///
+  /// The [color] is required; physical things have a color.
+  ///
+  /// The [elevation] must be non-negative.
+  const PhysicalShape({
+    super.key,
+    required this.clipper,
+    this.clipBehavior = Clip.none,
+    this.elevation = 0.0,
+    required this.color,
+    this.shadowColor = const Color(0xFF000000),
+    super.child,
+  }) : assert(elevation >= 0.0);
+
+  /// Determines which clip to use.
+  ///
+  /// If the path in question is expressed as a [ShapeBorder] subclass,
+  /// consider using the [ShapeBorderClipper] delegate class to adapt the
+  /// shape for use with this widget.
+  final CustomClipper<Path> clipper;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  /// The z-coordinate relative to the parent at which to place this physical
+  /// object.
+  ///
+  /// The value is non-negative.
+  final double elevation;
+
+  /// The background color.
+  final Color color;
+
+  /// When elevation is non zero the color to use for the shadow color.
+  final Color shadowColor;
+
+  @override
+  RenderPhysicalShape createRenderObject(BuildContext context) {
+    return RenderPhysicalShape(
+      clipper: clipper,
+      clipBehavior: clipBehavior,
+      elevation: elevation,
+      color: color,
+      shadowColor: shadowColor,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPhysicalShape renderObject) {
+    renderObject
+      ..clipper = clipper
+      ..clipBehavior = clipBehavior
+      ..elevation = elevation
+      ..color = color
+      ..shadowColor = shadowColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<CustomClipper<Path>>('clipper', clipper));
+    properties.add(DoubleProperty('elevation', elevation));
+    properties.add(ColorProperty('color', color));
+    properties.add(ColorProperty('shadowColor', shadowColor));
+  }
+}
+
+// POSITIONING AND SIZING NODES
+
+/// A widget that applies a transformation before painting its child.
+///
+/// Unlike [RotatedBox], which applies a rotation prior to layout, this object
+/// applies its transformation just prior to painting, which means the
+/// transformation is not taken into account when calculating how much space
+/// this widget's child (and thus this widget) consumes.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=9z_YNlRlWfA}
+///
+/// {@tool snippet}
+///
+/// This example rotates and skews an orange box containing text, keeping the
+/// top right corner pinned to its original position.
+///
+/// ```dart
+/// ColoredBox(
+///   color: Colors.black,
+///   child: Transform(
+///     alignment: Alignment.topRight,
+///     transform: Matrix4.skewY(0.3)..rotateZ(-math.pi / 12.0),
+///     child: Container(
+///       padding: const EdgeInsets.all(8.0),
+///       color: const Color(0xFFE8581C),
+///       child: const Text('Apartment for rent!'),
+///     ),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [RotatedBox], which rotates the child widget during layout, not just
+///    during painting.
+///  * [FractionalTranslation], which applies a translation to the child
+///    that is relative to the child's size.
+///  * [FittedBox], which sizes and positions its child widget to fit the parent
+///    according to a given [BoxFit] discipline.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Transform extends SingleChildRenderObjectWidget {
+  /// Creates a widget that transforms its child.
+  const Transform({
+    super.key,
+    required this.transform,
+    this.origin,
+    this.alignment,
+    this.transformHitTests = true,
+    this.filterQuality,
+    super.child,
+  });
+
+  /// Creates a widget that transforms its child using a rotation around the
+  /// center.
+  ///
+  /// The `angle` argument gives the rotation in clockwise radians.
+  ///
+  /// {@tool snippet}
+  ///
+  /// This example rotates an orange box containing text around its center by
+  /// fifteen degrees.
+  ///
+  /// ```dart
+  /// Transform.rotate(
+  ///   angle: -math.pi / 12.0,
+  ///   child: Container(
+  ///     padding: const EdgeInsets.all(8.0),
+  ///     color: const Color(0xFFE8581C),
+  ///     child: const Text('Apartment for rent!'),
+  ///   ),
+  /// )
+  /// ```
+  /// {@end-tool}
+  ///
+  /// See also:
+  ///
+  ///  * [RotationTransition], which animates changes in rotation smoothly
+  ///    over a given duration.
+  Transform.rotate({
+    super.key,
+    required double angle,
+    this.origin,
+    this.alignment = Alignment.center,
+    this.transformHitTests = true,
+    this.filterQuality,
+    super.child,
+  }) : transform = _computeRotation(angle);
+
+  /// Creates a widget that transforms its child using a translation.
+  ///
+  /// The `offset` argument specifies the translation.
+  ///
+  /// {@tool snippet}
+  ///
+  /// This example shifts the silver-colored child down by fifteen pixels.
+  ///
+  /// ```dart
+  /// Transform.translate(
+  ///   offset: const Offset(0.0, 15.0),
+  ///   child: Container(
+  ///     padding: const EdgeInsets.all(8.0),
+  ///     color: const Color(0xFF7F7F7F),
+  ///     child: const Text('Quarter'),
+  ///   ),
+  /// )
+  /// ```
+  /// {@end-tool}
+  Transform.translate({
+    super.key,
+    required Offset offset,
+    this.transformHitTests = true,
+    this.filterQuality,
+    super.child,
+  }) : transform = Matrix4.translationValues(offset.dx, offset.dy, 0.0),
+       origin = null,
+       alignment = null;
+
+  /// Creates a widget that scales its child along the 2D plane.
+  ///
+  /// The `scaleX` argument provides the scalar by which to multiply the `x`
+  /// axis, and the `scaleY` argument provides the scalar by which to multiply
+  /// the `y` axis. Either may be omitted, in which case the scaling factor for
+  /// that axis defaults to 1.0.
+  ///
+  /// For convenience, to scale the child uniformly, instead of providing
+  /// `scaleX` and `scaleY`, the `scale` parameter may be used.
+  ///
+  /// At least one of `scale`, `scaleX`, and `scaleY` must be non-null. If
+  /// `scale` is provided, the other two must be null; similarly, if it is not
+  /// provided, one of the other two must be provided.
+  ///
+  /// The [alignment] controls the origin of the scale; by default, this is the
+  /// center of the box.
+  ///
+  /// {@tool snippet}
+  ///
+  /// This example shrinks an orange box containing text such that each
+  /// dimension is half the size it would otherwise be.
+  ///
+  /// ```dart
+  /// Transform.scale(
+  ///   scale: 0.5,
+  ///   child: Container(
+  ///     padding: const EdgeInsets.all(8.0),
+  ///     color: const Color(0xFFE8581C),
+  ///     child: const Text('Bad Idea Bears'),
+  ///   ),
+  /// )
+  /// ```
+  /// {@end-tool}
+  ///
+  /// See also:
+  ///
+  /// * [ScaleTransition], which animates changes in scale smoothly over a given
+  ///   duration.
+  Transform.scale({
+    super.key,
+    double? scale,
+    double? scaleX,
+    double? scaleY,
+    this.origin,
+    this.alignment = Alignment.center,
+    this.transformHitTests = true,
+    this.filterQuality,
+    super.child,
+  }) : assert(
+         !(scale == null && scaleX == null && scaleY == null),
+         "At least one of 'scale', 'scaleX' and 'scaleY' is required to be non-null",
+       ),
+       assert(
+         scale == null || (scaleX == null && scaleY == null),
+         "If 'scale' is non-null then 'scaleX' and 'scaleY' must be left null",
+       ),
+       transform = Matrix4.diagonal3Values(scale ?? scaleX ?? 1.0, scale ?? scaleY ?? 1.0, 1.0);
+
+  /// Creates a widget that mirrors its child about the widget's center point.
+  ///
+  /// If `flipX` is true, the child widget will be flipped horizontally. Defaults to false.
+  ///
+  /// If `flipY` is true, the child widget will be flipped vertically. Defaults to false.
+  ///
+  /// If both are true, the child widget will be flipped both vertically and horizontally, equivalent to a 180 degree rotation.
+  ///
+  /// {@tool snippet}
+  ///
+  /// This example flips the text horizontally.
+  ///
+  /// ```dart
+  /// Transform.flip(
+  ///   flipX: true,
+  ///   child: const Text('Horizontal Flip'),
+  /// )
+  /// ```
+  /// {@end-tool}
+  Transform.flip({
+    super.key,
+    bool flipX = false,
+    bool flipY = false,
+    this.origin,
+    this.transformHitTests = true,
+    this.filterQuality,
+    super.child,
+  }) : alignment = Alignment.center,
+       transform = Matrix4.diagonal3Values(flipX ? -1.0 : 1.0, flipY ? -1.0 : 1.0, 1.0);
+
+  // Computes a rotation matrix for an angle in radians, attempting to keep rotations
+  // at integral values for angles of 0, π/2, π, 3π/2.
+  static Matrix4 _computeRotation(double radians) {
+    assert(radians.isFinite, 'Cannot compute the rotation matrix for a non-finite angle: $radians');
+    if (radians == 0.0) {
+      return Matrix4.identity();
+    }
+    final double sin = math.sin(radians);
+    if (sin == 1.0) {
+      return _createZRotation(1.0, 0.0);
+    }
+    if (sin == -1.0) {
+      return _createZRotation(-1.0, 0.0);
+    }
+    final double cos = math.cos(radians);
+    if (cos == -1.0) {
+      return _createZRotation(0.0, -1.0);
+    }
+    return _createZRotation(sin, cos);
+  }
+
+  static Matrix4 _createZRotation(double sin, double cos) {
+    final result = Matrix4.zero();
+    result.storage[0] = cos;
+    result.storage[1] = sin;
+    result.storage[4] = -sin;
+    result.storage[5] = cos;
+    result.storage[10] = 1.0;
+    result.storage[15] = 1.0;
+    return result;
+  }
+
+  /// The matrix to transform the child by during painting.
+  final Matrix4 transform;
+
+  /// The origin of the coordinate system in which to apply the matrix,
+  /// described relative to the point given by [alignment].
+  ///
+  /// Setting an origin is equivalent to conjugating the transform matrix by a
+  /// translation. This property is provided just for convenience.
+  ///
+  /// This offset is applied in addition to any [alignment] transformation, so in this
+  /// example, the child is rotated about its center, since [alignment]
+  /// in [Transform.rotate] defaults to [Alignment.center]:
+  ///
+  /// ```dart
+  /// Transform.rotate(
+  ///   angle: math.pi,
+  ///   child: Container(
+  ///    width: 150.0,
+  ///    height: 150.0,
+  ///    color: Colors.blue,
+  ///  ),
+  /// )
+  /// ```
+  ///
+  /// However, in this example the [origin] offset is applied after the
+  /// `alignment`, so the child rotates about its bottom-right corner:
+  ///
+  /// ```dart
+  /// Transform.rotate(
+  ///   angle: math.pi,
+  ///   origin: const Offset(75.0, 75.0),
+  ///   child: Container(
+  ///    width: 150.0,
+  ///    height: 150.0,
+  ///    color: Colors.blue,
+  ///  ),
+  /// )
+  /// ```
+  final Offset? origin;
+
+  /// The alignment of the origin, relative to the size of the box.
+  ///
+  /// When this and [origin] are both null, the origin is the upper-left corner
+  /// of this render object.
+  /// The default for this field is null for some constructors,
+  /// and [Alignment.center] for others.
+  ///
+  /// This is equivalent to setting an origin based on the size of the box.
+  /// If it is specified at the same time as the [origin], both are applied.
+  ///
+  /// An [AlignmentDirectional.centerStart] value is the same as an [Alignment]
+  /// whose [Alignment.x] value is `-1.0` if [Directionality.of] returns
+  /// [TextDirection.ltr], and `1.0` if [Directionality.of] returns
+  /// [TextDirection.rtl].	 Similarly [AlignmentDirectional.centerEnd] is the
+  /// same as an [Alignment] whose [Alignment.x] value is `1.0` if
+  /// [Directionality.of] returns	 [TextDirection.ltr], and `-1.0` if
+  /// [Directionality.of] returns [TextDirection.rtl].
+  final AlignmentGeometry? alignment;
+
+  /// Whether to transform registered hits into the child's resulting coordinate system.
+  ///
+  /// When `true`, hit coordinates within the parent's bounds are transformed to match
+  /// where the child appears visually after any transformation such as translation,
+  /// rotation, scaling, or skewing.
+  ///
+  /// When `false`, hit coordinates are not transformed, potentially causing taps to
+  /// register in a different location relative to the child's visual position.
+  ///
+  /// **Important:** Even when [transformHitTests] is true, children cannot
+  /// receive events outside the parent's bounds. Hit testing always starts
+  /// with the parent's own bounds check in [RenderBox.hitTest]. If the pointer
+  /// is outside the parent's bounds, [RenderBox.hitTestChildren] is not
+  /// invoked and the children are not considered for hit testing.
+  ///
+  /// For interactive elements that need to be tappable outside their parent's
+  /// original bounds, consider:
+  /// - Expanding the parent widget's bounds to encompass the transformed child.
+  /// - Using an [OverlayEntry] or [OverlayPortal] to place the widget in an
+  ///   [Overlay].
+  /// - Restructuring the widget hierarchy.
+  ///
+  /// {@tool snippet}
+  /// This example shows a `Container` that is scaled up. Even though it appears
+  /// larger, taps are only registered within the original 100x100 area of the
+  /// parent `SizedBox`.
+  ///
+  /// ```dart
+  /// Center(
+  ///   child: SizedBox(
+  ///     width: 100.0,
+  ///     height: 100.0,
+  ///     child: Transform.scale(
+  ///       scale: 2.0,
+  ///       child: GestureDetector(
+  ///         onTap: () => debugPrint('Tapped!'),
+  ///         child: const ColoredBox(
+  ///           color: Colors.purple,
+  ///         ),
+  ///       ),
+  ///     ),
+  ///   ),
+  /// )
+  /// ```
+  /// {@end-tool}
+  ///
+  /// Defaults to true.
+  final bool transformHitTests;
+
+  /// The filter quality with which to apply the transform as a bitmap operation.
+  ///
+  /// {@template flutter.widgets.Transform.optional.FilterQuality}
+  /// The transform will be applied by re-rendering the child if [filterQuality] is null,
+  /// otherwise it controls the quality of an [ImageFilter.matrix] applied to a bitmap
+  /// rendering of the child.
+  /// {@endtemplate}
+  final FilterQuality? filterQuality;
+
+  @override
+  RenderTransform createRenderObject(BuildContext context) {
+    return RenderTransform(
+      transform: transform,
+      origin: origin,
+      alignment: alignment,
+      textDirection: Directionality.maybeOf(context),
+      transformHitTests: transformHitTests,
+      filterQuality: filterQuality,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderTransform renderObject) {
+    renderObject
+      ..transform = transform
+      ..origin = origin
+      ..alignment = alignment
+      ..textDirection = Directionality.maybeOf(context)
+      ..transformHitTests = transformHitTests
+      ..filterQuality = filterQuality;
+  }
+}
+
+/// A widget that can be targeted by a [CompositedTransformFollower].
+///
+/// When this widget is composited during the compositing phase (which comes
+/// after the paint phase, as described in [WidgetsBinding.drawFrame]), it
+/// updates the [link] object so that any [CompositedTransformFollower] widgets
+/// that are subsequently composited in the same frame and were given the same
+/// [LayerLink] can position themselves at the same screen location.
+///
+/// A single [CompositedTransformTarget] can be followed by multiple
+/// [CompositedTransformFollower] widgets.
+///
+/// The [CompositedTransformTarget] must come earlier in the paint order than
+/// any linked [CompositedTransformFollower]s.
+///
+/// See also:
+///
+///  * [CompositedTransformFollower], the widget that can target this one.
+///  * [LeaderLayer], the layer that implements this widget's logic.
+class CompositedTransformTarget extends SingleChildRenderObjectWidget {
+  /// Creates a composited transform target widget.
+  ///
+  /// The [link] property must not be currently used by any other
+  /// [CompositedTransformTarget] object that is in the tree.
+  const CompositedTransformTarget({super.key, required this.link, super.child});
+
+  /// The link object that connects this [CompositedTransformTarget] with one or
+  /// more [CompositedTransformFollower]s.
+  ///
+  /// The link must not be associated with another [CompositedTransformTarget]
+  /// that is also being painted.
+  final LayerLink link;
+
+  @override
+  RenderLeaderLayer createRenderObject(BuildContext context) {
+    return RenderLeaderLayer(link: link);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderLeaderLayer renderObject) {
+    renderObject.link = link;
+  }
+}
+
+/// A widget that follows a [CompositedTransformTarget].
+///
+/// When this widget is composited during the compositing phase (which comes
+/// after the paint phase, as described in [WidgetsBinding.drawFrame]), it
+/// applies a transformation that brings [targetAnchor] of the linked
+/// [CompositedTransformTarget] and [followerAnchor] of this widget together.
+/// The two anchor points will have the same global coordinates, unless [offset]
+/// is not [Offset.zero], in which case [followerAnchor] will be offset by
+/// [offset] in the linked [CompositedTransformTarget]'s coordinate space.
+///
+/// The [LayerLink] object used as the [link] must be the same object as that
+/// provided to the matching [CompositedTransformTarget].
+///
+/// The [CompositedTransformTarget] must come earlier in the paint order than
+/// this [CompositedTransformFollower].
+///
+/// Hit testing on descendants of this widget will only work if the target
+/// position is within the box that this widget's parent considers to be
+/// hittable. If the parent covers the screen, this is trivially achievable, so
+/// this widget is usually used as the root of an [OverlayEntry] in an app-wide
+/// [Overlay] (e.g. as created by the [MaterialApp] widget's [Navigator]).
+///
+/// See also:
+///
+///  * [CompositedTransformTarget], the widget that this widget can target.
+///  * [FollowerLayer], the layer that implements this widget's logic.
+///  * [Transform], which applies an arbitrary transform to a child.
+class CompositedTransformFollower extends SingleChildRenderObjectWidget {
+  /// Creates a composited transform target widget.
+  ///
+  /// If the [link] property was also provided to a [CompositedTransformTarget],
+  /// that widget must come earlier in the paint order.
+  ///
+  /// The [showWhenUnlinked] and [offset] properties must also not be null.
+  const CompositedTransformFollower({
+    super.key,
+    required this.link,
+    this.showWhenUnlinked = true,
+    this.offset = Offset.zero,
+    this.targetAnchor = Alignment.topLeft,
+    this.followerAnchor = Alignment.topLeft,
+    super.child,
+  });
+
+  /// The link object that connects this [CompositedTransformFollower] with a
+  /// [CompositedTransformTarget].
+  final LayerLink link;
+
+  /// Whether to show the widget's contents when there is no corresponding
+  /// [CompositedTransformTarget] with the same [link].
+  ///
+  /// When the widget is linked, the child is positioned such that it has the
+  /// same global position as the linked [CompositedTransformTarget].
+  ///
+  /// When the widget is not linked, then: if [showWhenUnlinked] is true, the
+  /// child is visible and not repositioned; if it is false, then child is
+  /// hidden.
+  final bool showWhenUnlinked;
+
+  /// The anchor point on the linked [CompositedTransformTarget] that
+  /// [followerAnchor] will line up with.
+  ///
+  /// {@template flutter.widgets.CompositedTransformFollower.targetAnchor}
+  /// For example, when [targetAnchor] and [followerAnchor] are both
+  /// [Alignment.topLeft], this widget will be top left aligned with the linked
+  /// [CompositedTransformTarget]. When [targetAnchor] is
+  /// [Alignment.bottomLeft] and [followerAnchor] is [Alignment.topLeft], this
+  /// widget will be left aligned with the linked [CompositedTransformTarget],
+  /// and its top edge will line up with the [CompositedTransformTarget]'s
+  /// bottom edge.
+  /// {@endtemplate}
+  ///
+  /// Defaults to [Alignment.topLeft].
+  final Alignment targetAnchor;
+
+  /// The anchor point on this widget that will line up with [targetAnchor] on
+  /// the linked [CompositedTransformTarget].
+  ///
+  /// {@macro flutter.widgets.CompositedTransformFollower.targetAnchor}
+  ///
+  /// Defaults to [Alignment.topLeft].
+  final Alignment followerAnchor;
+
+  /// The additional offset to apply to the [targetAnchor] of the linked
+  /// [CompositedTransformTarget] to obtain this widget's [followerAnchor]
+  /// position.
+  final Offset offset;
+
+  @override
+  RenderFollowerLayer createRenderObject(BuildContext context) {
+    return RenderFollowerLayer(
+      link: link,
+      showWhenUnlinked: showWhenUnlinked,
+      offset: offset,
+      leaderAnchor: targetAnchor,
+      followerAnchor: followerAnchor,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderFollowerLayer renderObject) {
+    renderObject
+      ..link = link
+      ..showWhenUnlinked = showWhenUnlinked
+      ..offset = offset
+      ..leaderAnchor = targetAnchor
+      ..followerAnchor = followerAnchor;
+  }
+}
+
+/// Scales and positions its child within itself according to [fit].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=T4Uehk3_wlY}
+///
+/// {@tool dartpad}
+/// In this example, the [Placeholder] is stretched to fill the entire
+/// [Container]. Try changing the fit types to see the effect on the layout of
+/// the [Placeholder].
+///
+/// ** See code in examples/api/lib/widgets/basic/fitted_box.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+/// * [Transform], which applies an arbitrary transform to its child widget at
+///   paint time.
+/// * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class FittedBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget that scales and positions its child within itself according to [fit].
+  const FittedBox({
+    super.key,
+    this.fit = BoxFit.contain,
+    this.alignment = Alignment.center,
+    this.clipBehavior = Clip.none,
+    super.child,
+  });
+
+  /// How to inscribe the child into the space allocated during layout.
+  final BoxFit fit;
+
+  /// How to align the child within its parent's bounds.
+  ///
+  /// An alignment of (-1.0, -1.0) aligns the child to the top-left corner of its
+  /// parent's bounds. An alignment of (1.0, 0.0) aligns the child to the middle
+  /// of the right edge of its parent's bounds.
+  ///
+  /// Defaults to [Alignment.center].
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], a class with convenient constants typically used to
+  ///    specify an [AlignmentGeometry].
+  ///  * [AlignmentDirectional], like [Alignment] for specifying alignments
+  ///    relative to text direction.
+  final AlignmentGeometry alignment;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  @override
+  RenderFittedBox createRenderObject(BuildContext context) {
+    return RenderFittedBox(
+      fit: fit,
+      alignment: alignment,
+      textDirection: Directionality.maybeOf(context),
+      clipBehavior: clipBehavior,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderFittedBox renderObject) {
+    renderObject
+      ..fit = fit
+      ..alignment = alignment
+      ..textDirection = Directionality.maybeOf(context)
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<BoxFit>('fit', fit));
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+  }
+}
+
+/// Applies a translation transformation before painting its child.
+///
+/// The translation is expressed as a [Offset] scaled to the child's size. For
+/// example, an [Offset] with a `dx` of 0.25 will result in a horizontal
+/// translation of one quarter the width of the child.
+///
+/// Hit tests will only be detected inside the bounds of the
+/// [FractionalTranslation], even if the contents are offset such that
+/// they overflow.
+///
+/// See also:
+///
+///  * [Transform], which applies an arbitrary transform to its child widget at
+///    paint time.
+///  * [Transform.translate], which applies an absolute offset translation
+///    transformation instead of an offset scaled to the child.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class FractionalTranslation extends SingleChildRenderObjectWidget {
+  /// Creates a widget that translates its child's painting.
+  const FractionalTranslation({
+    super.key,
+    required this.translation,
+    this.transformHitTests = true,
+    super.child,
+  });
+
+  /// The translation to apply to the child, scaled to the child's size.
+  ///
+  /// For example, an [Offset] with a `dx` of 0.25 will result in a horizontal
+  /// translation of one quarter the width of the child.
+  final Offset translation;
+
+  /// Whether to apply the translation when performing hit tests.
+  final bool transformHitTests;
+
+  @override
+  RenderFractionalTranslation createRenderObject(BuildContext context) {
+    return RenderFractionalTranslation(
+      translation: translation,
+      transformHitTests: transformHitTests,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderFractionalTranslation renderObject) {
+    renderObject
+      ..translation = translation
+      ..transformHitTests = transformHitTests;
+  }
+}
+
+/// A widget that rotates its child by a integral number of quarter turns.
+///
+/// Unlike [Transform], which applies a transform just prior to painting,
+/// this object applies its rotation prior to layout, which means the entire
+/// rotated box consumes only as much space as required by the rotated child.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=BFE6_UglLfQ}
+///
+/// {@tool snippet}
+///
+/// This snippet rotates the child (some [Text]) so that it renders from bottom
+/// to top, like an axis label on a graph:
+///
+/// ```dart
+/// const RotatedBox(
+///   quarterTurns: 3,
+///   child: Text('Hello World!'),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Transform], which is a paint effect that allows you to apply an
+///    arbitrary transform to a child.
+///  * [Transform.rotate], which applies a rotation paint effect.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class RotatedBox extends SingleChildRenderObjectWidget {
+  /// A widget that rotates its child.
+  const RotatedBox({super.key, required this.quarterTurns, super.child});
+
+  /// The number of clockwise quarter turns the child should be rotated.
+  final int quarterTurns;
+
+  @override
+  RenderRotatedBox createRenderObject(BuildContext context) =>
+      RenderRotatedBox(quarterTurns: quarterTurns);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderRotatedBox renderObject) {
+    renderObject.quarterTurns = quarterTurns;
+  }
+}
+
+/// A widget that insets its child by the given padding.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=oD5RtLhhubg}
+///
+/// When passing layout constraints to its child, padding shrinks the
+/// constraints by the given padding, causing the child to layout at a smaller
+/// size. Padding then sizes itself to its child's size, inflated by the
+/// padding, effectively creating empty space around the child.
+///
+/// {@tool snippet}
+///
+/// This snippet creates "Hello World!" [Text] inside a [Card] that is indented
+/// by sixteen pixels in each direction.
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/padding.png)
+///
+/// ```dart
+/// const Card(
+///   child: Padding(
+///     padding: EdgeInsets.all(16.0),
+///     child: Text('Hello World!'),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## Design discussion
+///
+/// ### Why use a [Padding] widget rather than a [Container] with a [Container.padding] property?
+///
+/// There isn't really any difference between the two. If you supply a
+/// [Container.padding] argument, [Container] builds a [Padding] widget
+/// for you.
+///
+/// [Container] doesn't implement its properties directly. Instead, [Container]
+/// combines a number of simpler widgets together into a convenient package. For
+/// example, the [Container.padding] property causes the container to build a
+/// [Padding] widget and the [Container.decoration] property causes the
+/// container to build a [DecoratedBox] widget. If you find [Container]
+/// convenient, feel free to use it. If not, feel free to build these simpler
+/// widgets in whatever combination meets your needs.
+///
+/// In fact, the majority of widgets in Flutter are combinations of other
+/// simpler widgets. Composition, rather than inheritance, is the primary
+/// mechanism for building up widgets.
+///
+/// See also:
+///
+///  * [EdgeInsets], the class that is used to describe the padding dimensions.
+///  * [AnimatedPadding], which animates changes in [padding] over a given
+///    duration.
+///  * [SliverPadding], the sliver equivalent of this widget.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Padding extends SingleChildRenderObjectWidget {
+  /// Creates a widget that insets its child.
+  const Padding({super.key, required this.padding, super.child});
+
+  /// The amount of space by which to inset the child.
+  final EdgeInsetsGeometry padding;
+
+  @override
+  RenderPadding createRenderObject(BuildContext context) {
+    return RenderPadding(padding: padding, textDirection: Directionality.maybeOf(context));
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPadding renderObject) {
+    renderObject
+      ..padding = padding
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+  }
+}
+
+/// A widget that aligns its child within itself and optionally sizes itself
+/// based on the child's size.
+///
+/// For example, to align a box at the bottom right, you would pass this box a
+/// tight constraint that is bigger than the child's natural size,
+/// with an alignment of [Alignment.bottomRight].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=g2E7yl3MwMk}
+///
+/// This widget will be as big as possible if its dimensions are constrained and
+/// [widthFactor] and [heightFactor] are null. If a dimension is unconstrained
+/// and the corresponding size factor is null then the widget will match its
+/// child's size in that dimension. If a size factor is non-null then the
+/// corresponding dimension of this widget will be the product of the child's
+/// dimension and the size factor. For example if widthFactor is 2.0 then
+/// the width of this widget will always be twice its child's width.
+///
+/// {@tool snippet}
+///
+/// The [Align] widget in this example uses one of the defined constants from
+/// [Alignment], [Alignment.topRight]. This places the [FlutterLogo] in the top
+/// right corner of the parent blue [Container].
+///
+/// ![A blue square container with the Flutter logo in the top right corner.](https://flutter.github.io/assets-for-api-docs/assets/widgets/align_constant.png)
+///
+/// ```dart
+/// Center(
+///   child: Container(
+///     height: 120.0,
+///     width: 120.0,
+///     color: Colors.blue[50],
+///     child: const Align(
+///       alignment: Alignment.topRight,
+///       child: FlutterLogo(
+///         size: 60,
+///       ),
+///     ),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## How it works
+///
+/// The [alignment] property describes a point in the `child`'s coordinate system
+/// and a different point in the coordinate system of this widget. The [Align]
+/// widget positions the `child` such that both points are lined up on top of
+/// each other.
+///
+/// {@tool snippet}
+///
+/// The [Alignment] used in the following example defines two points:
+///
+///   * (0.2 * width of [FlutterLogo]/2 + width of [FlutterLogo]/2, 0.6 * height
+///     of [FlutterLogo]/2 + height of [FlutterLogo]/2) = (36.0, 48.0) in the
+///     coordinate system of the [FlutterLogo].
+///   * (0.2 * width of [Align]/2 + width of [Align]/2, 0.6 * height
+///     of [Align]/2 + height of [Align]/2) = (72.0, 96.0) in the
+///     coordinate system of the [Align] widget (blue area).
+///
+/// The [Align] widget positions the [FlutterLogo] such that the two points are on
+/// top of each other. In this example, the top left of the [FlutterLogo] will
+/// be placed at (72.0, 96.0) - (36.0, 48.0) = (36.0, 48.0) from the top left of
+/// the [Align] widget.
+///
+/// ![A blue square container with the Flutter logo positioned according to the
+/// Alignment specified above. A point is marked at the center of the container
+/// for the origin of the Alignment coordinate system.](https://flutter.github.io/assets-for-api-docs/assets/widgets/align_alignment.png)
+///
+/// ```dart
+/// Center(
+///   child: Container(
+///     height: 120.0,
+///     width: 120.0,
+///     color: Colors.blue[50],
+///     child: const Align(
+///       alignment: Alignment(0.2, 0.6),
+///       child: FlutterLogo(
+///         size: 60,
+///       ),
+///     ),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool snippet}
+///
+/// The [FractionalOffset] used in the following example defines two points:
+///
+///   * (0.2 * width of [FlutterLogo], 0.6 * height of [FlutterLogo]) = (12.0, 36.0)
+///     in the coordinate system of the [FlutterLogo].
+///   * (0.2 * width of [Align], 0.6 * height of [Align]) = (24.0, 72.0) in the
+///     coordinate system of the [Align] widget (blue area).
+///
+/// The [Align] widget positions the [FlutterLogo] such that the two points are on
+/// top of each other. In this example, the top left of the [FlutterLogo] will
+/// be placed at (24.0, 72.0) - (12.0, 36.0) = (12.0, 36.0) from the top left of
+/// the [Align] widget.
+///
+/// The [FractionalOffset] class uses a coordinate system with an origin in the top-left
+/// corner of the [Container] in difference to the center-oriented system used in
+/// the example above with [Alignment].
+///
+/// ![A blue square container with the Flutter logo positioned according to the
+/// FractionalOffset specified above. A point is marked at the top left corner
+/// of the container for the origin of the FractionalOffset coordinate system.](https://flutter.github.io/assets-for-api-docs/assets/widgets/align_fractional_offset.png)
+///
+/// ```dart
+/// Center(
+///   child: Container(
+///     height: 120.0,
+///     width: 120.0,
+///     color: Colors.blue[50],
+///     child: const Align(
+///       alignment: FractionalOffset(0.2, 0.6),
+///       child: FlutterLogo(
+///         size: 60,
+///       ),
+///     ),
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [AnimatedAlign], which animates changes in [alignment] smoothly over a
+///    given duration.
+///  * [CustomSingleChildLayout], which uses a delegate to control the layout of
+///    a single child.
+///  * [Center], which is the same as [Align] but with the [alignment] always
+///    set to [Alignment.center].
+///  * [FractionallySizedBox], which sizes its child based on a fraction of its
+///    own size and positions the child according to an [Alignment] value.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Align extends SingleChildRenderObjectWidget {
+  /// Creates an alignment widget.
+  ///
+  /// The alignment defaults to [Alignment.center].
+  const Align({
+    super.key,
+    this.alignment = Alignment.center,
+    this.widthFactor,
+    this.heightFactor,
+    super.child,
+  }) : assert(widthFactor == null || widthFactor >= 0.0),
+       assert(heightFactor == null || heightFactor >= 0.0);
+
+  /// How to align the child.
+  ///
+  /// The x and y values of the [Alignment] control the horizontal and vertical
+  /// alignment, respectively. An x value of -1.0 means that the left edge of
+  /// the child is aligned with the left edge of the parent whereas an x value
+  /// of 1.0 means that the right edge of the child is aligned with the right
+  /// edge of the parent. Other values interpolate (and extrapolate) linearly.
+  /// For example, a value of 0.0 means that the center of the child is aligned
+  /// with the center of the parent.
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], which has more details and some convenience constants for
+  ///    common positions.
+  ///  * [AlignmentDirectional], which has a horizontal coordinate orientation
+  ///    that depends on the [TextDirection].
+  final AlignmentGeometry alignment;
+
+  /// If non-null, sets its width to the child's width multiplied by this factor.
+  ///
+  /// Can be both greater and less than 1.0 but must be non-negative.
+  final double? widthFactor;
+
+  /// If non-null, sets its height to the child's height multiplied by this factor.
+  ///
+  /// Can be both greater and less than 1.0 but must be non-negative.
+  final double? heightFactor;
+
+  @override
+  RenderPositionedBox createRenderObject(BuildContext context) {
+    return RenderPositionedBox(
+      alignment: alignment,
+      widthFactor: widthFactor,
+      heightFactor: heightFactor,
+      textDirection: Directionality.maybeOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPositionedBox renderObject) {
+    renderObject
+      ..alignment = alignment
+      ..widthFactor = widthFactor
+      ..heightFactor = heightFactor
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(DoubleProperty('widthFactor', widthFactor, defaultValue: null));
+    properties.add(DoubleProperty('heightFactor', heightFactor, defaultValue: null));
+  }
+}
+
+/// A widget that centers its child within itself.
+///
+/// This widget will be as big as possible if its dimensions are constrained and
+/// [widthFactor] and [heightFactor] are null. If a dimension is unconstrained
+/// and the corresponding size factor is null then the widget will match its
+/// child's size in that dimension. If a size factor is non-null then the
+/// corresponding dimension of this widget will be the product of the child's
+/// dimension and the size factor. For example if widthFactor is 2.0 then
+/// the width of this widget will always be twice its child's width.
+///
+/// See also:
+///
+///  * [Align], which lets you arbitrarily position a child within itself,
+///    rather than just centering it.
+///  * [Row], a widget that displays its children in a horizontal array.
+///  * [Column], a widget that displays its children in a vertical array.
+///  * [Container], a convenience widget that combines common painting,
+///    positioning, and sizing widgets.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Center extends Align {
+  /// Creates a widget that centers its child.
+  const Center({super.key, super.widthFactor, super.heightFactor, super.child});
+}
+
+/// A widget that defers the layout of its single child to a delegate.
+///
+/// The delegate can determine the layout constraints for the child and can
+/// decide where to position the child. The delegate can also determine the size
+/// of the parent, but the size of the parent cannot depend on the size of the
+/// child.
+///
+/// See also:
+///
+///  * [SingleChildLayoutDelegate], which controls the layout of the child.
+///  * [Align], which sizes itself based on its child's size and positions
+///    the child according to an [Alignment] value.
+///  * [FractionallySizedBox], which sizes its child based on a fraction of its own
+///    size and positions the child according to an [Alignment] value.
+///  * [CustomMultiChildLayout], which uses a delegate to position multiple
+///    children.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class CustomSingleChildLayout extends SingleChildRenderObjectWidget {
+  /// Creates a custom single child layout.
+  const CustomSingleChildLayout({super.key, required this.delegate, super.child});
+
+  /// The delegate that controls the layout of the child.
+  final SingleChildLayoutDelegate delegate;
+
+  @override
+  RenderCustomSingleChildLayoutBox createRenderObject(BuildContext context) {
+    return RenderCustomSingleChildLayoutBox(delegate: delegate);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderCustomSingleChildLayoutBox renderObject) {
+    renderObject.delegate = delegate;
+  }
+}
+
+/// Metadata for identifying children in a [CustomMultiChildLayout].
+///
+/// The [MultiChildLayoutDelegate.hasChild],
+/// [MultiChildLayoutDelegate.layoutChild], and
+/// [MultiChildLayoutDelegate.positionChild] methods use these identifiers.
+class LayoutId extends ParentDataWidget<MultiChildLayoutParentData> {
+  /// Marks a child with a layout identifier.
+  LayoutId({Key? key, required this.id, required super.child})
+    : super(key: key ?? ValueKey<Object>(id));
+
+  /// An object representing the identity of this child.
+  ///
+  /// The [id] needs to be unique among the children that the
+  /// [CustomMultiChildLayout] manages.
+  final Object id;
+
+  @override
+  void applyParentData(RenderObject renderObject) {
+    assert(renderObject.parentData is MultiChildLayoutParentData);
+    final parentData = renderObject.parentData! as MultiChildLayoutParentData;
+    if (parentData.id != id) {
+      parentData.id = id;
+      renderObject.parent?.markNeedsLayout();
+    }
+  }
+
+  @override
+  Type get debugTypicalAncestorWidgetClass => CustomMultiChildLayout;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Object>('id', id));
+  }
+}
+
+/// A widget that uses a delegate to size and position multiple children.
+///
+/// The delegate can determine the layout constraints for each child and can
+/// decide where to position each child. The delegate can also determine the
+/// size of the parent, but the size of the parent cannot depend on the sizes of
+/// the children.
+///
+/// [CustomMultiChildLayout] is appropriate when there are complex relationships
+/// between the size and positioning of multiple widgets. To control the
+/// layout of a single child, [CustomSingleChildLayout] is more appropriate. For
+/// simple cases, such as aligning a widget to one or another edge, the [Stack]
+/// widget is more appropriate.
+///
+/// Each child must be wrapped in a [LayoutId] widget to identify the widget for
+/// the delegate.
+///
+/// {@tool dartpad}
+/// This example shows a [CustomMultiChildLayout] widget being used to lay out
+/// colored blocks from start to finish in a cascade that has some overlap.
+///
+/// It responds to changes in [Directionality] by re-laying out its children.
+///
+/// ** See code in examples/api/lib/widgets/basic/custom_multi_child_layout.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [MultiChildLayoutDelegate], for details about how to control the layout of
+///    the children.
+///  * [CustomSingleChildLayout], which uses a delegate to control the layout of
+///    a single child.
+///  * [Stack], which arranges children relative to the edges of the container.
+///  * [Flow], which provides paint-time control of its children using transform
+///    matrices.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class CustomMultiChildLayout extends MultiChildRenderObjectWidget {
+  /// Creates a custom multi-child layout.
+  const CustomMultiChildLayout({super.key, required this.delegate, super.children});
+
+  /// The delegate that controls the layout of the children.
+  final MultiChildLayoutDelegate delegate;
+
+  @override
+  RenderCustomMultiChildLayoutBox createRenderObject(BuildContext context) {
+    return RenderCustomMultiChildLayoutBox(delegate: delegate);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderCustomMultiChildLayoutBox renderObject) {
+    renderObject.delegate = delegate;
+  }
+}
+
+/// A box with a specified size.
+///
+/// If given a child, this widget forces it to have a specific width and/or height.
+/// These values will be ignored if this widget's parent does not permit them.
+/// For example, this happens if the parent is the screen (forces the child to
+/// be the same size as the parent), or another [SizedBox] (forces its child to
+/// have a specific width and/or height). This can be remedied by wrapping the
+/// child [SizedBox] in a widget that does permit it to be any size up to the
+/// size of the parent, such as [Center] or [Align].
+///
+/// If either the width or height is null, this widget will try to size itself to
+/// match the child's size in that dimension. If the child's size depends on the
+/// size of its parent, the height and width must be provided.
+///
+/// If not given a child, [SizedBox] will try to size itself as close to the
+/// specified height and width as possible given the parent's constraints. If
+/// [height] or [width] is null or unspecified, it will be treated as zero.
+///
+/// The [SizedBox.expand] constructor can be used to make a [SizedBox] that
+/// sizes itself to fit the parent. It is equivalent to setting [width] and
+/// [height] to [double.infinity].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=EHPu_DzRfqA}
+///
+/// {@tool snippet}
+///
+/// This snippet makes the child widget (a [Card] with some [Text]) have the
+/// exact size 200x300, parental constraints permitting:
+///
+/// ```dart
+/// const SizedBox(
+///   width: 200.0,
+///   height: 300.0,
+///   child: Card(child: Text('Hello World!')),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [ConstrainedBox], a more generic version of this class that takes
+///    arbitrary [BoxConstraints] instead of an explicit width and height.
+///  * [UnconstrainedBox], a container that tries to let its child draw without
+///    constraints.
+///  * [FractionallySizedBox], a widget that sizes its child to a fraction of
+///    the total available space.
+///  * [AspectRatio], a widget that attempts to fit within the parent's
+///    constraints while also sizing its child to match a given aspect ratio.
+///  * [FittedBox], which sizes and positions its child widget to fit the parent
+///    according to a given [BoxFit] discipline.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+///  * [Understanding constraints](https://docs.flutter.dev/ui/layout/constraints),
+///    an in-depth article about layout in Flutter.
+class SizedBox extends SingleChildRenderObjectWidget {
+  /// Creates a fixed size box. The [width] and [height] parameters can be null
+  /// to indicate that the size of the box should not be constrained in
+  /// the corresponding dimension.
+  const SizedBox({super.key, this.width, this.height, super.child});
+
+  /// Creates a box that will become as large as its parent allows.
+  const SizedBox.expand({super.key, super.child})
+    : width = double.infinity,
+      height = double.infinity;
+
+  /// Creates a box that will become as small as its parent allows.
+  const SizedBox.shrink({super.key, super.child}) : width = 0.0, height = 0.0;
+
+  /// Creates a box with the specified size.
+  SizedBox.fromSize({super.key, super.child, Size? size})
+    : width = size?.width,
+      height = size?.height;
+
+  /// Creates a box whose [width] and [height] are equal.
+  const SizedBox.square({super.key, super.child, double? dimension})
+    : width = dimension,
+      height = dimension;
+
+  /// If non-null, requires the child to have exactly this width.
+  final double? width;
+
+  /// If non-null, requires the child to have exactly this height.
+  final double? height;
+
+  @override
+  RenderConstrainedBox createRenderObject(BuildContext context) {
+    return RenderConstrainedBox(additionalConstraints: _additionalConstraints);
+  }
+
+  BoxConstraints get _additionalConstraints {
+    return BoxConstraints.tightFor(width: width, height: height);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderConstrainedBox renderObject) {
+    renderObject.additionalConstraints = _additionalConstraints;
+  }
+
+  @override
+  String toStringShort() {
+    final String type = switch ((width, height)) {
+      (double.infinity, double.infinity) => '${objectRuntimeType(this, 'SizedBox')}.expand',
+      (0.0, 0.0) => '${objectRuntimeType(this, 'SizedBox')}.shrink',
+      _ => objectRuntimeType(this, 'SizedBox'),
+    };
+    return key == null ? type : '$type-$key';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    final DiagnosticLevel level;
+    if ((width == double.infinity && height == double.infinity) ||
+        (width == 0.0 && height == 0.0)) {
+      level = DiagnosticLevel.hidden;
+    } else {
+      level = DiagnosticLevel.info;
+    }
+    properties.add(DoubleProperty('width', width, defaultValue: null, level: level));
+    properties.add(DoubleProperty('height', height, defaultValue: null, level: level));
+  }
+}
+
+/// A widget that imposes additional constraints on its child.
+///
+/// For example, if you wanted [child] to have a minimum height of 50.0 logical
+/// pixels, you could use `const BoxConstraints(minHeight: 50.0)` as the
+/// [constraints].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=o2KveVr7adg}
+///
+/// {@tool snippet}
+///
+/// This snippet makes the child widget (a [Card] with some [Text]) fill the
+/// parent, by applying [BoxConstraints.expand] constraints:
+///
+/// ```dart
+/// ConstrainedBox(
+///   constraints: const BoxConstraints.expand(),
+///   child: const Card(child: Text('Hello World!')),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// The same behavior can be obtained using the [SizedBox.expand] widget.
+///
+/// See also:
+///
+///  * [BoxConstraints], the class that describes constraints.
+///  * [UnconstrainedBox], a container that tries to let its child draw without
+///    constraints.
+///  * [SizedBox], which lets you specify tight constraints by explicitly
+///    specifying the height or width.
+///  * [FractionallySizedBox], which sizes its child based on a fraction of its
+///    own size and positions the child according to an [Alignment] value.
+///  * [AspectRatio], a widget that attempts to fit within the parent's
+///    constraints while also sizing its child to match a given aspect ratio.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class ConstrainedBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget that imposes additional constraints on its child.
+  ConstrainedBox({super.key, required this.constraints, super.child})
+    : assert(constraints.debugAssertIsValid());
+
+  /// The additional constraints to impose on the child.
+  final BoxConstraints constraints;
+
+  @override
+  RenderConstrainedBox createRenderObject(BuildContext context) {
+    return RenderConstrainedBox(additionalConstraints: constraints);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderConstrainedBox renderObject) {
+    renderObject.additionalConstraints = constraints;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<BoxConstraints>('constraints', constraints, showName: false),
+    );
+  }
+}
+
+/// A container widget that applies an arbitrary transform to its constraints,
+/// and sizes its child using the resulting [BoxConstraints], optionally
+/// clipping, or treating the overflow as an error.
+///
+/// This container sizes its child using a [BoxConstraints] created by applying
+/// [constraintsTransform] to its own constraints. This container will then
+/// attempt to adopt the same size, within the limits of its own constraints. If
+/// it ends up with a different size, it will align the child based on
+/// [alignment]. If the container cannot expand enough to accommodate the entire
+/// child, the child will be clipped if [clipBehavior] is not [Clip.none].
+///
+/// In debug mode, if [clipBehavior] is [Clip.none] and the child overflows the
+/// container, a warning will be printed on the console, and black and yellow
+/// striped areas will appear where the overflow occurs.
+///
+/// When [child] is null, this widget becomes as small as possible and never
+/// overflows.
+///
+/// This widget can be used to ensure some of [child]'s natural dimensions are
+/// honored, and get an early warning otherwise during development. For
+/// instance, if [child] requires a minimum height to fully display its content,
+/// [constraintsTransform] can be set to [maxHeightUnconstrained], so that if
+/// the parent [RenderObject] fails to provide enough vertical space, a warning
+/// will be displayed in debug mode, while still allowing [child] to grow
+/// vertically:
+///
+/// {@tool snippet}
+///
+/// In the following snippet, the [Card] is guaranteed to be at least as tall as
+/// its "natural" height. Unlike [UnconstrainedBox], it will become taller if
+/// its "natural" height is smaller than 40 px. If the [Container] isn't high
+/// enough to show the full content of the [Card], in debug mode a warning will
+/// be given.
+///
+/// ```dart
+/// Container(
+///   constraints: const BoxConstraints(minHeight: 40, maxHeight: 100),
+///   alignment: Alignment.center,
+///   child: const ConstraintsTransformBox(
+///     constraintsTransform: ConstraintsTransformBox.maxHeightUnconstrained,
+///     child: Card(child: Text('Hello World!')),
+///   )
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [ConstrainedBox], which renders a box which imposes constraints
+///    on its child.
+///  * [OverflowBox], a widget that imposes additional constraints on its child,
+///    and allows the child to overflow itself.
+///  * [UnconstrainedBox] which allows its children to render themselves
+///    unconstrained and expands to fit them.
+class ConstraintsTransformBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget that uses a function to transform the constraints it
+  /// passes to its child. If the child overflows the parent's constraints, a
+  /// warning will be given in debug mode.
+  ///
+  /// The `debugTransformType` argument adds a debug label to this widget.
+  ///
+  /// The `alignment`, `clipBehavior` and `constraintsTransform` arguments must
+  /// not be null.
+  const ConstraintsTransformBox({
+    super.key,
+    super.child,
+    this.textDirection,
+    this.alignment = Alignment.center,
+    required this.constraintsTransform,
+    this.clipBehavior = Clip.none,
+    String debugTransformType = '',
+  }) : _debugTransformLabel = debugTransformType;
+
+  /// A [BoxConstraintsTransform] that always returns its argument as-is (i.e.,
+  /// it is an identity function).
+  ///
+  /// The [ConstraintsTransformBox] becomes a proxy widget that has no effect on
+  /// layout if [constraintsTransform] is set to this.
+  static BoxConstraints unmodified(BoxConstraints constraints) => constraints;
+
+  /// A [BoxConstraintsTransform] that always returns a [BoxConstraints] that
+  /// imposes no constraints on either dimension (i.e. `const BoxConstraints()`).
+  ///
+  /// Setting [constraintsTransform] to this allows [child] to render at its
+  /// "natural" size (equivalent to an [UnconstrainedBox] with `constrainedAxis`
+  /// set to null).
+  static BoxConstraints unconstrained(BoxConstraints constraints) => const BoxConstraints();
+
+  /// A [BoxConstraintsTransform] that removes the width constraints from the
+  /// input.
+  ///
+  /// Setting [constraintsTransform] to this allows [child] to render at its
+  /// "natural" width (equivalent to an [UnconstrainedBox] with
+  /// `constrainedAxis` set to [Axis.horizontal]).
+  static BoxConstraints widthUnconstrained(BoxConstraints constraints) =>
+      constraints.heightConstraints();
+
+  /// A [BoxConstraintsTransform] that removes the height constraints from the
+  /// input.
+  ///
+  /// Setting [constraintsTransform] to this allows [child] to render at its
+  /// "natural" height (equivalent to an [UnconstrainedBox] with
+  /// `constrainedAxis` set to [Axis.vertical]).
+  static BoxConstraints heightUnconstrained(BoxConstraints constraints) =>
+      constraints.widthConstraints();
+
+  /// A [BoxConstraintsTransform] that removes the `maxHeight` constraint from
+  /// the input.
+  ///
+  /// Setting [constraintsTransform] to this allows [child] to render at its
+  /// "natural" height or the `minHeight` of the incoming [BoxConstraints],
+  /// whichever is larger.
+  static BoxConstraints maxHeightUnconstrained(BoxConstraints constraints) =>
+      constraints.copyWith(maxHeight: double.infinity);
+
+  /// A [BoxConstraintsTransform] that removes the `maxWidth` constraint from
+  /// the input.
+  ///
+  /// Setting [constraintsTransform] to this allows [child] to render at its
+  /// "natural" width or the `minWidth` of the incoming [BoxConstraints],
+  /// whichever is larger.
+  static BoxConstraints maxWidthUnconstrained(BoxConstraints constraints) =>
+      constraints.copyWith(maxWidth: double.infinity);
+
+  /// A [BoxConstraintsTransform] that removes both the `maxWidth` and the
+  /// `maxHeight` constraints from the input.
+  ///
+  /// Setting [constraintsTransform] to this allows [child] to render at least
+  /// its "natural" size, and grow along an axis if the incoming
+  /// [BoxConstraints] has a larger minimum constraint on that axis.
+  static BoxConstraints maxUnconstrained(BoxConstraints constraints) =>
+      constraints.copyWith(maxWidth: double.infinity, maxHeight: double.infinity);
+
+  static final Map<BoxConstraintsTransform, String> _debugKnownTransforms =
+      <BoxConstraintsTransform, String>{
+        unmodified: 'unmodified',
+        unconstrained: 'unconstrained',
+        widthUnconstrained: 'width constraints removed',
+        heightUnconstrained: 'height constraints removed',
+        maxWidthUnconstrained: 'maxWidth constraint removed',
+        maxHeightUnconstrained: 'maxHeight constraint removed',
+        maxUnconstrained: 'maxWidth & maxHeight constraints removed',
+      };
+
+  /// The text direction to use when interpreting the [alignment] if it is an
+  /// [AlignmentDirectional].
+  ///
+  /// Defaults to null, in which case [Directionality.maybeOf] is used to determine
+  /// the text direction.
+  final TextDirection? textDirection;
+
+  /// The alignment to use when laying out the child, if it has a different size
+  /// than this widget.
+  ///
+  /// If this is an [AlignmentDirectional], then [textDirection] must not be
+  /// null.
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment] for non-[Directionality]-aware alignments.
+  ///  * [AlignmentDirectional] for [Directionality]-aware alignments.
+  final AlignmentGeometry alignment;
+
+  /// {@template flutter.widgets.constraintsTransform}
+  /// The function used to transform the incoming [BoxConstraints], to size
+  /// [child].
+  ///
+  /// The function must return a [BoxConstraints] that is
+  /// [BoxConstraints.isNormalized].
+  ///
+  /// See [ConstraintsTransformBox] for predefined common
+  /// [BoxConstraintsTransform]s.
+  /// {@endtemplate}
+  final BoxConstraintsTransform constraintsTransform;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// {@template flutter.widgets.ConstraintsTransformBox.clipBehavior}
+  /// In debug mode, if [clipBehavior] is [Clip.none], and the child overflows
+  /// its constraints, a warning will be printed on the console, and black and
+  /// yellow striped areas will appear where the overflow occurs. For other
+  /// values of [clipBehavior], the contents are clipped accordingly.
+  /// {@endtemplate}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  final String _debugTransformLabel;
+
+  @override
+  RenderConstraintsTransformBox createRenderObject(BuildContext context) {
+    return RenderConstraintsTransformBox(
+      textDirection: textDirection ?? Directionality.maybeOf(context),
+      alignment: alignment,
+      constraintsTransform: constraintsTransform,
+      clipBehavior: clipBehavior,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant RenderConstraintsTransformBox renderObject,
+  ) {
+    renderObject
+      ..textDirection = textDirection ?? Directionality.maybeOf(context)
+      ..constraintsTransform = constraintsTransform
+      ..alignment = alignment
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+
+    final String? debugTransformLabel = _debugTransformLabel.isNotEmpty
+        ? _debugTransformLabel
+        : _debugKnownTransforms[constraintsTransform];
+
+    if (debugTransformLabel != null) {
+      properties.add(DiagnosticsProperty<String>('constraints transform', debugTransformLabel));
+    }
+  }
+}
+
+/// A widget that imposes no constraints on its child, allowing it to render
+/// at its "natural" size.
+///
+/// This allows a child to render at the size it would render if it were alone
+/// on an infinite canvas with no constraints. This container will then attempt
+/// to adopt the same size, within the limits of its own constraints. If it ends
+/// up with a different size, it will align the child based on [alignment].
+/// If the box cannot expand enough to accommodate the entire child, the
+/// child will be clipped.
+///
+/// In debug mode, if the child overflows the container, a warning will be
+/// printed on the console, and black and yellow striped areas will appear where
+/// the overflow occurs.
+///
+/// See also:
+///
+///  * [ConstrainedBox], for a box which imposes constraints on its child.
+///  * [Align], which loosens the constraints given to the child rather than
+///    removing them entirely.
+///  * [Container], a convenience widget that combines common painting,
+///    positioning, and sizing widgets.
+///  * [OverflowBox], a widget that imposes different constraints on its child
+///    than it gets from its parent, possibly allowing the child to overflow
+///    the parent.
+///  * [ConstraintsTransformBox], a widget that sizes its child using a
+///    transformed [BoxConstraints], and shows a warning if the child overflows
+///    in debug mode.
+class UnconstrainedBox extends StatelessWidget {
+  /// Creates a widget that imposes no constraints on its child, allowing it to
+  /// render at its "natural" size. If the child overflows the parents
+  /// constraints, a warning will be given in debug mode.
+  const UnconstrainedBox({
+    super.key,
+    this.child,
+    this.textDirection,
+    this.alignment = Alignment.center,
+    this.constrainedAxis,
+    this.clipBehavior = Clip.none,
+  });
+
+  /// The text direction to use when interpreting the [alignment] if it is an
+  /// [AlignmentDirectional].
+  final TextDirection? textDirection;
+
+  /// The alignment to use when laying out the child.
+  ///
+  /// If this is an [AlignmentDirectional], then [textDirection] must not be
+  /// null.
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment] for non-[Directionality]-aware alignments.
+  ///  * [AlignmentDirectional] for [Directionality]-aware alignments.
+  final AlignmentGeometry alignment;
+
+  /// The axis to retain constraints on, if any.
+  ///
+  /// If not set, or set to null (the default), neither axis will retain its
+  /// constraints. If set to [Axis.vertical], then vertical constraints will
+  /// be retained, and if set to [Axis.horizontal], then horizontal constraints
+  /// will be retained.
+  final Axis? constrainedAxis;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
+  final Widget? child;
+
+  BoxConstraintsTransform _axisToTransform(Axis? constrainedAxis) {
+    return switch (constrainedAxis) {
+      Axis.horizontal => ConstraintsTransformBox.heightUnconstrained,
+      Axis.vertical => ConstraintsTransformBox.widthUnconstrained,
+      null => ConstraintsTransformBox.unconstrained,
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstraintsTransformBox(
+      textDirection: textDirection,
+      alignment: alignment,
+      clipBehavior: clipBehavior,
+      constraintsTransform: _axisToTransform(constrainedAxis),
+      child: child,
+    );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(EnumProperty<Axis>('constrainedAxis', constrainedAxis, defaultValue: null));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+  }
+}
+
+/// A widget that sizes its child to a fraction of the total available space.
+/// For more details about the layout algorithm, see
+/// [RenderFractionallySizedOverflowBox].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=PEsY654EGZ0}
+///
+/// {@tool dartpad}
+/// This sample shows a [FractionallySizedBox] whose one child is 50% of
+/// the box's size per the width and height factor parameters, and centered
+/// within that box by the alignment parameter.
+///
+/// ** See code in examples/api/lib/widgets/basic/fractionally_sized_box.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Align], which sizes itself based on its child's size and positions
+///    the child according to an [Alignment] value.
+///  * [OverflowBox], a widget that imposes different constraints on its child
+///    than it gets from its parent, possibly allowing the child to overflow the
+///    parent.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class FractionallySizedBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget that sizes its child to a fraction of the total available space.
+  ///
+  /// If non-null, the [widthFactor] and [heightFactor] arguments must be
+  /// non-negative.
+  const FractionallySizedBox({
+    super.key,
+    this.alignment = Alignment.center,
+    this.widthFactor,
+    this.heightFactor,
+    super.child,
+  }) : assert(widthFactor == null || widthFactor >= 0.0),
+       assert(heightFactor == null || heightFactor >= 0.0);
+
+  /// {@template flutter.widgets.basic.fractionallySizedBox.widthFactor}
+  /// If non-null, the fraction of the incoming width given to the child.
+  ///
+  /// If non-null, the child is given a tight width constraint that is the max
+  /// incoming width constraint multiplied by this factor.
+  ///
+  /// If null, the incoming width constraints are passed to the child
+  /// unmodified.
+  /// {@endtemplate}
+  final double? widthFactor;
+
+  /// {@template flutter.widgets.basic.fractionallySizedBox.heightFactor}
+  /// If non-null, the fraction of the incoming height given to the child.
+  ///
+  /// If non-null, the child is given a tight height constraint that is the max
+  /// incoming height constraint multiplied by this factor.
+  ///
+  /// If null, the incoming height constraints are passed to the child
+  /// unmodified.
+  /// {@endtemplate}
+  final double? heightFactor;
+
+  /// {@template flutter.widgets.basic.fractionallySizedBox.alignment}
+  /// How to align the child.
+  ///
+  /// The x and y values of the alignment control the horizontal and vertical
+  /// alignment, respectively. An x value of -1.0 means that the left edge of
+  /// the child is aligned with the left edge of the parent whereas an x value
+  /// of 1.0 means that the right edge of the child is aligned with the right
+  /// edge of the parent. Other values interpolate (and extrapolate) linearly.
+  /// For example, a value of 0.0 means that the center of the child is aligned
+  /// with the center of the parent.
+  ///
+  /// Defaults to [Alignment.center].
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], a class with convenient constants typically used to
+  ///    specify an [AlignmentGeometry].
+  ///  * [AlignmentDirectional], like [Alignment] for specifying alignments
+  ///    relative to text direction.
+  /// {@endtemplate}
+  final AlignmentGeometry alignment;
+
+  @override
+  RenderFractionallySizedOverflowBox createRenderObject(BuildContext context) {
+    return RenderFractionallySizedOverflowBox(
+      alignment: alignment,
+      widthFactor: widthFactor,
+      heightFactor: heightFactor,
+      textDirection: Directionality.maybeOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderFractionallySizedOverflowBox renderObject) {
+    renderObject
+      ..alignment = alignment
+      ..widthFactor = widthFactor
+      ..heightFactor = heightFactor
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(DoubleProperty('widthFactor', widthFactor, defaultValue: null));
+    properties.add(DoubleProperty('heightFactor', heightFactor, defaultValue: null));
+  }
+}
+
+/// A box that limits its size only when it's unconstrained.
+///
+/// If this widget's maximum width is unconstrained then its child's width is
+/// limited to [maxWidth]. Similarly, if this widget's maximum height is
+/// unconstrained then its child's height is limited to [maxHeight].
+///
+/// This has the effect of giving the child a natural dimension in unbounded
+/// environments. For example, by providing a [maxHeight] to a widget that
+/// normally tries to be as big as possible, the widget will normally size
+/// itself to fit its parent, but when placed in a vertical list, it will take
+/// on the given height.
+///
+/// This is useful when composing widgets that normally try to match their
+/// parents' size, so that they behave reasonably in lists (which are
+/// unbounded).
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=uVki2CIzBTs}
+///
+/// See also:
+///
+///  * [ConstrainedBox], which applies its constraints in all cases, not just
+///    when the incoming constraints are unbounded.
+///  * [SizedBox], which lets you specify tight constraints by explicitly
+///    specifying the height or width.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class LimitedBox extends SingleChildRenderObjectWidget {
+  /// Creates a box that limits its size only when it's unconstrained.
+  ///
+  /// The [maxWidth] and [maxHeight] arguments must not be negative.
+  const LimitedBox({
+    super.key,
+    this.maxWidth = double.infinity,
+    this.maxHeight = double.infinity,
+    super.child,
+  }) : assert(maxWidth >= 0.0),
+       assert(maxHeight >= 0.0);
+
+  /// The maximum width limit to apply in the absence of a
+  /// [BoxConstraints.maxWidth] constraint.
+  final double maxWidth;
+
+  /// The maximum height limit to apply in the absence of a
+  /// [BoxConstraints.maxHeight] constraint.
+  final double maxHeight;
+
+  @override
+  RenderLimitedBox createRenderObject(BuildContext context) {
+    return RenderLimitedBox(maxWidth: maxWidth, maxHeight: maxHeight);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderLimitedBox renderObject) {
+    renderObject
+      ..maxWidth = maxWidth
+      ..maxHeight = maxHeight;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('maxWidth', maxWidth, defaultValue: double.infinity));
+    properties.add(DoubleProperty('maxHeight', maxHeight, defaultValue: double.infinity));
+  }
+}
+
+/// A widget that imposes different constraints on its child than it gets
+/// from its parent, possibly allowing the child to overflow the parent.
+///
+/// {@tool dartpad}
+/// This example shows how an [OverflowBox] is used, and what its effect is.
+///
+/// ** See code in examples/api/lib/widgets/basic/overflowbox.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [RenderConstrainedOverflowBox] for details about how [OverflowBox] is
+///    rendered.
+///  * [SizedOverflowBox], a widget that is a specific size but passes its
+///    original constraints through to its child, which may then overflow.
+///  * [ConstrainedBox], a widget that imposes additional constraints on its
+///    child.
+///  * [UnconstrainedBox], a container that tries to let its child draw without
+///    constraints.
+///  * [SizedBox], a box with a specified size.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class OverflowBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget that lets its child overflow itself.
+  const OverflowBox({
+    super.key,
+    this.alignment = Alignment.center,
+    this.minWidth,
+    this.maxWidth,
+    this.minHeight,
+    this.maxHeight,
+    this.fit = OverflowBoxFit.max,
+    super.child,
+  });
+
+  /// How to align the child.
+  ///
+  /// The x and y values of the alignment control the horizontal and vertical
+  /// alignment, respectively. An x value of -1.0 means that the left edge of
+  /// the child is aligned with the left edge of the parent whereas an x value
+  /// of 1.0 means that the right edge of the child is aligned with the right
+  /// edge of the parent. Other values interpolate (and extrapolate) linearly.
+  /// For example, a value of 0.0 means that the center of the child is aligned
+  /// with the center of the parent.
+  ///
+  /// Defaults to [Alignment.center].
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], a class with convenient constants typically used to
+  ///    specify an [AlignmentGeometry].
+  ///  * [AlignmentDirectional], like [Alignment] for specifying alignments
+  ///    relative to text direction.
+  final AlignmentGeometry alignment;
+
+  /// The minimum width constraint to give the child. Set this to null (the
+  /// default) to use the constraint from the parent instead.
+  final double? minWidth;
+
+  /// The maximum width constraint to give the child. Set this to null (the
+  /// default) to use the constraint from the parent instead.
+  final double? maxWidth;
+
+  /// The minimum height constraint to give the child. Set this to null (the
+  /// default) to use the constraint from the parent instead.
+  final double? minHeight;
+
+  /// The maximum height constraint to give the child. Set this to null (the
+  /// default) to use the constraint from the parent instead.
+  final double? maxHeight;
+
+  /// The way to size the render object.
+  ///
+  /// This only affects scenario when the child does not indeed overflow.
+  /// If set to [OverflowBoxFit.deferToChild], the render object will size itself to
+  /// match the size of its child within the constraints of its parent or be
+  /// as small as the parent allows if no child is set. If set to
+  /// [OverflowBoxFit.max] (the default), the render object will size itself
+  /// to be as large as the parent allows.
+  final OverflowBoxFit fit;
+
+  @override
+  RenderConstrainedOverflowBox createRenderObject(BuildContext context) {
+    return RenderConstrainedOverflowBox(
+      alignment: alignment,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      minHeight: minHeight,
+      maxHeight: maxHeight,
+      fit: fit,
+      textDirection: Directionality.maybeOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderConstrainedOverflowBox renderObject) {
+    renderObject
+      ..alignment = alignment
+      ..minWidth = minWidth
+      ..maxWidth = maxWidth
+      ..minHeight = minHeight
+      ..maxHeight = maxHeight
+      ..fit = fit
+      ..textDirection = Directionality.maybeOf(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(DoubleProperty('minWidth', minWidth, defaultValue: null));
+    properties.add(DoubleProperty('maxWidth', maxWidth, defaultValue: null));
+    properties.add(DoubleProperty('minHeight', minHeight, defaultValue: null));
+    properties.add(DoubleProperty('maxHeight', maxHeight, defaultValue: null));
+    properties.add(EnumProperty<OverflowBoxFit>('fit', fit));
+  }
+}
+
+/// A widget that is a specific size but passes its original constraints
+/// through to its child, which may then overflow.
+///
+/// See also:
+///
+///  * [OverflowBox], A widget that imposes different constraints on its child
+///    than it gets from its parent, possibly allowing the child to overflow the
+///    parent.
+///  * [ConstrainedBox], a widget that imposes additional constraints on its
+///    child.
+///  * [UnconstrainedBox], a container that tries to let its child draw without
+///    constraints.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class SizedOverflowBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget of a given size that lets its child overflow.
+  const SizedOverflowBox({
+    super.key,
+    required this.size,
+    this.alignment = Alignment.center,
+    super.child,
+  });
+
+  /// How to align the child.
+  ///
+  /// The x and y values of the alignment control the horizontal and vertical
+  /// alignment, respectively. An x value of -1.0 means that the left edge of
+  /// the child is aligned with the left edge of the parent whereas an x value
+  /// of 1.0 means that the right edge of the child is aligned with the right
+  /// edge of the parent. Other values interpolate (and extrapolate) linearly.
+  /// For example, a value of 0.0 means that the center of the child is aligned
+  /// with the center of the parent.
+  ///
+  /// Defaults to [Alignment.center].
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], a class with convenient constants typically used to
+  ///    specify an [AlignmentGeometry].
+  ///  * [AlignmentDirectional], like [Alignment] for specifying alignments
+  ///    relative to text direction.
+  final AlignmentGeometry alignment;
+
+  /// The size this widget should attempt to be.
+  final Size size;
+
+  @override
+  RenderSizedOverflowBox createRenderObject(BuildContext context) {
+    return RenderSizedOverflowBox(
+      alignment: alignment,
+      requestedSize: size,
+      textDirection: Directionality.of(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderSizedOverflowBox renderObject) {
+    renderObject
+      ..alignment = alignment
+      ..requestedSize = size
+      ..textDirection = Directionality.of(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(DiagnosticsProperty<Size>('size', size, defaultValue: null));
+  }
+}
+
+/// A widget that lays the child out as if it was in the tree, but without
+/// painting anything, without making the child available for hit testing, and
+/// without taking any room in the parent.
+///
+/// Offstage children are still active: they can receive focus and have keyboard
+/// input directed to them.
+///
+/// Animations continue to run in offstage children, and therefore use battery
+/// and CPU time, regardless of whether the animations end up being visible.
+///
+/// [Offstage] can be used to measure the dimensions of a widget without
+/// bringing it on screen (yet). To hide a widget from view while it is not
+/// needed, prefer removing the widget from the tree entirely rather than
+/// keeping it alive in an [Offstage] subtree.
+///
+/// {@tool dartpad}
+/// This example shows a [FlutterLogo] widget when the `_offstage` member field
+/// is false, and hides it without any room in the parent when it is true. When
+/// offstage, this app displays a button to get the logo size, which will be
+/// displayed in a [SnackBar].
+///
+/// ** See code in examples/api/lib/widgets/basic/offstage.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Visibility], which can hide a child more efficiently (albeit less
+///    subtly).
+///  * [TickerMode], which can be used to disable animations in a subtree.
+///  * [SliverOffstage], the sliver version of this widget.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Offstage extends SingleChildRenderObjectWidget {
+  /// Creates a widget that visually hides its child.
+  const Offstage({super.key, this.offstage = true, super.child});
+
+  /// Whether the child is hidden from the rest of the tree.
+  ///
+  /// If true, the child is laid out as if it was in the tree, but without
+  /// painting anything, without making the child available for hit testing, and
+  /// without taking any room in the parent.
+  ///
+  /// Offstage children are still active: they can receive focus and have keyboard
+  /// input directed to them.
+  ///
+  /// Animations continue to run in offstage children, and therefore use battery
+  /// and CPU time, regardless of whether the animations end up being visible.
+  ///
+  /// If false, the child is included in the tree as normal.
+  final bool offstage;
+
+  @override
+  RenderOffstage createRenderObject(BuildContext context) => RenderOffstage(offstage: offstage);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderOffstage renderObject) {
+    renderObject.offstage = offstage;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('offstage', offstage));
+  }
+
+  @override
+  SingleChildRenderObjectElement createElement() => _OffstageElement(this);
+}
+
+class _OffstageElement extends SingleChildRenderObjectElement {
+  _OffstageElement(Offstage super.widget);
+
+  @override
+  void debugVisitOnstageChildren(ElementVisitor visitor) {
+    if (!(widget as Offstage).offstage) {
+      super.debugVisitOnstageChildren(visitor);
+    }
+  }
+}
+
+/// A widget that attempts to size the child to a specific aspect ratio.
+///
+/// The aspect ratio is expressed as a ratio of width to height. For example, a
+/// 16:9 width:height aspect ratio would have a value of 16.0/9.0.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=XcnP3_mO_Ms}
+///
+/// The [AspectRatio] widget uses a finite iterative process to compute the
+/// appropriate constraints for the child, and then lays the child out a single
+/// time with those constraints. This iterative process is efficient and does
+/// not require multiple layout passes.
+///
+/// The widget first tries the largest width permitted by the layout
+/// constraints, and determines the height of the widget by applying the given
+/// aspect ratio to the width, expressed as a ratio of width to height.
+///
+/// If the maximum width is infinite, the initial width is determined
+/// by applying the aspect ratio to the maximum height instead.
+///
+/// The widget then examines if the computed dimensions are compatible with the
+/// parent's constraints; if not, the dimensions are recomputed a second time,
+/// taking those constraints into account.
+///
+/// If the widget does not find a feasible size after consulting each
+/// constraint, the widget will eventually select a size for the child that
+/// meets the layout constraints but fails to meet the aspect ratio constraints.
+///
+/// {@tool dartpad}
+/// This examples shows how [AspectRatio] sets the width when its parent's width
+/// constraint is infinite. Since the parent's allowed height is a fixed value,
+/// the actual width is determined via the given [aspectRatio].
+///
+/// In this example, the height is fixed at 100.0 and the aspect ratio is set to
+/// 16 / 9, making the width 100.0 / 9 * 16.
+///
+/// ** See code in examples/api/lib/widgets/basic/aspect_ratio.0.dart **
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This second example uses an aspect ratio of 2.0, and layout constraints that
+/// require the width to be between 0.0 and 100.0, and the height to be between
+/// 0.0 and 100.0. The widget selects a width of 100.0 (the biggest allowed) and
+/// a height of 50.0 (to match the aspect ratio).
+///
+/// ** See code in examples/api/lib/widgets/basic/aspect_ratio.1.dart **
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This third example is similar to the second, but with the aspect ratio set
+/// to 0.5. The widget still selects a width of 100.0 (the biggest allowed), and
+/// attempts to use a height of 200.0. Unfortunately, that violates the
+/// constraints because the child can be at most 100.0 pixels tall. The widget
+/// will then take that value and apply the aspect ratio again to obtain a width
+/// of 50.0. That width is permitted by the constraints and the child receives a
+/// width of 50.0 and a height of 100.0. If the width were not permitted, the
+/// widget would continue iterating through the constraints.
+///
+/// ** See code in examples/api/lib/widgets/basic/aspect_ratio.2.dart **
+/// {@end-tool}
+///
+/// ## Setting the aspect ratio in unconstrained situations
+///
+/// When using a widget such as [FittedBox], the constraints are unbounded. This
+/// results in [AspectRatio] being unable to find a suitable set of constraints
+/// to apply. In that situation, consider explicitly setting a size using
+/// [SizedBox] instead of setting the aspect ratio using [AspectRatio]. The size
+/// is then scaled appropriately by the [FittedBox].
+///
+/// See also:
+///
+///  * [Align], a widget that aligns its child within itself and optionally
+///    sizes itself based on the child's size.
+///  * [ConstrainedBox], a widget that imposes additional constraints on its
+///    child.
+///  * [UnconstrainedBox], a container that tries to let its child draw without
+///    constraints.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class AspectRatio extends SingleChildRenderObjectWidget {
+  /// Creates a widget with a specific aspect ratio.
+  ///
+  /// The [aspectRatio] argument must be a finite number greater than zero.
+  const AspectRatio({super.key, required this.aspectRatio, super.child})
+    : assert(aspectRatio > 0.0);
+
+  /// The aspect ratio to attempt to use.
+  ///
+  /// The aspect ratio is expressed as a ratio of width to height. For example,
+  /// a 16:9 width:height aspect ratio would have a value of 16.0/9.0.
+  final double aspectRatio;
+
+  @override
+  RenderAspectRatio createRenderObject(BuildContext context) =>
+      RenderAspectRatio(aspectRatio: aspectRatio);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderAspectRatio renderObject) {
+    renderObject.aspectRatio = aspectRatio;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('aspectRatio', aspectRatio));
+  }
+}
+
+/// A widget that sizes its child to the child's maximum intrinsic width.
+///
+/// This class is useful, for example, when unlimited width is available and
+/// you would like a child that would otherwise attempt to expand infinitely to
+/// instead size itself to a more reasonable width. Additionally, putting a
+/// [Column] inside an [IntrinsicWidth] will allow all [Column] children to be
+/// as wide as the widest child.
+///
+/// The constraints that this widget passes to its child will adhere to the
+/// parent's constraints, so if the constraints are not large enough to satisfy
+/// the child's maximum intrinsic width, then the child will get less width
+/// than it otherwise would. Likewise, if the minimum width constraint is
+/// larger than the child's maximum intrinsic width, the child will be given
+/// more width than it otherwise would.
+///
+/// If [stepWidth] is non-null, the child's width will be snapped to a multiple
+/// of the [stepWidth]. Similarly, if [stepHeight] is non-null, the child's
+/// height will be snapped to a multiple of the [stepHeight].
+///
+/// This class is relatively expensive, because it adds a speculative layout
+/// pass before the final layout phase. Avoid using it where possible. In the
+/// worst case, this widget can result in a layout that is O(N²) in the depth of
+/// the tree.
+///
+/// See also:
+///
+///  * [Align], a widget that aligns its child within itself. This can be used
+///    to loosen the constraints passed to the [RenderIntrinsicWidth],
+///    allowing the [RenderIntrinsicWidth]'s child to be smaller than that of
+///    its parent.
+///  * [Row], which when used with [CrossAxisAlignment.stretch] can be used
+///    to loosen just the width constraints that are passed to the
+///    [RenderIntrinsicWidth], allowing the [RenderIntrinsicWidth]'s child's
+///    width to be smaller than that of its parent.
+///  * [The catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class IntrinsicWidth extends SingleChildRenderObjectWidget {
+  /// Creates a widget that sizes its child to the child's intrinsic width.
+  ///
+  /// This class is relatively expensive. Avoid using it where possible.
+  const IntrinsicWidth({super.key, this.stepWidth, this.stepHeight, super.child})
+    : assert(stepWidth == null || stepWidth >= 0.0),
+      assert(stepHeight == null || stepHeight >= 0.0);
+
+  /// If non-null, force the child's width to be a multiple of this value.
+  ///
+  /// If null or 0.0 the child's width will be the same as its maximum
+  /// intrinsic width.
+  ///
+  /// This value must not be negative.
+  ///
+  /// See also:
+  ///
+  ///  * [RenderBox.getMaxIntrinsicWidth], which defines a widget's max
+  ///    intrinsic width in general.
+  final double? stepWidth;
+
+  /// If non-null, force the child's height to be a multiple of this value.
+  ///
+  /// If null or 0.0 the child's height will not be constrained.
+  ///
+  /// This value must not be negative.
+  final double? stepHeight;
+
+  double? get _stepWidth => stepWidth == 0.0 ? null : stepWidth;
+  double? get _stepHeight => stepHeight == 0.0 ? null : stepHeight;
+
+  @override
+  RenderIntrinsicWidth createRenderObject(BuildContext context) {
+    return RenderIntrinsicWidth(stepWidth: _stepWidth, stepHeight: _stepHeight);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderIntrinsicWidth renderObject) {
+    renderObject
+      ..stepWidth = _stepWidth
+      ..stepHeight = _stepHeight;
+  }
+}
+
+/// A widget that sizes its child to the child's intrinsic height.
+///
+/// This class is useful, for example, when unlimited height is available and
+/// you would like a child that would otherwise attempt to expand infinitely to
+/// instead size itself to a more reasonable height. Additionally, putting a
+/// [Row] inside an [IntrinsicHeight] will allow all [Row] children to be as tall
+/// as the tallest child.
+///
+/// The constraints that this widget passes to its child will adhere to the
+/// parent's constraints, so if the constraints are not large enough to satisfy
+/// the child's maximum intrinsic height, then the child will get less height
+/// than it otherwise would. Likewise, if the minimum height constraint is
+/// larger than the child's maximum intrinsic height, the child will be given
+/// more height than it otherwise would.
+///
+/// This class is relatively expensive, because it adds a speculative layout
+/// pass before the final layout phase. Avoid using it where possible. In the
+/// worst case, this widget can result in a layout that is O(N²) in the depth of
+/// the tree.
+///
+/// See also:
+///
+///  * [Align], a widget that aligns its child within itself. This can be used
+///    to loosen the constraints passed to the [RenderIntrinsicHeight],
+///    allowing the [RenderIntrinsicHeight]'s child to be smaller than that of
+///    its parent.
+///  * [Column], which when used with [CrossAxisAlignment.stretch] can be used
+///    to loosen just the height constraints that are passed to the
+///    [RenderIntrinsicHeight], allowing the [RenderIntrinsicHeight]'s child's
+///    height to be smaller than that of its parent.
+///  * [The catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class IntrinsicHeight extends SingleChildRenderObjectWidget {
+  /// Creates a widget that sizes its child to the child's intrinsic height.
+  ///
+  /// This class is relatively expensive. Avoid using it where possible.
+  const IntrinsicHeight({super.key, super.child});
+
+  @override
+  RenderIntrinsicHeight createRenderObject(BuildContext context) => RenderIntrinsicHeight();
+}
+
+/// A widget that positions its child according to the child's baseline.
+///
+/// This widget shifts the child down such that the child's baseline (or the
+/// bottom of the child, if the child has no baseline) is [baseline]
+/// logical pixels below the top of this box, then sizes this box to
+/// contain the child. If [baseline] is less than the distance from
+/// the top of the child to the baseline of the child, then the child
+/// is top-aligned instead.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=8ZaFk0yvNlI}
+///
+/// See also:
+///
+///  * [Align], a widget that aligns its child within itself and optionally
+///    sizes itself based on the child's size.
+///  * [Center], a widget that centers its child within itself.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Baseline extends SingleChildRenderObjectWidget {
+  /// Creates a widget that positions its child according to the child's baseline.
+  const Baseline({super.key, required this.baseline, required this.baselineType, super.child});
+
+  /// The number of logical pixels from the top of this box at which to position
+  /// the child's baseline.
+  final double baseline;
+
+  /// The type of baseline to use for positioning the child.
+  final TextBaseline baselineType;
+
+  @override
+  RenderBaseline createRenderObject(BuildContext context) {
+    return RenderBaseline(baseline: baseline, baselineType: baselineType);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBaseline renderObject) {
+    renderObject
+      ..baseline = baseline
+      ..baselineType = baselineType;
+  }
+}
+
+/// A widget that causes the parent to ignore the [child] for the purposes
+/// of baseline alignment.
+///
+/// See also:
+///
+///  * [Baseline], a widget that positions a child relative to a baseline.
+class IgnoreBaseline extends SingleChildRenderObjectWidget {
+  /// Creates a widget that ignores the child for baseline alignment purposes.
+  const IgnoreBaseline({super.key, super.child});
+
+  @override
+  RenderIgnoreBaseline createRenderObject(BuildContext context) {
+    return RenderIgnoreBaseline();
+  }
+}
+
+// SLIVERS
+
+/// A sliver that contains a single box widget.
+///
+/// Slivers are special-purpose widgets that can be combined using a
+/// [CustomScrollView] to create custom scroll effects. A [SliverToBoxAdapter]
+/// is a basic sliver that creates a bridge back to one of the usual box-based
+/// widgets.
+///
+/// _To learn more about slivers, see [CustomScrollView.slivers]._
+///
+/// Rather than using multiple [SliverToBoxAdapter] widgets to display multiple
+/// box widgets in a [CustomScrollView], consider using [SliverList],
+/// [SliverFixedExtentList], [SliverPrototypeExtentList], or [SliverGrid],
+/// which are more efficient because they instantiate only those children that
+/// are actually visible through the scroll view's viewport.
+///
+/// See also:
+///
+///  * [CustomScrollView], which displays a scrollable list of slivers.
+///  * [SliverList], which displays multiple box widgets in a linear array.
+///  * [SliverFixedExtentList], which displays multiple box widgets with the
+///    same main-axis extent in a linear array.
+///  * [SliverPrototypeExtentList], which displays multiple box widgets with the
+///    same main-axis extent as a prototype item, in a linear array.
+///  * [SliverGrid], which displays multiple box widgets in arbitrary positions.
+class SliverToBoxAdapter extends SingleChildRenderObjectWidget {
+  /// Creates a sliver that contains a single box widget.
+  const SliverToBoxAdapter({super.key, super.child});
+
+  @override
+  RenderSliverToBoxAdapter createRenderObject(BuildContext context) => RenderSliverToBoxAdapter();
+}
+
+/// A sliver that applies padding on each side of another sliver.
+///
+/// Slivers are special-purpose widgets that can be combined using a
+/// [CustomScrollView] to create custom scroll effects. A [SliverPadding]
+/// is a basic sliver that insets another sliver by applying padding on each
+/// side.
+///
+/// {@macro flutter.rendering.RenderSliverEdgeInsetsPadding}
+///
+/// See also:
+///
+///  * [CustomScrollView], which displays a scrollable list of slivers.
+///  * [Padding], the box version of this widget.
+class SliverPadding extends SingleChildRenderObjectWidget {
+  /// Creates a sliver that applies padding on each side of another sliver.
+  const SliverPadding({super.key, required this.padding, Widget? sliver}) : super(child: sliver);
+
+  /// The amount of space by which to inset the child sliver.
+  final EdgeInsetsGeometry padding;
+
+  @override
+  RenderSliverPadding createRenderObject(BuildContext context) {
+    return RenderSliverPadding(padding: padding, textDirection: Directionality.of(context));
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderSliverPadding renderObject) {
+    renderObject
+      ..padding = padding
+      ..textDirection = Directionality.of(context);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding));
+  }
+}
+
+/// An abstract class for building widgets that annotate their subtree with a
+/// description of the meaning of the widgets.
+///
+/// {@template flutter.widgets.SemanticsBase}
+/// Used by assistive technologies, search engines, and other semantic analysis
+/// software to determine the meaning of the application.
+///
+/// See also:
+///
+///  * [SemanticsProperties], which contains a complete documentation for each
+///    of the constructor parameters that belongs to semantics properties.
+///  * [RenderObject.describeSemanticsConfiguration], the rendering library API
+///    through which the [Semantics] widget and [SliverSemantics] sliver are
+///    actually implemented.
+///  * [SemanticsNode], the object used by the rendering library to represent
+///    semantics in the semantics tree.
+///  * [SemanticsDebugger], an overlay to help visualize the semantics tree. Can
+///    be enabled using [WidgetsApp.showSemanticsDebugger],
+///    [MaterialApp.showSemanticsDebugger], or [CupertinoApp.showSemanticsDebugger].
+///  * [MergeSemantics], a widget which marks a subtree as being a single node for
+///    accessibility purposes.
+///  * [ExcludeSemantics], a widget which excludes a subtree from the semantics tree
+///    (which might be useful if it is, e.g., totally decorative and not
+///    important to the user).
+/// {@endtemplate}
+@immutable
+sealed class _SemanticsBase extends SingleChildRenderObjectWidget {
+  /// Creates a semantic annotation.
+  ///
+  /// To create a `const` instance of [_SemanticsBase], use the
+  /// [_SemanticsBase.fromProperties] constructor.
+  ///
+  /// {@template flutter.widgets.SemanticsBase.constructor}
+  /// See also:
+  ///
+  ///  * [SemanticsProperties], which contains a complete documentation for each
+  ///    of the constructor parameters that belongs to semantics properties.
+  ///  * [SemanticsSortKey] for a class that determines accessibility traversal
+  ///    order.
+  /// {@endtemplate}
+  // Properties added to this constructor should be marked required
+  // to enforce its subclasses add it to their constructors.
+  _SemanticsBase({
+    Key? key,
+    Widget? child,
+    required bool container,
+    required bool explicitChildNodes,
+    required bool excludeSemantics,
+    required bool blockUserActions,
+    required bool? enabled,
+    required bool? checked,
+    required bool? mixed,
+    required bool? selected,
+    required bool? toggled,
+    required bool? button,
+    required bool? slider,
+    required bool? keyboardKey,
+    required bool? link,
+    required Uri? linkUrl,
+    required bool? header,
+    required int? headingLevel,
+    required bool? textField,
+    required bool? readOnly,
+    required bool? focusable,
+    required bool? focused,
+    required AccessibilityFocusBlockType? accessibilityFocusBlockType,
+    required bool? inMutuallyExclusiveGroup,
+    required bool? obscured,
+    required bool? multiline,
+    required bool? scopesRoute,
+    required bool? namesRoute,
+    required bool? hidden,
+    required bool? image,
+    required bool? liveRegion,
+    required bool? expanded,
+    required bool? isRequired,
+    required int? maxValueLength,
+    required int? currentValueLength,
+    required String? identifier,
+    required Object? traversalParentIdentifier,
+    required Object? traversalChildIdentifier,
+    required String? label,
+    required AttributedString? attributedLabel,
+    required String? value,
+    required AttributedString? attributedValue,
+    required String? increasedValue,
+    required AttributedString? attributedIncreasedValue,
+    required String? decreasedValue,
+    required AttributedString? attributedDecreasedValue,
+    required String? hint,
+    required AttributedString? attributedHint,
+    required String? tooltip,
+    required String? onTapHint,
+    required String? onLongPressHint,
+    required TextDirection? textDirection,
+    required SemanticsSortKey? sortKey,
+    required SemanticsTag? tagForChildren,
+    required VoidCallback? onTap,
+    required VoidCallback? onLongPress,
+    required VoidCallback? onScrollLeft,
+    required VoidCallback? onScrollRight,
+    required VoidCallback? onScrollUp,
+    required VoidCallback? onScrollDown,
+    required VoidCallback? onIncrease,
+    required VoidCallback? onDecrease,
+    required VoidCallback? onCopy,
+    required VoidCallback? onCut,
+    required VoidCallback? onPaste,
+    required VoidCallback? onDismiss,
+    required MoveCursorHandler? onMoveCursorForwardByCharacter,
+    required MoveCursorHandler? onMoveCursorBackwardByCharacter,
+    required SetSelectionHandler? onSetSelection,
+    required SetTextHandler? onSetText,
+    required VoidCallback? onDidGainAccessibilityFocus,
+    required VoidCallback? onDidLoseAccessibilityFocus,
+    required VoidCallback? onFocus,
+    required VoidCallback? onExpand,
+    required VoidCallback? onCollapse,
+    required Map<CustomSemanticsAction, VoidCallback>? customSemanticsActions,
+    required SemanticsRole? role,
+    required Set<String>? controlsNodes,
+    required SemanticsValidationResult validationResult,
+    required ui.SemanticsHitTestBehavior? hitTestBehavior,
+    required ui.SemanticsInputType? inputType,
+    required Locale? localeForSubtree,
+    required String? minValue,
+    required String? maxValue,
+  }) : this.fromProperties(
+         key: key,
+         child: child,
+         container: container,
+         explicitChildNodes: explicitChildNodes,
+         excludeSemantics: excludeSemantics,
+         blockUserActions: blockUserActions,
+         localeForSubtree: localeForSubtree,
+         properties: SemanticsProperties(
+           enabled: enabled,
+           checked: checked,
+           mixed: mixed,
+           expanded: expanded,
+           toggled: toggled,
+           selected: selected,
+           button: button,
+           slider: slider,
+           keyboardKey: keyboardKey,
+           link: link,
+           linkUrl: linkUrl,
+           header: header,
+           headingLevel: headingLevel,
+           textField: textField,
+           readOnly: readOnly,
+           focusable: focusable,
+           focused: focused,
+           accessibilityFocusBlockType: accessibilityFocusBlockType,
+           inMutuallyExclusiveGroup: inMutuallyExclusiveGroup,
+           obscured: obscured,
+           multiline: multiline,
+           scopesRoute: scopesRoute,
+           namesRoute: namesRoute,
+           hidden: hidden,
+           image: image,
+           liveRegion: liveRegion,
+           isRequired: isRequired,
+           maxValueLength: maxValueLength,
+           currentValueLength: currentValueLength,
+           identifier: identifier,
+           traversalParentIdentifier: traversalParentIdentifier,
+           traversalChildIdentifier: traversalChildIdentifier,
+           label: label,
+           attributedLabel: attributedLabel,
+           value: value,
+           attributedValue: attributedValue,
+           increasedValue: increasedValue,
+           attributedIncreasedValue: attributedIncreasedValue,
+           decreasedValue: decreasedValue,
+           attributedDecreasedValue: attributedDecreasedValue,
+           hint: hint,
+           attributedHint: attributedHint,
+           tooltip: tooltip,
+           textDirection: textDirection,
+           sortKey: sortKey,
+           tagForChildren: tagForChildren,
+           onTap: onTap,
+           onLongPress: onLongPress,
+           onScrollLeft: onScrollLeft,
+           onScrollRight: onScrollRight,
+           onScrollUp: onScrollUp,
+           onScrollDown: onScrollDown,
+           onIncrease: onIncrease,
+           onDecrease: onDecrease,
+           onCopy: onCopy,
+           onCut: onCut,
+           onPaste: onPaste,
+           onMoveCursorForwardByCharacter: onMoveCursorForwardByCharacter,
+           onMoveCursorBackwardByCharacter: onMoveCursorBackwardByCharacter,
+           onDidGainAccessibilityFocus: onDidGainAccessibilityFocus,
+           onDidLoseAccessibilityFocus: onDidLoseAccessibilityFocus,
+           onFocus: onFocus,
+           onDismiss: onDismiss,
+           onSetSelection: onSetSelection,
+           onSetText: onSetText,
+           onExpand: onExpand,
+           onCollapse: onCollapse,
+           customSemanticsActions: customSemanticsActions,
+           hintOverrides: onTapHint != null || onLongPressHint != null
+               ? SemanticsHintOverrides(onTapHint: onTapHint, onLongPressHint: onLongPressHint)
+               : null,
+           role: role,
+           controlsNodes: controlsNodes,
+           validationResult: validationResult,
+           hitTestBehavior: hitTestBehavior,
+           inputType: inputType,
+           minValue: minValue,
+           maxValue: maxValue,
+         ),
+       );
+
+  /// {@template flutter.widgets.SemanticsBase.fromProperties}
+  /// Creates a semantic annotation using [SemanticsProperties].
+  /// {@endtemplate}
+  // Properties added to this constructor should be marked required
+  // to enforce its subclasses add it to their constructors.
+  const _SemanticsBase.fromProperties({
+    super.key,
+    super.child,
+    required this.container,
+    required this.explicitChildNodes,
+    required this.excludeSemantics,
+    required this.blockUserActions,
+    required this.localeForSubtree,
+    required this.properties,
+  });
+
+  /// Contains properties used by assistive technologies to make the application
+  /// more accessible.
+  final SemanticsProperties properties;
+
+  /// If [container] is true, this widget will introduce a new
+  /// node in the semantics tree. Otherwise, the semantics will be
+  /// merged with the semantics of any ancestors (if the ancestor allows that).
+  ///
+  /// Setting [SemanticsProperties.identifier] also implicitly introduces a new
+  /// node, even if [container] is false.
+  ///
+  /// Whether descendants of this widget can add their semantic information to the
+  /// [SemanticsNode] introduced by this configuration is controlled by
+  /// [explicitChildNodes].
+  final bool container;
+
+  /// Whether descendants of this widget are allowed to add semantic information
+  /// to the [SemanticsNode] annotated by this widget.
+  ///
+  /// When set to false descendants are allowed to annotate [SemanticsNode]s of
+  /// their parent with the semantic information they want to contribute to the
+  /// semantic tree.
+  /// When set to true the only way for descendants to contribute semantic
+  /// information to the semantic tree is to introduce new explicit
+  /// [SemanticsNode]s to the tree.
+  ///
+  /// If the semantics properties of this node include
+  /// [SemanticsProperties.scopesRoute] set to true, then [explicitChildNodes]
+  /// must be true also.
+  ///
+  /// This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
+  /// to create semantic boundaries that are either writable or not for children.
+  final bool explicitChildNodes;
+
+  /// The [Locale] for widgets in the subtree.
+  ///
+  /// If null, the subtree will inherit the locale form ancestor widget.
+  final Locale? localeForSubtree;
+
+  /// Whether to replace all child semantics with this node.
+  ///
+  /// Defaults to false.
+  ///
+  /// When this flag is set to true, all child semantics nodes are ignored.
+  /// This can be used as a convenience for cases where a child is wrapped in
+  /// an [ExcludeSemantics] widget and then another [Semantics] widget.
+  final bool excludeSemantics;
+
+  /// Whether to block user interactions for the rendering subtree.
+  ///
+  /// Setting this to true will prevent users from interacting with The
+  /// rendering object configured by this widget and its subtree through
+  /// pointer-related [SemanticsAction]s in assistive technologies.
+  ///
+  /// The [SemanticsNode] created from this widget is still focusable by
+  /// assistive technologies. Only pointer-related [SemanticsAction]s, such as
+  /// [SemanticsAction.tap] or its friends, are blocked.
+  ///
+  /// If this widget is merged into a parent semantics node, only the
+  /// [SemanticsAction]s of this widget and the widgets in the subtree are
+  /// blocked.
+  ///
+  /// For example using [Semantics]:
+  /// ```dart
+  /// void _myTap() { }
+  /// void _myLongPress() { }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return Semantics(
+  ///     onTap: _myTap,
+  ///     child: Semantics(
+  ///       blockUserActions: true,
+  ///       onLongPress: _myLongPress,
+  ///       child: const Text('label'),
+  ///     ),
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// The result semantics node will still have `_myTap`, but the `_myLongPress`
+  /// will be blocked.
+  ///
+  /// and similarly using [SliverSemantics]:
+  /// ```dart
+  /// void _myTap() { }
+  /// void _myLongPress() { }
+  ///
+  /// Widget build(BuildContext context) {
+  ///   return CustomScrollView(
+  ///     slivers: <Widget>[
+  ///       SliverSemantics(
+  ///         onTap: _myTap,
+  ///         sliver: SliverSemantics(
+  ///           blockUserActions: true,
+  ///           onLongPress: _myLongPress,
+  ///           sliver: const SliverToBoxAdapter(
+  ///             child: Text('label'),
+  ///           ),
+  ///         ),
+  ///       ),
+  ///     ],
+  ///   );
+  /// }
+  /// ```
+  ///
+  /// The result semantics node will still have `_myTap`, but the `_myLongPress`
+  /// will be blocked.
+  final bool blockUserActions;
+
+  TextDirection? _getTextDirection(BuildContext context) {
+    if (properties.textDirection != null) {
+      return properties.textDirection;
+    }
+
+    final bool containsText =
+        properties.label != null ||
+        properties.attributedLabel != null ||
+        properties.value != null ||
+        properties.attributedValue != null ||
+        properties.increasedValue != null ||
+        properties.attributedIncreasedValue != null ||
+        properties.decreasedValue != null ||
+        properties.attributedDecreasedValue != null ||
+        properties.hint != null ||
+        properties.attributedHint != null ||
+        properties.tooltip != null;
+
+    if (!containsText) {
+      return null;
+    }
+
+    return Directionality.maybeOf(context);
+  }
+}
+
+/// A sliver that annotates its subtree with a description of the meaning of
+/// the slivers.
+///
+/// {@macro flutter.widgets.SemanticsBase}
+///  * [Semantics], the widget variant of this sliver.
+@immutable
+class SliverSemantics extends _SemanticsBase {
+  /// Creates a semantic annotation.
+  ///
+  /// To create a `const` instance of [SliverSemantics], use the
+  /// [SliverSemantics.fromProperties] constructor.
+  ///
+  /// {@macro flutter.widgets.SemanticsBase.constructor}
+  SliverSemantics({
+    super.key,
+    required Widget sliver,
+    super.container = false,
+    super.explicitChildNodes = false,
+    super.excludeSemantics = false,
+    super.blockUserActions = false,
+    super.enabled,
+    super.checked,
+    super.mixed,
+    super.selected,
+    super.toggled,
+    super.button,
+    super.slider,
+    super.keyboardKey,
+    super.link,
+    super.linkUrl,
+    super.header,
+    super.headingLevel,
+    super.textField,
+    super.readOnly,
+    super.focusable,
+    super.focused,
+    super.accessibilityFocusBlockType,
+    super.inMutuallyExclusiveGroup,
+    super.obscured,
+    super.multiline,
+    super.scopesRoute,
+    super.namesRoute,
+    super.hidden,
+    super.image,
+    super.liveRegion,
+    super.expanded,
+    super.isRequired,
+    super.maxValueLength,
+    super.currentValueLength,
+    super.identifier,
+    super.traversalParentIdentifier,
+    super.traversalChildIdentifier,
+    super.label,
+    super.attributedLabel,
+    super.value,
+    super.attributedValue,
+    super.increasedValue,
+    super.attributedIncreasedValue,
+    super.decreasedValue,
+    super.attributedDecreasedValue,
+    super.hint,
+    super.attributedHint,
+    super.tooltip,
+    super.onTapHint,
+    super.onLongPressHint,
+    super.textDirection,
+    super.sortKey,
+    super.tagForChildren,
+    super.onTap,
+    super.onLongPress,
+    super.onScrollLeft,
+    super.onScrollRight,
+    super.onScrollUp,
+    super.onScrollDown,
+    super.onIncrease,
+    super.onDecrease,
+    super.onCopy,
+    super.onCut,
+    super.onPaste,
+    super.onDismiss,
+    super.onMoveCursorForwardByCharacter,
+    super.onMoveCursorBackwardByCharacter,
+    super.onSetSelection,
+    super.onSetText,
+    super.onDidGainAccessibilityFocus,
+    super.onDidLoseAccessibilityFocus,
+    super.onFocus,
+    super.onExpand,
+    super.onCollapse,
+    super.customSemanticsActions,
+    super.role,
+    super.controlsNodes,
+    super.validationResult = SemanticsValidationResult.none,
+    super.hitTestBehavior,
+    super.inputType,
+    super.localeForSubtree,
+    super.minValue,
+    super.maxValue,
+  }) : super(child: sliver);
+
+  /// {@macro flutter.widgets.SemanticsBase.fromProperties}
+  const SliverSemantics.fromProperties({
+    super.key,
+    super.child,
+    super.container = false,
+    super.explicitChildNodes = false,
+    super.excludeSemantics = false,
+    super.blockUserActions = false,
+    super.localeForSubtree,
+    required super.properties,
+  }) : super.fromProperties();
+
+  @override
+  RenderSliverSemanticsAnnotations createRenderObject(BuildContext context) {
+    return RenderSliverSemanticsAnnotations(
+      container: container,
+      explicitChildNodes: explicitChildNodes,
+      excludeSemantics: excludeSemantics,
+      blockUserActions: blockUserActions,
+      properties: properties,
+      localeForSubtree: localeForSubtree,
+      textDirection: _getTextDirection(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderSliverSemanticsAnnotations renderObject) {
+    renderObject
+      ..container = container
+      ..explicitChildNodes = explicitChildNodes
+      ..excludeSemantics = excludeSemantics
+      ..blockUserActions = blockUserActions
+      ..properties = properties
+      ..textDirection = _getTextDirection(context)
+      ..localeForSubtree = localeForSubtree;
+  }
+}
+
+// LAYOUT NODES
+
+/// Returns the [AxisDirection] in the given [Axis] in the current
+/// [Directionality] (or the reverse if `reverse` is true).
+///
+/// If `axis` is [Axis.vertical], this function returns [AxisDirection.down]
+/// unless `reverse` is true, in which case this function returns
+/// [AxisDirection.up].
+///
+/// If `axis` is [Axis.horizontal], this function checks the current
+/// [Directionality]. If the current [Directionality] is right-to-left, then
+/// this function returns [AxisDirection.left] (unless `reverse` is true, in
+/// which case it returns [AxisDirection.right]). Similarly, if the current
+/// [Directionality] is left-to-right, then this function returns
+/// [AxisDirection.right] (unless `reverse` is true, in which case it returns
+/// [AxisDirection.left]).
+///
+/// This function is used by a number of scrolling widgets (e.g., [ListView],
+/// [GridView], [PageView], and [SingleChildScrollView]) as well as [ListBody]
+/// to translate their [Axis] and `reverse` properties into a concrete
+/// [AxisDirection].
+AxisDirection getAxisDirectionFromAxisReverseAndDirectionality(
+  BuildContext context,
+  Axis axis,
+  bool reverse,
+) {
+  switch (axis) {
+    case Axis.horizontal:
+      assert(debugCheckHasDirectionality(context));
+      final TextDirection textDirection = Directionality.of(context);
+      final AxisDirection axisDirection = textDirectionToAxisDirection(textDirection);
+      return reverse ? flipAxisDirection(axisDirection) : axisDirection;
+    case Axis.vertical:
+      return reverse ? AxisDirection.up : AxisDirection.down;
+  }
+}
+
+/// A widget that arranges its children sequentially along a given axis, forcing
+/// them to the dimension of the parent in the other axis.
+///
+/// This widget is rarely used directly. Instead, consider using [ListView],
+/// which combines a similar layout algorithm with scrolling behavior, or
+/// [Column], which gives you more flexible control over the layout of a
+/// vertical set of boxes.
+///
+/// See also:
+///
+///  * [RenderListBody], which implements this layout algorithm and the
+///    documentation for which describes some of its subtleties.
+///  * [SingleChildScrollView], which is sometimes used with [ListBody] to
+///    make the contents scrollable.
+///  * [Column] and [Row], which implement a more elaborate version of
+///    this layout algorithm (at the cost of being slightly less efficient).
+///  * [ListView], which implements an efficient scrolling version of this
+///    layout algorithm.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class ListBody extends MultiChildRenderObjectWidget {
+  /// Creates a layout widget that arranges its children sequentially along a
+  /// given axis.
+  ///
+  /// By default, the [mainAxis] is [Axis.vertical].
+  const ListBody({super.key, this.mainAxis = Axis.vertical, this.reverse = false, super.children});
+
+  /// The direction to use as the main axis.
+  final Axis mainAxis;
+
+  /// Whether the list body positions children in the reading direction.
+  ///
+  /// For example, if the reading direction is left-to-right and
+  /// [mainAxis] is [Axis.horizontal], then the list body positions children
+  /// from left to right when [reverse] is false and from right to left when
+  /// [reverse] is true.
+  ///
+  /// Similarly, if [mainAxis] is [Axis.vertical], then the list body positions
+  /// from top to bottom when [reverse] is false and from bottom to top when
+  /// [reverse] is true.
+  ///
+  /// Defaults to false.
+  final bool reverse;
+
+  AxisDirection _getDirection(BuildContext context) {
+    return getAxisDirectionFromAxisReverseAndDirectionality(context, mainAxis, reverse);
+  }
+
+  @override
+  RenderListBody createRenderObject(BuildContext context) {
+    return RenderListBody(axisDirection: _getDirection(context));
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderListBody renderObject) {
+    renderObject.axisDirection = _getDirection(context);
+  }
+}
+
+/// A widget that positions its children relative to the edges of its box.
+///
+/// This class is useful if you want to overlap several children in a simple
+/// way, for example having some text and an image, overlaid with a gradient and
+/// a button attached to the bottom.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=liEGSeD3Zt8}
+///
+/// Each child of a [Stack] widget is either _positioned_ or _non-positioned_.
+/// Positioned children are those wrapped in a [Positioned] widget that has at
+/// least one non-null property. The stack sizes itself to contain all the
+/// non-positioned children, which are positioned according to [alignment]
+/// (which defaults to the top-left corner in left-to-right environments and the
+/// top-right corner in right-to-left environments). The positioned children are
+/// then placed relative to the stack according to their top, right, bottom, and
+/// left properties.
+///
+/// The stack paints its children in order with the first child being at the
+/// bottom. If you want to change the order in which the children paint, you
+/// can rebuild the stack with the children in the new order. If you reorder
+/// the children in this way, consider giving the children non-null keys.
+/// These keys will cause the framework to move the underlying objects for
+/// the children to their new locations rather than recreate them at their
+/// new location.
+///
+/// For more details about the stack layout algorithm, see [RenderStack].
+///
+/// If you want to lay a number of children out in a particular pattern, or if
+/// you want to make a custom layout manager, you probably want to use
+/// [CustomMultiChildLayout] instead. In particular, when using a [Stack] you
+/// can't position children relative to their size or the stack's own size.
+///
+/// {@tool snippet}
+///
+/// Using a [Stack] you can position widgets over one another.
+///
+/// ![The sample creates a blue box that overlaps a larger green box, which itself overlaps an even larger red box.](https://flutter.github.io/assets-for-api-docs/assets/widgets/stack.png)
+///
+/// ```dart
+/// Stack(
+///   children: <Widget>[
+///     Container(
+///       width: 100,
+///       height: 100,
+///       color: Colors.red,
+///     ),
+///     Container(
+///       width: 90,
+///       height: 90,
+///       color: Colors.green,
+///     ),
+///     Container(
+///       width: 80,
+///       height: 80,
+///       color: Colors.blue,
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool snippet}
+///
+/// This example shows how [Stack] can be used to enhance text visibility
+/// by adding gradient backdrops.
+///
+/// ![The gradient fades from transparent to dark grey at the bottom, with white text on top of the darker portion.](https://flutter.github.io/assets-for-api-docs/assets/widgets/stack_with_gradient.png)
+///
+/// ```dart
+/// SizedBox(
+///   width: 250,
+///   height: 250,
+///   child: Stack(
+///     children: <Widget>[
+///       Container(
+///         width: 250,
+///         height: 250,
+///         color: Colors.white,
+///       ),
+///       Container(
+///         padding: const EdgeInsets.all(5.0),
+///         alignment: Alignment.bottomCenter,
+///         decoration: BoxDecoration(
+///           gradient: LinearGradient(
+///             begin: Alignment.topCenter,
+///             end: Alignment.bottomCenter,
+///             colors: <Color>[
+///               Colors.black.withAlpha(0),
+///               Colors.black12,
+///               Colors.black45
+///             ],
+///           ),
+///         ),
+///         child: const Text(
+///           'Foreground Text',
+///           style: TextStyle(color: Colors.white, fontSize: 20.0),
+///         ),
+///       ),
+///     ],
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Align], which sizes itself based on its child's size and positions
+///    the child according to an [Alignment] value.
+///  * [CustomSingleChildLayout], which uses a delegate to control the layout of
+///    a single child.
+///  * [CustomMultiChildLayout], which uses a delegate to position multiple
+///    children.
+///  * [Flow], which provides paint-time control of its children using transform
+///    matrices.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Stack extends MultiChildRenderObjectWidget {
+  /// Creates a stack layout widget.
+  ///
+  /// By default, the non-positioned children of the stack are aligned by their
+  /// top left corners.
+  const Stack({
+    super.key,
+    this.alignment = AlignmentDirectional.topStart,
+    this.textDirection,
+    this.fit = StackFit.loose,
+    this.clipBehavior = Clip.hardEdge,
+    super.children,
+  });
+
+  /// How to align the non-positioned and partially-positioned children in the
+  /// stack.
+  ///
+  /// The non-positioned children are placed relative to each other such that
+  /// the points determined by [alignment] are co-located. For example, if the
+  /// [alignment] is [Alignment.topLeft], then the top left corner of
+  /// each non-positioned child will be located at the same global coordinate.
+  ///
+  /// Partially-positioned children, those that do not specify an alignment in a
+  /// particular axis (e.g. that have neither `top` nor `bottom` set), use the
+  /// alignment to determine how they should be positioned in that
+  /// under-specified axis.
+  ///
+  /// Defaults to [AlignmentDirectional.topStart].
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], a class with convenient constants typically used to
+  ///    specify an [AlignmentGeometry].
+  ///  * [AlignmentDirectional], like [Alignment] for specifying alignments
+  ///    relative to text direction.
+  final AlignmentGeometry alignment;
+
+  /// The text direction with which to resolve [alignment].
+  ///
+  /// Defaults to the ambient [Directionality].
+  final TextDirection? textDirection;
+
+  /// How to size the non-positioned children in the stack.
+  ///
+  /// The constraints passed into the [Stack] from its parent are either
+  /// loosened ([StackFit.loose]) or tightened to their biggest size
+  /// ([StackFit.expand]).
+  final StackFit fit;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Stacks only clip children whose _geometry_ overflows the stack. A child
+  /// that paints outside its bounds (e.g. a box with a shadow) will not be
+  /// clipped, regardless of the value of this property. Similarly, a child that
+  /// itself has a descendant that overflows the stack will not be clipped, as
+  /// only the geometry of the stack's direct children are considered.
+  /// [Transform] is an example of a widget that can cause its children to paint
+  /// outside its geometry.
+  ///
+  /// To clip children whose geometry does not overflow the stack, consider
+  /// using a [ClipRect] widget.
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
+  bool _debugCheckHasDirectionality(BuildContext context) {
+    if (alignment is AlignmentDirectional && textDirection == null) {
+      assert(
+        debugCheckHasDirectionality(
+          context,
+          why: "to resolve the 'alignment' argument",
+          hint: alignment == AlignmentDirectional.topStart
+              ? "The default value for 'alignment' is AlignmentDirectional.topStart, which requires a text direction."
+              : null,
+          alternative:
+              "Instead of providing a Directionality widget, another solution would be passing a non-directional 'alignment', or an explicit 'textDirection', to the $runtimeType.",
+        ),
+      );
+    }
+    return true;
+  }
+
+  @override
+  RenderStack createRenderObject(BuildContext context) {
+    assert(_debugCheckHasDirectionality(context));
+    return RenderStack(
+      alignment: alignment,
+      textDirection: textDirection ?? Directionality.maybeOf(context),
+      fit: fit,
+      clipBehavior: clipBehavior,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderStack renderObject) {
+    assert(_debugCheckHasDirectionality(context));
+    renderObject
+      ..alignment = alignment
+      ..textDirection = textDirection ?? Directionality.maybeOf(context)
+      ..fit = fit
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<AlignmentGeometry>('alignment', alignment));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+    properties.add(EnumProperty<StackFit>('fit', fit));
+    properties.add(EnumProperty<Clip>('clipBehavior', clipBehavior, defaultValue: Clip.hardEdge));
+  }
+}
+
+/// A [Stack] that shows a single child from a list of children.
+///
+/// The displayed child is the one with the given [index]. The stack is
+/// always as big as the largest child.
+///
+/// If value is null, then nothing is displayed.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=_O0PPD1Xfbk}
+///
+/// {@tool dartpad}
+/// This example shows a [IndexedStack] widget being used to lay out one card
+/// at a time from a series of cards, each keeping their respective states.
+///
+/// ** See code in examples/api/lib/widgets/basic/indexed_stack.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Stack], for more details about stacks.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class IndexedStack extends StatelessWidget {
+  /// Creates a [Stack] widget that paints a single child.
+  const IndexedStack({
+    super.key,
+    this.alignment = AlignmentDirectional.topStart,
+    this.textDirection,
+    this.clipBehavior = Clip.hardEdge,
+    this.sizing = StackFit.loose,
+    this.index = 0,
+    this.children = const <Widget>[],
+  });
+
+  /// How to align the non-positioned and partially-positioned children in the
+  /// stack.
+  ///
+  /// Defaults to [AlignmentDirectional.topStart].
+  ///
+  /// See [Stack.alignment] for more information.
+  final AlignmentGeometry alignment;
+
+  /// The text direction with which to resolve [alignment].
+  ///
+  /// Defaults to the ambient [Directionality].
+  final TextDirection? textDirection;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
+  /// How to size the non-positioned children in the stack.
+  ///
+  /// Defaults to [StackFit.loose].
+  ///
+  /// See [Stack.fit] for more information.
+  final StackFit sizing;
+
+  /// The index of the child to show.
+  ///
+  /// If this is null, none of the children will be shown.
+  final int? index;
+
+  /// The child widgets of the stack.
+  ///
+  /// Only the child at index [index] will be shown.
+  ///
+  /// See [Stack.children] for more information.
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final wrappedChildren = List<Widget>.generate(children.length, (int i) {
+      return Visibility(
+        visible: i == index,
+        maintainInteractivity: true,
+        maintainSize: true,
+        maintainState: true,
+        maintainAnimation: true,
+        child: children[i],
+      );
+    });
+    return _RawIndexedStack(
+      alignment: alignment,
+      textDirection: textDirection,
+      clipBehavior: clipBehavior,
+      sizing: sizing,
+      index: index,
+      children: wrappedChildren,
+    );
+  }
+}
+
+/// The render object widget that backs [IndexedStack].
+class _RawIndexedStack extends Stack {
+  /// Creates a [Stack] widget that paints a single child.
+  const _RawIndexedStack({
+    super.alignment,
+    super.textDirection,
+    super.clipBehavior,
+    StackFit sizing = StackFit.loose,
+    this.index = 0,
+    super.children,
+  }) : assert(
+         index == null ||
+             (index == 0 && children.length == 0) ||
+             (index >= 0 && index < children.length),
+         'The index must be null or within the range of children.',
+       ),
+       super(fit: sizing);
+
+  /// The index of the child to show.
+  final int? index;
+
+  @override
+  RenderIndexedStack createRenderObject(BuildContext context) {
+    assert(_debugCheckHasDirectionality(context));
+    return RenderIndexedStack(
+      index: index,
+      fit: fit,
+      clipBehavior: clipBehavior,
+      alignment: alignment,
+      textDirection: textDirection ?? Directionality.maybeOf(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderIndexedStack renderObject) {
+    assert(_debugCheckHasDirectionality(context));
+    renderObject
+      ..index = index
+      ..fit = fit
+      ..clipBehavior = clipBehavior
+      ..alignment = alignment
+      ..textDirection = textDirection ?? Directionality.maybeOf(context);
+  }
+
+  @override
+  MultiChildRenderObjectElement createElement() {
+    return _IndexedStackElement(this);
+  }
+}
+
+class _IndexedStackElement extends MultiChildRenderObjectElement {
+  _IndexedStackElement(_RawIndexedStack super.widget);
+
+  @override
+  _RawIndexedStack get widget => super.widget as _RawIndexedStack;
+
+  @override
+  void debugVisitOnstageChildren(ElementVisitor visitor) {
+    final int? index = widget.index;
+    // If the index is null, no child is onstage. Otherwise, only the child at
+    // the selected index is.
+    if (index != null && children.isNotEmpty) {
+      visitor(children.elementAt(index));
+    }
+  }
+}
+
+/// A widget that controls where a child of a [Stack] is positioned.
+///
+/// A [Positioned] widget must be a descendant of a [Stack], and the path from
+/// the [Positioned] widget to its enclosing [Stack] must contain only
+/// [StatelessWidget]s or [StatefulWidget]s (not other kinds of widgets, like
+/// [RenderObjectWidget]s).
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=EgtPleVwxBQ}
+///
+/// If a widget is wrapped in a [Positioned], then it is a _positioned_ widget
+/// in its [Stack]. If the [top] property is non-null, the top edge of this child
+/// will be positioned [top] layout units from the top of the stack widget. The
+/// [right], [bottom], and [left] properties work analogously.
+///
+/// If both the [top] and [bottom] properties are non-null, then the child will
+/// be forced to have exactly the height required to satisfy both constraints.
+/// Similarly, setting the [right] and [left] properties to non-null values will
+/// force the child to have a particular width. Alternatively the [width] and
+/// [height] properties can be used to give the dimensions, with one
+/// corresponding position property (e.g. [top] and [height]).
+///
+/// If all three values on a particular axis are null, then the
+/// [Stack.alignment] property is used to position the child.
+///
+/// If all six values are null, the child is a non-positioned child. The [Stack]
+/// uses only the non-positioned children to size itself.
+///
+/// See also:
+///
+///  * [AnimatedPositioned], which automatically transitions the child's
+///    position over a given duration whenever the given position changes.
+///  * [PositionedTransition], which takes a provided [Animation] to transition
+///    changes in the child's position over a given duration.
+///  * [PositionedDirectional], which adapts to the ambient [Directionality].
+class Positioned extends ParentDataWidget<StackParentData> {
+  /// Creates a widget that controls where a child of a [Stack] is positioned.
+  ///
+  /// Only two out of the three horizontal values ([left], [right],
+  /// [width]), and only two out of the three vertical values ([top],
+  /// [bottom], [height]), can be set. In each case, at least one of
+  /// the three must be null.
+  ///
+  /// See also:
+  ///
+  ///  * [Positioned.directional], which specifies the widget's horizontal
+  ///    position using `start` and `end` rather than `left` and `right`.
+  ///  * [PositionedDirectional], which is similar to [Positioned.directional]
+  ///    but adapts to the ambient [Directionality].
+  const Positioned({
+    super.key,
+    this.left,
+    this.top,
+    this.right,
+    this.bottom,
+    this.width,
+    this.height,
+    required super.child,
+  }) : assert(left == null || right == null || width == null),
+       assert(top == null || bottom == null || height == null);
+
+  /// Creates a Positioned object with the values from the given [Rect].
+  ///
+  /// This sets the [left], [top], [width], and [height] properties
+  /// from the given [Rect]. The [right] and [bottom] properties are
+  /// set to null.
+  Positioned.fromRect({super.key, required Rect rect, required super.child})
+    : left = rect.left,
+      top = rect.top,
+      width = rect.width,
+      height = rect.height,
+      right = null,
+      bottom = null;
+
+  /// Creates a Positioned object with the values from the given [RelativeRect].
+  ///
+  /// This sets the [left], [top], [right], and [bottom] properties from the
+  /// given [RelativeRect]. The [height] and [width] properties are set to null.
+  Positioned.fromRelativeRect({super.key, required RelativeRect rect, required super.child})
+    : left = rect.left,
+      top = rect.top,
+      right = rect.right,
+      bottom = rect.bottom,
+      width = null,
+      height = null;
+
+  /// Creates a Positioned object with [left], [top], [right], and [bottom] set
+  /// to 0.0 unless a value for them is passed.
+  const Positioned.fill({
+    super.key,
+    this.left = 0.0,
+    this.top = 0.0,
+    this.right = 0.0,
+    this.bottom = 0.0,
+    required super.child,
+  }) : width = null,
+       height = null;
+
+  /// Creates a widget that controls where a child of a [Stack] is positioned.
+  ///
+  /// Only two out of the three horizontal values (`start`, `end`,
+  /// [width]), and only two out of the three vertical values ([top],
+  /// [bottom], [height]), can be set. In each case, at least one of
+  /// the three must be null.
+  ///
+  /// If `textDirection` is [TextDirection.rtl], then the `start` argument is
+  /// used for the [right] property and the `end` argument is used for the
+  /// [left] property. Otherwise, if `textDirection` is [TextDirection.ltr],
+  /// then the `start` argument is used for the [left] property and the `end`
+  /// argument is used for the [right] property.
+  ///
+  /// See also:
+  ///
+  ///  * [PositionedDirectional], which adapts to the ambient [Directionality].
+  factory Positioned.directional({
+    Key? key,
+    required TextDirection textDirection,
+    double? start,
+    double? top,
+    double? end,
+    double? bottom,
+    double? width,
+    double? height,
+    required Widget child,
+  }) {
+    final (double? left, double? right) = switch (textDirection) {
+      TextDirection.rtl => (end, start),
+      TextDirection.ltr => (start, end),
+    };
+    return Positioned(
+      key: key,
+      left: left,
+      top: top,
+      right: right,
+      bottom: bottom,
+      width: width,
+      height: height,
+      child: child,
+    );
+  }
+
+  /// The distance that the child's left edge is inset from the left of the stack.
+  ///
+  /// Only two out of the three horizontal values ([left], [right], [width]) can be
+  /// set. The third must be null.
+  ///
+  /// If all three are null, the [Stack.alignment] is used to position the child
+  /// horizontally.
+  final double? left;
+
+  /// The distance that the child's top edge is inset from the top of the stack.
+  ///
+  /// Only two out of the three vertical values ([top], [bottom], [height]) can be
+  /// set. The third must be null.
+  ///
+  /// If all three are null, the [Stack.alignment] is used to position the child
+  /// vertically.
+  final double? top;
+
+  /// The distance that the child's right edge is inset from the right of the stack.
+  ///
+  /// Only two out of the three horizontal values ([left], [right], [width]) can be
+  /// set. The third must be null.
+  ///
+  /// If all three are null, the [Stack.alignment] is used to position the child
+  /// horizontally.
+  final double? right;
+
+  /// The distance that the child's bottom edge is inset from the bottom of the stack.
+  ///
+  /// Only two out of the three vertical values ([top], [bottom], [height]) can be
+  /// set. The third must be null.
+  ///
+  /// If all three are null, the [Stack.alignment] is used to position the child
+  /// vertically.
+  final double? bottom;
+
+  /// The child's width.
+  ///
+  /// Only two out of the three horizontal values ([left], [right], [width]) can be
+  /// set. The third must be null.
+  ///
+  /// If all three are null, the [Stack.alignment] is used to position the child
+  /// horizontally.
+  final double? width;
+
+  /// The child's height.
+  ///
+  /// Only two out of the three vertical values ([top], [bottom], [height]) can be
+  /// set. The third must be null.
+  ///
+  /// If all three are null, the [Stack.alignment] is used to position the child
+  /// vertically.
+  final double? height;
+
+  @override
+  void applyParentData(RenderObject renderObject) {
+    assert(renderObject.parentData is StackParentData);
+    final parentData = renderObject.parentData! as StackParentData;
+    var needsLayout = false;
+
+    if (parentData.left != left) {
+      parentData.left = left;
+      needsLayout = true;
+    }
+
+    if (parentData.top != top) {
+      parentData.top = top;
+      needsLayout = true;
+    }
+
+    if (parentData.right != right) {
+      parentData.right = right;
+      needsLayout = true;
+    }
+
+    if (parentData.bottom != bottom) {
+      parentData.bottom = bottom;
+      needsLayout = true;
+    }
+
+    if (parentData.width != width) {
+      parentData.width = width;
+      needsLayout = true;
+    }
+
+    if (parentData.height != height) {
+      parentData.height = height;
+      needsLayout = true;
+    }
+
+    if (needsLayout) {
+      renderObject.parent?.markNeedsLayout();
+    }
+  }
+
+  @override
+  Type get debugTypicalAncestorWidgetClass => Stack;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('left', left, defaultValue: null));
+    properties.add(DoubleProperty('top', top, defaultValue: null));
+    properties.add(DoubleProperty('right', right, defaultValue: null));
+    properties.add(DoubleProperty('bottom', bottom, defaultValue: null));
+    properties.add(DoubleProperty('width', width, defaultValue: null));
+    properties.add(DoubleProperty('height', height, defaultValue: null));
+  }
+}
+
+/// A widget that controls where a child of a [Stack] is positioned without
+/// committing to a specific [TextDirection].
+///
+/// The ambient [Directionality] is used to determine whether [start] is to the
+/// left or to the right.
+///
+/// A [PositionedDirectional] widget must be a descendant of a [Stack], and the
+/// path from the [PositionedDirectional] widget to its enclosing [Stack] must
+/// contain only [StatelessWidget]s or [StatefulWidget]s (not other kinds of
+/// widgets, like [RenderObjectWidget]s).
+///
+/// If a widget is wrapped in a [PositionedDirectional], then it is a
+/// _positioned_ widget in its [Stack]. If the [top] property is non-null, the
+/// top edge of this child/ will be positioned [top] layout units from the top
+/// of the stack widget. The [start], [bottom], and [end] properties work
+/// analogously.
+///
+/// If both the [top] and [bottom] properties are non-null, then the child will
+/// be forced to have exactly the height required to satisfy both constraints.
+/// Similarly, setting the [start] and [end] properties to non-null values will
+/// force the child to have a particular width. Alternatively the [width] and
+/// [height] properties can be used to give the dimensions, with one
+/// corresponding position property (e.g. [top] and [height]).
+///
+/// See also:
+///
+///  * [Positioned], which specifies the widget's position visually.
+///  * [Positioned.directional], which also specifies the widget's horizontal
+///    position using [start] and [end] but has an explicit [TextDirection].
+///  * [AnimatedPositionedDirectional], which automatically transitions
+///    the child's position over a given duration whenever the given position
+///    changes.
+class PositionedDirectional extends StatelessWidget {
+  /// Creates a widget that controls where a child of a [Stack] is positioned.
+  ///
+  /// Only two out of the three horizontal values (`start`, `end`,
+  /// [width]), and only two out of the three vertical values ([top],
+  /// [bottom], [height]), can be set. In each case, at least one of
+  /// the three must be null.
+  ///
+  /// See also:
+  ///
+  ///  * [Positioned.directional], which also specifies the widget's horizontal
+  ///    position using [start] and [end] but has an explicit [TextDirection].
+  const PositionedDirectional({
+    super.key,
+    this.start,
+    this.top,
+    this.end,
+    this.bottom,
+    this.width,
+    this.height,
+    required this.child,
+  });
+
+  /// The distance that the child's leading edge is inset from the leading edge
+  /// of the stack.
+  ///
+  /// Only two out of the three horizontal values ([start], [end], [width]) can be
+  /// set. The third must be null.
+  final double? start;
+
+  /// The distance that the child's top edge is inset from the top of the stack.
+  ///
+  /// Only two out of the three vertical values ([top], [bottom], [height]) can be
+  /// set. The third must be null.
+  final double? top;
+
+  /// The distance that the child's trailing edge is inset from the trailing
+  /// edge of the stack.
+  ///
+  /// Only two out of the three horizontal values ([start], [end], [width]) can be
+  /// set. The third must be null.
+  final double? end;
+
+  /// The distance that the child's bottom edge is inset from the bottom of the stack.
+  ///
+  /// Only two out of the three vertical values ([top], [bottom], [height]) can be
+  /// set. The third must be null.
+  final double? bottom;
+
+  /// The child's width.
+  ///
+  /// Only two out of the three horizontal values ([start], [end], [width]) can be
+  /// set. The third must be null.
+  final double? width;
+
+  /// The child's height.
+  ///
+  /// Only two out of the three vertical values ([top], [bottom], [height]) can be
+  /// set. The third must be null.
+  final double? height;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned.directional(
+      textDirection: Directionality.of(context),
+      start: start,
+      top: top,
+      end: end,
+      bottom: bottom,
+      width: width,
+      height: height,
+      child: child,
+    );
+  }
+}
+
+/// A widget that displays its children in a one-dimensional array.
+///
+/// The [Flex] widget allows you to control the axis along which the children are
+/// placed (horizontal or vertical). This is referred to as the _main axis_. If
+/// you know the main axis in advance, then consider using a [Row] (if it's
+/// horizontal) or [Column] (if it's vertical) instead, because that will be less
+/// verbose.
+///
+/// To cause a child to expand to fill the available space in the [direction]
+/// of this widget's main axis, wrap the child in an [Expanded] widget.
+///
+/// The [Flex] widget does not scroll (and in general it is considered an error
+/// to have more children in a [Flex] than will fit in the available room). If
+/// you have some widgets and want them to be able to scroll if there is
+/// insufficient room, consider using a [ListView].
+///
+/// The [Flex] widget does not allow its children to wrap across multiple
+/// horizontal or vertical runs. For a widget that allows its children to wrap,
+/// consider using the [Wrap] widget instead of [Flex].
+///
+/// If you only have one child, then rather than using [Flex], [Row], or
+/// [Column], consider using [Align] or [Center] to position the child.
+///
+/// ## Layout algorithm
+///
+/// _This section describes how a [Flex] is rendered by the framework._
+/// _See [BoxConstraints] for an introduction to box layout models._
+///
+/// Layout for a [Flex] proceeds in six steps:
+///
+/// 1. Layout each child with a null or zero flex factor (e.g., those that are
+///    not [Expanded]) with unbounded main axis constraints and the incoming
+///    cross axis constraints. If the [crossAxisAlignment] is
+///    [CrossAxisAlignment.stretch], instead use tight cross axis constraints
+///    that match the incoming max extent in the cross axis.
+/// 2. Divide the remaining main axis space among the children with non-zero
+///    flex factors (e.g., those that are [Expanded]) according to their flex
+///    factor. For example, a child with a flex factor of 2.0 will receive twice
+///    the amount of main axis space as a child with a flex factor of 1.0.
+/// 3. Layout each of the remaining children with the same cross axis
+///    constraints as in step 1, but instead of using unbounded main axis
+///    constraints, use max axis constraints based on the amount of space
+///    allocated in step 2. Children with [Flexible.fit] properties that are
+///    [FlexFit.tight] are given tight constraints (i.e., forced to fill the
+///    allocated space), and children with [Flexible.fit] properties that are
+///    [FlexFit.loose] are given loose constraints (i.e., not forced to fill the
+///    allocated space).
+/// 4. The cross axis extent of the [Flex] is the maximum cross axis extent of
+///    the children (which will always satisfy the incoming constraints).
+/// 5. The main axis extent of the [Flex] is determined by the [mainAxisSize]
+///    property. If the [mainAxisSize] property is [MainAxisSize.max], then the
+///    main axis extent of the [Flex] is the max extent of the incoming main
+///    axis constraints. If the [mainAxisSize] property is [MainAxisSize.min],
+///    then the main axis extent of the [Flex] is the sum of the main axis
+///    extents of the children (subject to the incoming constraints).
+/// 6. Determine the position for each child according to the
+///    [mainAxisAlignment] and the [crossAxisAlignment]. For example, if the
+///    [mainAxisAlignment] is [MainAxisAlignment.spaceBetween], any main axis
+///    space that has not been allocated to children is divided evenly and
+///    placed between the children.
+///
+/// See also:
+///
+///  * [Row], for a version of this widget that is always horizontal.
+///  * [Column], for a version of this widget that is always vertical.
+///  * [Expanded], to indicate children that should take all the remaining room.
+///  * [Flexible], to indicate children that should share the remaining room.
+///  * [Spacer], a widget that takes up space proportional to its flex value.
+///    that may be sized smaller (leaving some remaining room unused).
+///  * [Wrap], for a widget that allows its children to wrap over multiple _runs_.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Flex extends MultiChildRenderObjectWidget {
+  /// Creates a flex layout.
+  ///
+  /// The [direction] is required.
+  ///
+  /// If [crossAxisAlignment] is [CrossAxisAlignment.baseline], then
+  /// [textBaseline] must not be null.
+  ///
+  /// The [textDirection] argument defaults to the ambient [Directionality], if
+  /// any. If there is no ambient directionality, and a text direction is going
+  /// to be necessary to decide which direction to lay the children in or to
+  /// disambiguate `start` or `end` values for the main or cross axis
+  /// directions, the [textDirection] must not be null.
+  const Flex({
+    super.key,
+    required this.direction,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.mainAxisSize = MainAxisSize.max,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
+    this.textDirection,
+    this.verticalDirection = VerticalDirection.down,
+    this.textBaseline, // NO DEFAULT: we don't know what the text's baseline should be
+    this.clipBehavior = Clip.none,
+    this.spacing = 0.0,
+    super.children,
+  }) : assert(
+         !identical(crossAxisAlignment, CrossAxisAlignment.baseline) || textBaseline != null,
+         'textBaseline is required if you specify the crossAxisAlignment with CrossAxisAlignment.baseline',
+       );
+  // Cannot use == in the assert above instead of identical because of https://github.com/dart-lang/language/issues/1811.
+
+  /// The direction to use as the main axis.
+  ///
+  /// If you know the axis in advance, then consider using a [Row] (if it's
+  /// horizontal) or [Column] (if it's vertical) instead of a [Flex], since that
+  /// will be less verbose. (For [Row] and [Column] this property is fixed to
+  /// the appropriate axis.)
+  final Axis direction;
+
+  /// How the children should be placed along the main axis.
+  ///
+  /// For example, [MainAxisAlignment.start], the default, places the children
+  /// at the start (i.e., the left for a [Row] or the top for a [Column]) of the
+  /// main axis.
+  final MainAxisAlignment mainAxisAlignment;
+
+  /// How much space should be occupied in the main axis.
+  ///
+  /// After allocating space to children, there might be some remaining free
+  /// space. This value controls whether to maximize or minimize the amount of
+  /// free space, subject to the incoming layout constraints.
+  ///
+  /// If some children have a non-zero flex factors (and none have a fit of
+  /// [FlexFit.loose]), they will expand to consume all the available space and
+  /// there will be no remaining free space to maximize or minimize, making this
+  /// value irrelevant to the final layout.
+  final MainAxisSize mainAxisSize;
+
+  /// How the children should be placed along the cross axis.
+  ///
+  /// For example, [CrossAxisAlignment.center], the default, centers the
+  /// children in the cross axis (e.g., horizontally for a [Column]).
+  ///
+  /// When the cross axis is vertical (as for a [Row]) and the children
+  /// contain text, consider using [CrossAxisAlignment.baseline] instead.
+  /// This typically produces better visual results if the different children
+  /// have text with different font metrics, for example because they differ in
+  /// [TextStyle.fontSize] or other [TextStyle] properties, or because
+  /// they use different fonts due to being written in different scripts.
+  final CrossAxisAlignment crossAxisAlignment;
+
+  /// Determines the order to lay children out horizontally and how to interpret
+  /// `start` and `end` in the horizontal direction.
+  ///
+  /// Defaults to the ambient [Directionality].
+  ///
+  /// If [textDirection] is [TextDirection.rtl], then the direction in which
+  /// text flows starts from right to left. Otherwise, if [textDirection] is
+  /// [TextDirection.ltr], then the direction in which text flows starts from
+  /// left to right.
+  ///
+  /// If the [direction] is [Axis.horizontal], this controls the order in which
+  /// the children are positioned (left-to-right or right-to-left), and the
+  /// meaning of the [mainAxisAlignment] property's [MainAxisAlignment.start] and
+  /// [MainAxisAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.horizontal], and either the
+  /// [mainAxisAlignment] is either [MainAxisAlignment.start] or
+  /// [MainAxisAlignment.end], or there's more than one child, then the
+  /// [textDirection] (or the ambient [Directionality]) must not be null.
+  ///
+  /// If the [direction] is [Axis.vertical], this controls the meaning of the
+  /// [crossAxisAlignment] property's [CrossAxisAlignment.start] and
+  /// [CrossAxisAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.vertical], and the [crossAxisAlignment] is
+  /// either [CrossAxisAlignment.start] or [CrossAxisAlignment.end], then the
+  /// [textDirection] (or the ambient [Directionality]) must not be null.
+  final TextDirection? textDirection;
+
+  /// Determines the order to lay children out vertically and how to interpret
+  /// `start` and `end` in the vertical direction.
+  ///
+  /// Defaults to [VerticalDirection.down].
+  ///
+  /// If the [direction] is [Axis.vertical], this controls which order children
+  /// are painted in (down or up), the meaning of the [mainAxisAlignment]
+  /// property's [MainAxisAlignment.start] and [MainAxisAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.vertical], and either the [mainAxisAlignment]
+  /// is either [MainAxisAlignment.start] or [MainAxisAlignment.end], or there's
+  /// more than one child, then the [verticalDirection] must not be null.
+  ///
+  /// If the [direction] is [Axis.horizontal], this controls the meaning of the
+  /// [crossAxisAlignment] property's [CrossAxisAlignment.start] and
+  /// [CrossAxisAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.horizontal], and the [crossAxisAlignment] is
+  /// either [CrossAxisAlignment.start] or [CrossAxisAlignment.end], then the
+  /// [verticalDirection] must not be null.
+  final VerticalDirection verticalDirection;
+
+  /// If aligning items according to their baseline, which baseline to use.
+  ///
+  /// This must be set if using baseline alignment. There is no default because there is no
+  /// way for the framework to know the correct baseline _a priori_.
+  final TextBaseline? textBaseline;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  /// {@macro flutter.rendering.RenderFlex.spacing}
+  final double spacing;
+
+  bool get _needTextDirection {
+    switch (direction) {
+      case Axis.horizontal:
+        return true; // because it affects the layout order.
+      case Axis.vertical:
+        return crossAxisAlignment == CrossAxisAlignment.start ||
+            crossAxisAlignment == CrossAxisAlignment.end;
+    }
+  }
+
+  /// The value to pass to [RenderFlex.textDirection].
+  ///
+  /// This value is derived from the [textDirection] property and the ambient
+  /// [Directionality]. The value is null if there is no need to specify the
+  /// text direction. In practice there's always a need to specify the direction
+  /// except for vertical flexes (e.g. [Column]s) whose [crossAxisAlignment] is
+  /// not dependent on the text direction (not `start` or `end`). In particular,
+  /// a [Row] always needs a text direction because the text direction controls
+  /// its layout order. (For [Column]s, the layout order is controlled by
+  /// [verticalDirection], which is always specified as it does not depend on an
+  /// inherited widget and defaults to [VerticalDirection.down].)
+  ///
+  /// This method exists so that subclasses of [Flex] that create their own
+  /// render objects that are derived from [RenderFlex] can do so and still use
+  /// the logic for providing a text direction only when it is necessary.
+  @protected
+  TextDirection? getEffectiveTextDirection(BuildContext context) {
+    return textDirection ?? (_needTextDirection ? Directionality.maybeOf(context) : null);
+  }
+
+  @override
+  RenderFlex createRenderObject(BuildContext context) {
+    return RenderFlex(
+      direction: direction,
+      mainAxisAlignment: mainAxisAlignment,
+      mainAxisSize: mainAxisSize,
+      crossAxisAlignment: crossAxisAlignment,
+      textDirection: getEffectiveTextDirection(context),
+      verticalDirection: verticalDirection,
+      textBaseline: textBaseline,
+      clipBehavior: clipBehavior,
+      spacing: spacing,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, covariant RenderFlex renderObject) {
+    renderObject
+      ..direction = direction
+      ..mainAxisAlignment = mainAxisAlignment
+      ..mainAxisSize = mainAxisSize
+      ..crossAxisAlignment = crossAxisAlignment
+      ..textDirection = getEffectiveTextDirection(context)
+      ..verticalDirection = verticalDirection
+      ..textBaseline = textBaseline
+      ..clipBehavior = clipBehavior
+      ..spacing = spacing;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<Axis>('direction', direction));
+    properties.add(EnumProperty<MainAxisAlignment>('mainAxisAlignment', mainAxisAlignment));
+    properties.add(
+      EnumProperty<MainAxisSize>('mainAxisSize', mainAxisSize, defaultValue: MainAxisSize.max),
+    );
+    properties.add(EnumProperty<CrossAxisAlignment>('crossAxisAlignment', crossAxisAlignment));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+    properties.add(
+      EnumProperty<VerticalDirection>(
+        'verticalDirection',
+        verticalDirection,
+        defaultValue: VerticalDirection.down,
+      ),
+    );
+    properties.add(EnumProperty<TextBaseline>('textBaseline', textBaseline, defaultValue: null));
+    properties.add(EnumProperty<Clip>('clipBehavior', clipBehavior, defaultValue: Clip.none));
+    properties.add(DoubleProperty('spacing', spacing, defaultValue: 0.0));
+  }
+}
+
+/// A widget that displays its children in a horizontal array.
+///
+/// To cause a child to expand to fill the available horizontal space, wrap the
+/// child in an [Expanded] widget.
+///
+/// The [Row] widget does not scroll (and in general it is considered an error
+/// to have more children in a [Row] than will fit in the available room). If
+/// you have a line of widgets and want them to be able to scroll if there is
+/// insufficient room, consider using a [ListView].
+///
+/// For a vertical variant, see [Column].
+///
+/// If you only have one child, then consider using [Align] or [Center] to
+/// position the child.
+///
+/// By default, [crossAxisAlignment] is [CrossAxisAlignment.center], which
+/// centers the children in the vertical axis.  If several of the children
+/// contain text, this is likely to make them visually misaligned if
+/// they have different font metrics (for example because they differ in
+/// [TextStyle.fontSize] or other [TextStyle] properties, or because
+/// they use different fonts due to being written in different scripts).
+/// Consider using [CrossAxisAlignment.baseline] instead.
+///
+/// {@tool snippet}
+///
+/// This example divides the available space into three (horizontally), and
+/// places text centered in the first two cells and the Flutter logo centered in
+/// the third:
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/row.png)
+///
+/// ```dart
+/// const Row(
+///   children: <Widget>[
+///     Expanded(
+///       child: Text('Deliver features faster', textAlign: TextAlign.center),
+///     ),
+///     Expanded(
+///       child: Text('Craft beautiful UIs', textAlign: TextAlign.center),
+///     ),
+///     Expanded(
+///       child: FittedBox(
+///         child: FlutterLogo(),
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## Troubleshooting
+///
+/// ### Why does my row have a yellow and black warning stripe?
+///
+/// If the non-flexible contents of the row (those that are not wrapped in
+/// [Expanded] or [Flexible] widgets) are together wider than the row itself,
+/// then the row is said to have overflowed. When a row overflows, the row does
+/// not have any remaining space to share between its [Expanded] and [Flexible]
+/// children. The row reports this by drawing a yellow and black striped
+/// warning box on the edge that is overflowing. If there is room on the outside
+/// of the row, the amount of overflow is printed in red lettering.
+///
+/// #### Story time
+///
+/// Suppose, for instance, that you had this code:
+///
+/// ```dart
+/// const Row(
+///   children: <Widget>[
+///     FlutterLogo(),
+///     Text("Flutter's hot reload helps you quickly and easily experiment, build UIs, add features, and fix bug faster. Experience sub-second reload times, without losing state, on emulators, simulators, and hardware for iOS and Android."),
+///     Icon(Icons.sentiment_very_satisfied),
+///   ],
+/// )
+/// ```
+///
+/// The row first asks its first child, the [FlutterLogo], to lay out, at
+/// whatever size the logo would like. The logo is friendly and happily decides
+/// to be 24 pixels to a side. This leaves lots of room for the next child. The
+/// row then asks that next child, the text, to lay out, at whatever size it
+/// thinks is best.
+///
+/// At this point, the text, not knowing how wide is too wide, says "Ok, I will
+/// be thiiiiiiiiiiiiiiiiiiiis wide.", and goes well beyond the space that the
+/// row has available, not wrapping. The row responds, "That's not fair, now I
+/// have no more room available for my other children!", and gets angry and
+/// sprouts a yellow and black strip.
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/row_error.png)
+///
+/// The fix is to wrap the second child in an [Expanded] widget, which tells the
+/// row that the child should be given the remaining room:
+///
+/// ```dart
+/// const Row(
+///   children: <Widget>[
+///     FlutterLogo(),
+///     Expanded(
+///       child: Text("Flutter's hot reload helps you quickly and easily experiment, build UIs, add features, and fix bug faster. Experience sub-second reload times, without losing state, on emulators, simulators, and hardware for iOS and Android."),
+///     ),
+///     Icon(Icons.sentiment_very_satisfied),
+///   ],
+/// )
+/// ```
+///
+/// Now, the row first asks the logo to lay out, and then asks the _icon_ to lay
+/// out. The [Icon], like the logo, is happy to take on a reasonable size (also
+/// 24 pixels, not coincidentally, since both [FlutterLogo] and [Icon] honor the
+/// ambient [IconTheme]). This leaves some room left over, and now the row tells
+/// the text exactly how wide to be: the exact width of the remaining space. The
+/// text, now happy to comply to a reasonable request, wraps the text within
+/// that width, and you end up with a paragraph split over several lines.
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/row_fixed.png)
+///
+/// The [textDirection] property controls the direction that children are rendered in.
+/// [TextDirection.ltr] is the default [textDirection] of [Row] children, so the first
+/// child is rendered at the `start` of the [Row], to the left, with subsequent children
+/// following to the right. If you want to order children in the opposite
+/// direction (right to left), then [textDirection] can be set to
+/// [TextDirection.rtl]. This is shown in the example below
+///
+/// ```dart
+/// const Row(
+///   textDirection: TextDirection.rtl,
+///   children: <Widget>[
+///     FlutterLogo(),
+///     Expanded(
+///       child: Text("Flutter's hot reload helps you quickly and easily experiment, build UIs, add features, and fix bug faster. Experience sub-second reload times, without losing state, on emulators, simulators, and hardware for iOS and Android."),
+///     ),
+///     Icon(Icons.sentiment_very_satisfied),
+///   ],
+/// )
+/// ```
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/row_textDirection.png)
+///
+/// ## Layout algorithm
+///
+/// _This section describes how a [Row] is rendered by the framework._
+/// _See [BoxConstraints] for an introduction to box layout models._
+///
+/// Layout for a [Row] proceeds in six steps:
+///
+/// 1. Layout each child with a null or zero flex factor (e.g., those that are
+///    not [Expanded]) with unbounded horizontal constraints and the incoming
+///    vertical constraints. If the [crossAxisAlignment] is
+///    [CrossAxisAlignment.stretch], instead use tight vertical constraints that
+///    match the incoming max height.
+/// 2. Divide the remaining horizontal space among the children with non-zero
+///    flex factors (e.g., those that are [Expanded]) according to their flex
+///    factor. For example, a child with a flex factor of 2.0 will receive twice
+///    the amount of horizontal space as a child with a flex factor of 1.0.
+/// 3. Layout each of the remaining children with the same vertical constraints
+///    as in step 1, but instead of using unbounded horizontal constraints, use
+///    horizontal constraints based on the amount of space allocated in step 2.
+///    Children with [Flexible.fit] properties that are [FlexFit.tight] are
+///    given tight constraints (i.e., forced to fill the allocated space), and
+///    children with [Flexible.fit] properties that are [FlexFit.loose] are
+///    given loose constraints (i.e., not forced to fill the allocated space).
+/// 4. The height of the [Row] is the maximum height of the children (which will
+///    always satisfy the incoming vertical constraints).
+/// 5. The width of the [Row] is determined by the [mainAxisSize] property. If
+///    the [mainAxisSize] property is [MainAxisSize.max], then the width of the
+///    [Row] is the max width of the incoming constraints. If the [mainAxisSize]
+///    property is [MainAxisSize.min], then the width of the [Row] is the sum
+///    of widths of the children (subject to the incoming constraints).
+/// 6. Determine the position for each child according to the
+///    [mainAxisAlignment] and the [crossAxisAlignment]. For example, if the
+///    [mainAxisAlignment] is [MainAxisAlignment.spaceBetween], any horizontal
+///    space that has not been allocated to children is divided evenly and
+///    placed between the children.
+///
+/// See also:
+///
+///  * [Column], for a vertical equivalent.
+///  * [Flex], if you don't know in advance if you want a horizontal or vertical
+///    arrangement.
+///  * [Expanded], to indicate children that should take all the remaining room.
+///  * [Flexible], to indicate children that should share the remaining room but
+///    that may by sized smaller (leaving some remaining room unused).
+///  * [Spacer], a widget that takes up space proportional to its flex value.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Row extends Flex {
+  /// Creates a horizontal array of children.
+  ///
+  /// If [crossAxisAlignment] is [CrossAxisAlignment.baseline], then
+  /// [textBaseline] must not be null.
+  ///
+  /// The [textDirection] argument defaults to the ambient [Directionality], if
+  /// any. If there is no ambient directionality, and a text direction is going
+  /// to be necessary to determine the layout order (which is always the case
+  /// unless the row has no children or only one child) or to disambiguate
+  /// `start` or `end` values for the [mainAxisAlignment], the [textDirection]
+  /// must not be null.
+  const Row({
+    super.key,
+    super.mainAxisAlignment,
+    super.mainAxisSize,
+    super.crossAxisAlignment,
+    super.textDirection,
+    super.verticalDirection,
+    super.textBaseline, // NO DEFAULT: we don't know what the text's baseline should be
+    super.spacing,
+    super.children,
+  }) : super(direction: Axis.horizontal);
+}
+
+/// A widget that displays its children in a vertical array.
+///
+/// To cause a child to expand to fill the available vertical space, wrap the
+/// child in an [Expanded] widget.
+///
+/// The [Column] widget does not scroll (and in general it is considered an error
+/// to have more children in a [Column] than will fit in the available room). If
+/// you have a line of widgets and want them to be able to scroll if there is
+/// insufficient room, consider using a [ListView].
+///
+/// For a horizontal variant, see [Row].
+///
+/// If you only have one child, then consider using [Align] or [Center] to
+/// position the child.
+///
+/// {@tool snippet}
+///
+/// This example uses a [Column] to arrange three widgets vertically, the last
+/// being made to fill all the remaining space.
+///
+/// ![Using the Column in this way creates two short lines of text with a large Flutter underneath.](https://flutter.github.io/assets-for-api-docs/assets/widgets/column.png)
+///
+/// ```dart
+/// const Column(
+///   children: <Widget>[
+///     Text('Deliver features faster'),
+///     Text('Craft beautiful UIs'),
+///     Expanded(
+///       child: FittedBox(
+///         child: FlutterLogo(),
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+/// {@tool snippet}
+///
+/// In the sample above, the text and the logo are centered on each line. In the
+/// following example, the [crossAxisAlignment] is set to
+/// [CrossAxisAlignment.start], so that the children are left-aligned. The
+/// [mainAxisSize] is set to [MainAxisSize.min], so that the column shrinks to
+/// fit the children.
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/column_properties.png)
+///
+/// ```dart
+/// Column(
+///   crossAxisAlignment: CrossAxisAlignment.start,
+///   mainAxisSize: MainAxisSize.min,
+///   children: <Widget>[
+///     const Text('We move under cover and we move as one'),
+///     const Text('Through the night, we have one shot to live another day'),
+///     const Text('We cannot let a stray gunshot give us away'),
+///     const Text('We will fight up close, seize the moment and stay in it'),
+///     const Text("It's either that or meet the business end of a bayonet"),
+///     const Text("The code word is 'Rochambeau,' dig me?"),
+///     Text('Rochambeau!', style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 2.0)),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## Troubleshooting
+///
+/// ### When the incoming vertical constraints are unbounded
+///
+/// When a [Column] has one or more [Expanded] or [Flexible] children, and is
+/// placed in another [Column], or in a [ListView], or in some other context
+/// that does not provide a maximum height constraint for the [Column], you will
+/// get an exception at runtime saying that there are children with non-zero
+/// flex but the vertical constraints are unbounded.
+///
+/// The problem, as described in the details that accompany that exception, is
+/// that using [Flexible] or [Expanded] means that the remaining space after
+/// laying out all the other children must be shared equally, but if the
+/// incoming vertical constraints are unbounded, there is infinite remaining
+/// space.
+///
+/// The key to solving this problem is usually to determine why the [Column] is
+/// receiving unbounded vertical constraints.
+///
+/// One common reason for this to happen is that the [Column] has been placed in
+/// another [Column] (without using [Expanded] or [Flexible] around the inner
+/// nested [Column]). When a [Column] lays out its non-flex children (those that
+/// have neither [Expanded] or [Flexible] around them), it gives them unbounded
+/// constraints so that they can determine their own dimensions (passing
+/// unbounded constraints usually signals to the child that it should
+/// shrink-wrap its contents). The solution in this case is typically to just
+/// wrap the inner column in an [Expanded] to indicate that it should take the
+/// remaining space of the outer column, rather than being allowed to take any
+/// amount of room it desires.
+///
+/// Another reason for this message to be displayed is nesting a [Column] inside
+/// a [ListView] or other vertical scrollable. In that scenario, there really is
+/// infinite vertical space (the whole point of a vertical scrolling list is to
+/// allow infinite space vertically). In such scenarios, it is usually worth
+/// examining why the inner [Column] should have an [Expanded] or [Flexible]
+/// child: what size should the inner children really be? The solution in this
+/// case is typically to remove the [Expanded] or [Flexible] widgets from around
+/// the inner children.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=jckqXR5CrPI}
+///
+/// For more discussion about constraints, see [BoxConstraints].
+///
+/// ### The yellow and black striped banner
+///
+/// When the contents of a [Column] exceed the amount of space available, the
+/// [Column] overflows, and the contents are clipped. In debug mode, a yellow
+/// and black striped bar is rendered at the overflowing edge to indicate the
+/// problem, and a message is printed below the [Column] saying how much
+/// overflow was detected.
+///
+/// The usual solution is to use a [ListView] rather than a [Column], to enable
+/// the contents to scroll when vertical space is limited.
+///
+/// ## Layout algorithm
+///
+/// _This section describes how a [Column] is rendered by the framework._
+/// _See [BoxConstraints] for an introduction to box layout models._
+///
+/// Layout for a [Column] proceeds in six steps:
+///
+/// 1. Layout each child with a null or zero flex factor (e.g., those that are
+///    not [Expanded]) with unbounded vertical constraints and the incoming
+///    horizontal constraints. If the [crossAxisAlignment] is
+///    [CrossAxisAlignment.stretch], instead use tight horizontal constraints
+///    that match the incoming max width.
+/// 2. Divide the remaining vertical space among the children with non-zero
+///    flex factors (e.g., those that are [Expanded]) according to their flex
+///    factor. For example, a child with a flex factor of 2.0 will receive twice
+///    the amount of vertical space as a child with a flex factor of 1.0.
+/// 3. Layout each of the remaining children with the same horizontal
+///    constraints as in step 1, but instead of using unbounded vertical
+///    constraints, use vertical constraints based on the amount of space
+///    allocated in step 2. Children with [Flexible.fit] properties that are
+///    [FlexFit.tight] are given tight constraints (i.e., forced to fill the
+///    allocated space), and children with [Flexible.fit] properties that are
+///    [FlexFit.loose] are given loose constraints (i.e., not forced to fill the
+///    allocated space).
+/// 4. The width of the [Column] is the maximum width of the children (which
+///    will always satisfy the incoming horizontal constraints).
+/// 5. The height of the [Column] is determined by the [mainAxisSize] property.
+///    If the [mainAxisSize] property is [MainAxisSize.max], then the height of
+///    the [Column] is the max height of the incoming constraints. If the
+///    [mainAxisSize] property is [MainAxisSize.min], then the height of the
+///    [Column] is the sum of heights of the children (subject to the incoming
+///    constraints).
+/// 6. Determine the position for each child according to the
+///    [mainAxisAlignment] and the [crossAxisAlignment]. For example, if the
+///    [mainAxisAlignment] is [MainAxisAlignment.spaceBetween], any vertical
+///    space that has not been allocated to children is divided evenly and
+///    placed between the children.
+///
+/// See also:
+///
+///  * [Row], for a horizontal equivalent.
+///  * [Flex], if you don't know in advance if you want a horizontal or vertical
+///    arrangement.
+///  * [Expanded], to indicate children that should take all the remaining room.
+///  * [Flexible], to indicate children that should share the remaining room but
+///    that may size smaller (leaving some remaining room unused).
+///  * [SingleChildScrollView], whose documentation discusses some ways to
+///    use a [Column] inside a scrolling container.
+///  * [Spacer], a widget that takes up space proportional to its flex value.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Column extends Flex {
+  /// Creates a vertical array of children.
+  ///
+  /// If [crossAxisAlignment] is [CrossAxisAlignment.baseline], then
+  /// [textBaseline] must not be null.
+  ///
+  /// The [textDirection] argument defaults to the ambient [Directionality], if
+  /// any. If there is no ambient directionality, and a text direction is going
+  /// to be necessary to disambiguate `start` or `end` values for the
+  /// [crossAxisAlignment], the [textDirection] must not be null.
+  const Column({
+    super.key,
+    super.mainAxisAlignment,
+    super.mainAxisSize,
+    super.crossAxisAlignment,
+    super.textDirection,
+    super.verticalDirection,
+    super.textBaseline,
+    super.spacing,
+    super.children,
+  }) : super(direction: Axis.vertical);
+}
+
+/// A widget that controls how a child of a [Row], [Column], or [Flex] flexes.
+///
+/// Using a [Flexible] widget gives a child of a [Row], [Column], or [Flex]
+/// the flexibility to expand to fill the available space in the main axis
+/// (e.g., horizontally for a [Row] or vertically for a [Column]), but, unlike
+/// [Expanded], [Flexible] does not require the child to fill the available
+/// space.
+///
+/// A [Flexible] widget must be a descendant of a [Row], [Column], or [Flex],
+/// and the path from the [Flexible] widget to its enclosing [Row], [Column], or
+/// [Flex] must contain only [StatelessWidget]s or [StatefulWidget]s (not other
+/// kinds of widgets, like [RenderObjectWidget]s).
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=CI7x0mAZiY0}
+///
+/// See also:
+///
+///  * [Expanded], which forces the child to expand to fill the available space.
+///  * [Spacer], a widget that takes up space proportional to its flex value.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Flexible extends ParentDataWidget<FlexParentData> {
+  /// Creates a widget that controls how a child of a [Row], [Column], or [Flex]
+  /// flexes.
+  const Flexible({super.key, this.flex = 1, this.fit = FlexFit.loose, required super.child});
+
+  /// The flex factor to use for this child.
+  ///
+  /// If zero, the child is inflexible and determines its own size. If non-zero,
+  /// the amount of space the child can occupy in the main axis is determined by
+  /// dividing the free space (after placing the inflexible children) according
+  /// to the flex factors of the flexible children.
+  final int flex;
+
+  /// How a flexible child is inscribed into the available space.
+  ///
+  /// If [flex] is non-zero, the [fit] determines whether the child fills the
+  /// space the parent makes available during layout. If the fit is
+  /// [FlexFit.tight], the child is required to fill the available space. If the
+  /// fit is [FlexFit.loose], the child can be at most as large as the available
+  /// space (but is allowed to be smaller).
+  final FlexFit fit;
+
+  @override
+  void applyParentData(RenderObject renderObject) {
+    assert(renderObject.parentData is FlexParentData);
+    final parentData = renderObject.parentData! as FlexParentData;
+    var needsLayout = false;
+
+    if (parentData.flex != flex) {
+      parentData.flex = flex;
+      needsLayout = true;
+    }
+
+    if (parentData.fit != fit) {
+      parentData.fit = fit;
+      needsLayout = true;
+    }
+
+    if (needsLayout) {
+      renderObject.parent?.markNeedsLayout();
+    }
+  }
+
+  @override
+  Type get debugTypicalAncestorWidgetClass => Flex;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IntProperty('flex', flex));
+  }
+}
+
+/// A widget that expands a child of a [Row], [Column], or [Flex]
+/// so that the child fills the available space.
+///
+/// Using an [Expanded] widget makes a child of a [Row], [Column], or [Flex]
+/// expand to fill the available space along the main axis (e.g., horizontally for
+/// a [Row] or vertically for a [Column]). If multiple children are expanded,
+/// the available space is divided among them according to the [flex] factor.
+///
+/// An [Expanded] widget must be a descendant of a [Row], [Column], or [Flex],
+/// and the path from the [Expanded] widget to its enclosing [Row], [Column], or
+/// [Flex] must contain only [StatelessWidget]s or [StatefulWidget]s (not other
+/// kinds of widgets, like [RenderObjectWidget]s).
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=_rnZaagadyo}
+///
+/// {@tool dartpad}
+/// This example shows how to use an [Expanded] widget in a [Column] so that
+/// its middle child, a [Container] here, expands to fill the space.
+///
+/// ![This results in two thin blue boxes with a larger amber box in between.](https://flutter.github.io/assets-for-api-docs/assets/widgets/expanded_column.png)
+///
+/// ** See code in examples/api/lib/widgets/basic/expanded.0.dart **
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This example shows how to use an [Expanded] widget in a [Row] with multiple
+/// children expanded, utilizing the [flex] factor to prioritize available space.
+///
+/// ![This results in a wide amber box, followed by a thin blue box, with a medium width amber box at the end.](https://flutter.github.io/assets-for-api-docs/assets/widgets/expanded_row.png)
+///
+/// ** See code in examples/api/lib/widgets/basic/expanded.1.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Flexible], which does not force the child to fill the available space.
+///  * [Spacer], a widget that takes up space proportional to its flex value.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Expanded extends Flexible {
+  /// Creates a widget that expands a child of a [Row], [Column], or [Flex]
+  /// so that the child fills the available space along the flex widget's
+  /// main axis.
+  const Expanded({super.key, super.flex, required super.child}) : super(fit: FlexFit.tight);
+}
+
+/// A widget that displays its children in multiple horizontal or vertical runs.
+///
+/// A [Wrap] lays out each child and attempts to place the child adjacent to the
+/// previous child in the main axis, given by [direction], leaving [spacing]
+/// space in between. If there is not enough space to fit the child, [Wrap]
+/// creates a new _run_ adjacent to the existing children in the cross axis.
+///
+/// After all the children have been allocated to runs, the children within the
+/// runs are positioned according to the [alignment] in the main axis and
+/// according to the [crossAxisAlignment] in the cross axis.
+///
+/// The runs themselves are then positioned in the cross axis according to the
+/// [runSpacing] and [runAlignment].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=z5iw2SeFx2M}
+///
+/// {@tool snippet}
+///
+/// This example renders some [Chip]s representing four contacts in a [Wrap] so
+/// that they flow across lines as necessary.
+///
+/// ```dart
+/// Wrap(
+///   spacing: 8.0, // gap between adjacent chips
+///   runSpacing: 4.0, // gap between lines
+///   children: <Widget>[
+///     Chip(
+///       avatar: CircleAvatar(backgroundColor: Colors.blue.shade900, child: const Text('AH')),
+///       label: const Text('Hamilton'),
+///     ),
+///     Chip(
+///       avatar: CircleAvatar(backgroundColor: Colors.blue.shade900, child: const Text('ML')),
+///       label: const Text('Lafayette'),
+///     ),
+///     Chip(
+///       avatar: CircleAvatar(backgroundColor: Colors.blue.shade900, child: const Text('HM')),
+///       label: const Text('Mulligan'),
+///     ),
+///     Chip(
+///       avatar: CircleAvatar(backgroundColor: Colors.blue.shade900, child: const Text('JL')),
+///       label: const Text('Laurens'),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Row], which places children in one line, and gives control over their
+///    alignment and spacing.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Wrap extends MultiChildRenderObjectWidget {
+  /// Creates a wrap layout.
+  ///
+  /// By default, the wrap layout is horizontal and both the children and the
+  /// runs are aligned to the start.
+  ///
+  /// The [textDirection] argument defaults to the ambient [Directionality], if
+  /// any. If there is no ambient directionality, and a text direction is going
+  /// to be necessary to decide which direction to lay the children in or to
+  /// disambiguate `start` or `end` values for the main or cross axis
+  /// directions, the [textDirection] must not be null.
+  const Wrap({
+    super.key,
+    this.direction = Axis.horizontal,
+    this.alignment = WrapAlignment.start,
+    this.spacing = 0.0,
+    this.runAlignment = WrapAlignment.start,
+    this.runSpacing = 0.0,
+    this.crossAxisAlignment = WrapCrossAlignment.start,
+    this.textDirection,
+    this.verticalDirection = VerticalDirection.down,
+    this.clipBehavior = Clip.none,
+    super.children,
+  });
+
+  /// The direction to use as the main axis.
+  ///
+  /// For example, if [direction] is [Axis.horizontal], the default, the
+  /// children are placed adjacent to one another in a horizontal run until the
+  /// available horizontal space is consumed, at which point a subsequent
+  /// children are placed in a new run vertically adjacent to the previous run.
+  final Axis direction;
+
+  /// How the children within a run should be placed in the main axis.
+  ///
+  /// For example, if [alignment] is [WrapAlignment.center], the children in
+  /// each run are grouped together in the center of their run in the main axis.
+  ///
+  /// Defaults to [WrapAlignment.start].
+  ///
+  /// See also:
+  ///
+  ///  * [runAlignment], which controls how the runs are placed relative to each
+  ///    other in the cross axis.
+  ///  * [crossAxisAlignment], which controls how the children within each run
+  ///    are placed relative to each other in the cross axis.
+  final WrapAlignment alignment;
+
+  /// How much space to place between children in a run in the main axis.
+  ///
+  /// For example, if [spacing] is 10.0, the children will be spaced at least
+  /// 10.0 logical pixels apart in the main axis.
+  ///
+  /// If there is additional free space in a run (e.g., because the wrap has a
+  /// minimum size that is not filled or because some runs are longer than
+  /// others), the additional free space will be allocated according to the
+  /// [alignment].
+  ///
+  /// Defaults to 0.0.
+  final double spacing;
+
+  /// How the runs themselves should be placed in the cross axis.
+  ///
+  /// For example, if [runAlignment] is [WrapAlignment.center], the runs are
+  /// grouped together in the center of the overall [Wrap] in the cross axis.
+  ///
+  /// Defaults to [WrapAlignment.start].
+  ///
+  /// See also:
+  ///
+  ///  * [alignment], which controls how the children within each run are placed
+  ///    relative to each other in the main axis.
+  ///  * [crossAxisAlignment], which controls how the children within each run
+  ///    are placed relative to each other in the cross axis.
+  final WrapAlignment runAlignment;
+
+  /// How much space to place between the runs themselves in the cross axis.
+  ///
+  /// For example, if [runSpacing] is 10.0, the runs will be spaced at least
+  /// 10.0 logical pixels apart in the cross axis.
+  ///
+  /// If there is additional free space in the overall [Wrap] (e.g., because
+  /// the wrap has a minimum size that is not filled), the additional free space
+  /// will be allocated according to the [runAlignment].
+  ///
+  /// Defaults to 0.0.
+  final double runSpacing;
+
+  /// How the children within a run should be aligned relative to each other in
+  /// the cross axis.
+  ///
+  /// For example, if this is set to [WrapCrossAlignment.end], and the
+  /// [direction] is [Axis.horizontal], then the children within each
+  /// run will have their bottom edges aligned to the bottom edge of the run.
+  ///
+  /// Defaults to [WrapCrossAlignment.start].
+  ///
+  /// See also:
+  ///
+  ///  * [alignment], which controls how the children within each run are placed
+  ///    relative to each other in the main axis.
+  ///  * [runAlignment], which controls how the runs are placed relative to each
+  ///    other in the cross axis.
+  final WrapCrossAlignment crossAxisAlignment;
+
+  /// Determines the order to lay children out horizontally and how to interpret
+  /// `start` and `end` in the horizontal direction.
+  ///
+  /// Defaults to the ambient [Directionality].
+  ///
+  /// If the [direction] is [Axis.horizontal], this controls order in which the
+  /// children are positioned (left-to-right or right-to-left), and the meaning
+  /// of the [alignment] property's [WrapAlignment.start] and
+  /// [WrapAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.horizontal], and either the
+  /// [alignment] is either [WrapAlignment.start] or [WrapAlignment.end], or
+  /// there's more than one child, then the [textDirection] (or the ambient
+  /// [Directionality]) must not be null.
+  ///
+  /// If the [direction] is [Axis.vertical], this controls the order in which
+  /// runs are positioned, the meaning of the [runAlignment] property's
+  /// [WrapAlignment.start] and [WrapAlignment.end] values, as well as the
+  /// [crossAxisAlignment] property's [WrapCrossAlignment.start] and
+  /// [WrapCrossAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.vertical], and either the
+  /// [runAlignment] is either [WrapAlignment.start] or [WrapAlignment.end], the
+  /// [crossAxisAlignment] is either [WrapCrossAlignment.start] or
+  /// [WrapCrossAlignment.end], or there's more than one child, then the
+  /// [textDirection] (or the ambient [Directionality]) must not be null.
+  final TextDirection? textDirection;
+
+  /// Determines the order to lay children out vertically and how to interpret
+  /// `start` and `end` in the vertical direction.
+  ///
+  /// If the [direction] is [Axis.vertical], this controls which order children
+  /// are painted in (down or up), the meaning of the [alignment] property's
+  /// [WrapAlignment.start] and [WrapAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.vertical], and either the [alignment]
+  /// is either [WrapAlignment.start] or [WrapAlignment.end], or there's
+  /// more than one child, then the [verticalDirection] must not be null.
+  ///
+  /// If the [direction] is [Axis.horizontal], this controls the order in which
+  /// runs are positioned, the meaning of the [runAlignment] property's
+  /// [WrapAlignment.start] and [WrapAlignment.end] values, as well as the
+  /// [crossAxisAlignment] property's [WrapCrossAlignment.start] and
+  /// [WrapCrossAlignment.end] values.
+  ///
+  /// If the [direction] is [Axis.horizontal], and either the
+  /// [runAlignment] is either [WrapAlignment.start] or [WrapAlignment.end], the
+  /// [crossAxisAlignment] is either [WrapCrossAlignment.start] or
+  /// [WrapCrossAlignment.end], or there's more than one child, then the
+  /// [verticalDirection] must not be null.
+  final VerticalDirection verticalDirection;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  @override
+  RenderWrap createRenderObject(BuildContext context) {
+    return RenderWrap(
+      direction: direction,
+      alignment: alignment,
+      spacing: spacing,
+      runAlignment: runAlignment,
+      runSpacing: runSpacing,
+      crossAxisAlignment: crossAxisAlignment,
+      textDirection: textDirection ?? Directionality.maybeOf(context),
+      verticalDirection: verticalDirection,
+      clipBehavior: clipBehavior,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderWrap renderObject) {
+    renderObject
+      ..direction = direction
+      ..alignment = alignment
+      ..spacing = spacing
+      ..runAlignment = runAlignment
+      ..runSpacing = runSpacing
+      ..crossAxisAlignment = crossAxisAlignment
+      ..textDirection = textDirection ?? Directionality.maybeOf(context)
+      ..verticalDirection = verticalDirection
+      ..clipBehavior = clipBehavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<Axis>('direction', direction));
+    properties.add(EnumProperty<WrapAlignment>('alignment', alignment));
+    properties.add(DoubleProperty('spacing', spacing));
+    properties.add(EnumProperty<WrapAlignment>('runAlignment', runAlignment));
+    properties.add(DoubleProperty('runSpacing', runSpacing));
+    properties.add(EnumProperty<WrapCrossAlignment>('crossAxisAlignment', crossAxisAlignment));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+    properties.add(
+      EnumProperty<VerticalDirection>(
+        'verticalDirection',
+        verticalDirection,
+        defaultValue: VerticalDirection.down,
+      ),
+    );
+  }
+}
+
+/// A widget that sizes and positions children efficiently, according to the
+/// logic in a [FlowDelegate].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=NG6pvXpnIso}
+///
+/// Flow layouts are optimized for repositioning children using transformation
+/// matrices.
+///
+/// The flow container is sized independently from the children by the
+/// [FlowDelegate.getSize] function of the delegate. The children are then sized
+/// independently given the constraints from the
+/// [FlowDelegate.getConstraintsForChild] function.
+///
+/// Rather than positioning the children during layout, the children are
+/// positioned using transformation matrices during the paint phase using the
+/// matrices from the [FlowDelegate.paintChildren] function. The children can be
+/// repositioned efficiently by only _repainting_ the flow, which happens
+/// without the children being laid out again (contrast this with a [Stack],
+/// which does the sizing and positioning together during layout).
+///
+/// The most efficient way to trigger a repaint of the flow is to supply an
+/// animation to the constructor of the [FlowDelegate]. The flow will listen to
+/// this animation and repaint whenever the animation ticks, avoiding both the
+/// build and layout phases of the pipeline.
+///
+/// {@tool dartpad}
+/// This example uses the [Flow] widget to create a menu that opens and closes
+/// as it is interacted with, shown above. The color of the button in the menu
+/// changes to indicate which one has been selected.
+///
+/// ** See code in examples/api/lib/widgets/basic/flow.0.dart **
+/// {@end-tool}
+///
+/// ## Hit testing and hidden [Flow] widgets
+///
+/// The [Flow] widget recomputes its children's positions (as used by hit
+/// testing) during the _paint_ phase rather than during the _layout_ phase.
+///
+/// Widgets like [Opacity] avoid painting their children when those children
+/// would be invisible due to their opacity being zero.
+///
+/// Unfortunately, this means that hiding a [Flow] widget using an [Opacity]
+/// widget will cause bugs when the user attempts to interact with the hidden
+/// region, for example, by tapping it or clicking it.
+///
+/// Such bugs will manifest either as out-of-date geometry (taps going to
+/// different widgets than might be expected by the currently-specified
+/// [FlowDelegate]s), or exceptions (e.g. if the last time the [Flow] was
+/// painted, a different set of children was specified).
+///
+/// To avoid this, when hiding a [Flow] widget with an [Opacity] widget (or
+/// [AnimatedOpacity] or similar), it is wise to also disable hit testing on the
+/// widget by using [IgnorePointer]. This is generally good advice anyway as
+/// hit-testing invisible widgets is often confusing for the user.
+///
+/// See also:
+///
+///  * [Wrap], which provides the layout model that some other frameworks call
+///    "flow", and is otherwise unrelated to [Flow].
+///  * [Stack], which arranges children relative to the edges of the container.
+///  * [CustomSingleChildLayout], which uses a delegate to control the layout of
+///    a single child.
+///  * [CustomMultiChildLayout], which uses a delegate to position multiple
+///    children.
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class Flow extends MultiChildRenderObjectWidget {
+  /// Creates a flow layout.
+  ///
+  /// Wraps each of the given children in a [RepaintBoundary] to avoid
+  /// repainting the children when the flow repaints.
+  Flow({
+    super.key,
+    required this.delegate,
+    List<Widget> children = const <Widget>[],
+    this.clipBehavior = Clip.hardEdge,
+  }) : super(children: RepaintBoundary.wrapAll(children));
+  // https://github.com/dart-lang/sdk/issues/29277
+
+  /// Creates a flow layout.
+  ///
+  /// Does not wrap the given children in repaint boundaries, unlike the default
+  /// constructor. Useful when the child is trivial to paint or already contains
+  /// a repaint boundary.
+  const Flow.unwrapped({
+    super.key,
+    required this.delegate,
+    super.children,
+    this.clipBehavior = Clip.hardEdge,
+  });
+
+  /// The delegate that controls the transformation matrices of the children.
+  final FlowDelegate delegate;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
+  @override
+  RenderFlow createRenderObject(BuildContext context) =>
+      RenderFlow(delegate: delegate, clipBehavior: clipBehavior);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderFlow renderObject) {
+    renderObject.delegate = delegate;
+    renderObject.clipBehavior = clipBehavior;
+  }
+}
+
+/// A paragraph of rich text.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=rykDVh-QFfw}
+///
+/// The [RichText] widget displays text that uses multiple different styles. The
+/// text to display is described using a tree of [TextSpan] objects, each of
+/// which has an associated style that is used for that subtree. The text might
+/// break across multiple lines or might all be displayed on the same line
+/// depending on the layout constraints.
+///
+/// Text displayed in a [RichText] widget must be explicitly styled. When
+/// picking which style to use, consider using [DefaultTextStyle.of] the current
+/// [BuildContext] to provide defaults. [MediaQuery.maybeBoldTextOf],
+/// [MediaQuery.maybeLineHeightScaleFactorOverrideOf],
+/// [MediaQuery.maybeLetterSpacingOverrideOf], [MediaQuery.maybeWordSpacingOverrideOf],
+/// and [MediaQuery.maybeParagraphSpacingOverrideOf] can also be used to ensure the styling
+/// for your text is accessible. For more details on how to style text in
+/// a [RichText] widget, see the documentation for [TextStyle].
+///
+/// Consider using the [Text] widget to integrate with the [DefaultTextStyle]
+/// automatically. When all the text uses the same style, the default constructor
+/// is less verbose. The [Text.rich] constructor allows you to style multiple
+/// spans with the default text style while still allowing specified styles per
+/// span.
+///
+/// {@tool snippet}
+///
+/// This sample demonstrates how to mix and match text with different text
+/// styles using the [RichText] Widget. It displays the text "Hello bold world,"
+/// emphasizing the word "bold" using a bold font weight.
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/rich_text.png)
+///
+/// ```dart
+/// RichText(
+///   text: TextSpan(
+///     text: 'Hello ',
+///     style: DefaultTextStyle.of(context).style,
+///     children: const <TextSpan>[
+///       TextSpan(text: 'bold', style: TextStyle(fontWeight: FontWeight.bold)),
+///       TextSpan(text: ' world!'),
+///     ],
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## Selections
+///
+/// To make this [RichText] Selectable, the [RichText] needs to be in the
+/// subtree of a [SelectionArea] or [SelectableRegion] and a
+/// [SelectionRegistrar] needs to be assigned to the
+/// [RichText.selectionRegistrar]. One can use
+/// [SelectionContainer.maybeOf] to get the [SelectionRegistrar] from a
+/// context. This enables users to select the text in [RichText]s with mice or
+/// touch events.
+///
+/// The [selectionColor] also needs to be set if the selection is enabled to
+/// draw the selection highlights.
+///
+/// {@tool snippet}
+///
+/// This sample demonstrates how to assign a [SelectionRegistrar] for RichTexts
+/// in the SelectionArea subtree.
+///
+/// ![](https://flutter.github.io/assets-for-api-docs/assets/widgets/rich_text.png)
+///
+/// ```dart
+/// RichText(
+///   text: const TextSpan(text: 'Hello'),
+///   selectionRegistrar: SelectionContainer.maybeOf(context),
+///   selectionColor: const Color(0xAF6694e8),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [TextStyle], which discusses how to style text.
+///  * [TextSpan], which is used to describe the text in a paragraph.
+///  * [Text], which automatically applies the ambient styles described by a
+///    [DefaultTextStyle] to a single string.
+///  * [Text.rich], a const text widget that provides similar functionality
+///    as [RichText]. [Text.rich] will inherit [TextStyle] from [DefaultTextStyle].
+///  * [SelectableRegion], which provides an overview of the selection system.
+class RichText extends MultiChildRenderObjectWidget {
+  /// Creates a paragraph of rich text.
+  ///
+  /// The [maxLines] property may be null (and indeed defaults to null), but if
+  /// it is not null, it must be greater than zero.
+  ///
+  /// The [textDirection], if null, defaults to the ambient [Directionality],
+  /// which in that case must not be null.
+  RichText({
+    super.key,
+    required this.text,
+    this.textAlign = TextAlign.start,
+    this.textDirection,
+    this.softWrap = true,
+    this.overflow = TextOverflow.clip,
+    @Deprecated(
+      'Use textScaler instead. '
+      'Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. '
+      'This feature was deprecated after v3.12.0-2.0.pre.',
+    )
+    double textScaleFactor = 1.0,
+    TextScaler textScaler = TextScaler.noScaling,
+    this.maxLines,
+    this.locale,
+    this.strutStyle,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textHeightBehavior,
+    this.selectionRegistrar,
+    this.selectionColor,
+  }) : assert(maxLines == null || maxLines > 0),
+       assert(selectionRegistrar == null || selectionColor != null),
+       assert(
+         textScaleFactor == 1.0 || identical(textScaler, TextScaler.noScaling),
+         'Use textScaler instead.',
+       ),
+       textScaler = _effectiveTextScalerFrom(textScaler, textScaleFactor),
+       super(
+         children: WidgetSpan.extractFromInlineSpan(
+           text,
+           _effectiveTextScalerFrom(textScaler, textScaleFactor),
+         ),
+       );
+
+  static TextScaler _effectiveTextScalerFrom(TextScaler textScaler, double textScaleFactor) {
+    return switch ((textScaler, textScaleFactor)) {
+      (final TextScaler scaler, 1.0) => scaler,
+      (TextScaler.noScaling, final double textScaleFactor) => TextScaler.linear(textScaleFactor),
+      (final TextScaler scaler, _) => scaler,
+    };
+  }
+
+  /// The text to display in this widget.
+  final InlineSpan text;
+
+  /// How the text should be aligned horizontally.
+  final TextAlign textAlign;
+
+  /// The directionality of the text.
+  ///
+  /// This decides how [textAlign] values like [TextAlign.start] and
+  /// [TextAlign.end] are interpreted.
+  ///
+  /// This is also used to disambiguate how to render bidirectional text. For
+  /// example, if the [text] is an English phrase followed by a Hebrew phrase,
+  /// in a [TextDirection.ltr] context the English phrase will be on the left
+  /// and the Hebrew phrase to its right, while in a [TextDirection.rtl]
+  /// context, the English phrase will be on the right and the Hebrew phrase on
+  /// its left.
+  ///
+  /// Defaults to the ambient [Directionality], if any. If there is no ambient
+  /// [Directionality], then this must not be null.
+  final TextDirection? textDirection;
+
+  /// Whether the text should break at soft line breaks.
+  ///
+  /// If false, the glyphs in the text will be positioned as if there was unlimited horizontal space.
+  final bool softWrap;
+
+  /// How visual overflow should be handled.
+  final TextOverflow overflow;
+
+  /// Deprecated. Will be removed in a future version of Flutter. Use
+  /// [textScaler] instead.
+  ///
+  /// The number of font pixels for each logical pixel.
+  ///
+  /// For example, if the text scale factor is 1.5, text will be 50% larger than
+  /// the specified font size.
+  @Deprecated(
+    'Use textScaler instead. '
+    'Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. '
+    'This feature was deprecated after v3.12.0-2.0.pre.',
+  )
+  double get textScaleFactor => textScaler.textScaleFactor;
+
+  /// {@macro flutter.painting.textPainter.textScaler}
+  final TextScaler textScaler;
+
+  /// An optional maximum number of lines for the text to span, wrapping if necessary.
+  /// If the text exceeds the given number of lines, it will be truncated according
+  /// to [overflow].
+  ///
+  /// If this is 1, text will not wrap. Otherwise, text will be wrapped at the
+  /// edge of the box.
+  final int? maxLines;
+
+  /// Used to select a font when the same Unicode character can
+  /// be rendered differently, depending on the locale.
+  ///
+  /// It's rarely necessary to set this property. By default its value
+  /// is inherited from the enclosing app with `Localizations.localeOf(context)`.
+  ///
+  /// See [RenderParagraph.locale] for more information.
+  final Locale? locale;
+
+  /// {@macro flutter.painting.textPainter.strutStyle}
+  final StrutStyle? strutStyle;
+
+  /// {@macro flutter.painting.textPainter.textWidthBasis}
+  final TextWidthBasis textWidthBasis;
+
+  /// {@macro dart.ui.textHeightBehavior}
+  final ui.TextHeightBehavior? textHeightBehavior;
+
+  /// The [SelectionRegistrar] this rich text is subscribed to.
+  ///
+  /// If this is set, [selectionColor] must be non-null.
+  final SelectionRegistrar? selectionRegistrar;
+
+  /// The color to use when painting the selection.
+  ///
+  /// This is ignored if [selectionRegistrar] is null.
+  ///
+  /// See the section on selections in the [RichText] top-level API
+  /// documentation for more details on enabling selection in [RichText]
+  /// widgets.
+  final Color? selectionColor;
+
+  @override
+  RenderParagraph createRenderObject(BuildContext context) {
+    assert(textDirection != null || debugCheckHasDirectionality(context));
+    return RenderParagraph(
+      text,
+      textAlign: textAlign,
+      textDirection: textDirection ?? Directionality.of(context),
+      softWrap: softWrap,
+      overflow: overflow,
+      textScaler: textScaler,
+      maxLines: maxLines,
+      strutStyle: strutStyle,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      locale: locale ?? Localizations.maybeLocaleOf(context),
+      registrar: selectionRegistrar,
+      selectionColor: selectionColor,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderParagraph renderObject) {
+    assert(textDirection != null || debugCheckHasDirectionality(context));
+    renderObject
+      ..text = text
+      ..textAlign = textAlign
+      ..textDirection = textDirection ?? Directionality.of(context)
+      ..softWrap = softWrap
+      ..overflow = overflow
+      ..textScaler = textScaler
+      ..maxLines = maxLines
+      ..strutStyle = strutStyle
+      ..textWidthBasis = textWidthBasis
+      ..textHeightBehavior = textHeightBehavior
+      ..locale = locale ?? Localizations.maybeLocaleOf(context)
+      ..registrar = selectionRegistrar
+      ..selectionColor = selectionColor;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: TextAlign.start));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+    properties.add(
+      FlagProperty(
+        'softWrap',
+        value: softWrap,
+        ifTrue: 'wrapping at box width',
+        ifFalse: 'no wrapping except at line break characters',
+        showName: true,
+      ),
+    );
+    properties.add(
+      EnumProperty<TextOverflow>('overflow', overflow, defaultValue: TextOverflow.clip),
+    );
+    properties.add(
+      DiagnosticsProperty<TextScaler>('textScaler', textScaler, defaultValue: TextScaler.noScaling),
+    );
+    properties.add(IntProperty('maxLines', maxLines, ifNull: 'unlimited'));
+    properties.add(
+      EnumProperty<TextWidthBasis>(
+        'textWidthBasis',
+        textWidthBasis,
+        defaultValue: TextWidthBasis.parent,
+      ),
+    );
+    properties.add(StringProperty('text', text.toPlainText()));
+    properties.add(DiagnosticsProperty<Locale>('locale', locale, defaultValue: null));
+    properties.add(DiagnosticsProperty<StrutStyle>('strutStyle', strutStyle, defaultValue: null));
+    properties.add(
+      DiagnosticsProperty<TextHeightBehavior>(
+        'textHeightBehavior',
+        textHeightBehavior,
+        defaultValue: null,
+      ),
+    );
+  }
+}
+
+/// A widget that displays a [dart:ui.Image] directly.
+///
+/// The image is painted using [paintImage], which describes the meanings of the
+/// various fields on this class in more detail.
+///
+/// The [image] is not disposed of by this widget. Creators of the widget are
+/// expected to call [dart:ui.Image.dispose] on the [image] once the [RawImage]
+/// is no longer buildable.
+///
+/// The `scale` argument specifies the linear scale factor for drawing this
+/// image at its intended size and applies to both the width and the height.
+/// {@macro flutter.painting.imageInfo.scale}
+///
+/// This widget is rarely used directly. Instead, consider using [Image].
+class RawImage extends LeafRenderObjectWidget {
+  /// Creates a widget that displays an image.
+  ///
+  /// The [scale], [alignment], [repeat], [matchTextDirection] and [filterQuality] arguments must
+  /// not be null.
+  const RawImage({
+    super.key,
+    this.image,
+    this.debugImageLabel,
+    this.width,
+    this.height,
+    this.scale = 1.0,
+    this.color,
+    this.opacity,
+    this.colorBlendMode,
+    this.fit,
+    this.alignment = Alignment.center,
+    this.repeat = ImageRepeat.noRepeat,
+    this.centerSlice,
+    this.matchTextDirection = false,
+    this.invertColors = false,
+    this.filterQuality = FilterQuality.medium,
+    this.isAntiAlias = false,
+  });
+
+  /// The image to display.
+  ///
+  /// Since a [RawImage] is stateless, it does not ever dispose this image.
+  /// Creators of a [RawImage] are expected to call [dart:ui.Image.dispose] on
+  /// this image handle when the [RawImage] will no longer be needed.
+  final ui.Image? image;
+
+  /// A string identifying the source of the image.
+  final String? debugImageLabel;
+
+  /// If non-null, require the image to have this width.
+  ///
+  /// If null, the image will pick a size that best preserves its intrinsic
+  /// aspect ratio.
+  final double? width;
+
+  /// If non-null, require the image to have this height.
+  ///
+  /// If null, the image will pick a size that best preserves its intrinsic
+  /// aspect ratio.
+  final double? height;
+
+  /// The linear scale factor for drawing this image at its intended size.
+  ///
+  /// The scale factor applies to the width and the height.
+  ///
+  /// {@macro flutter.painting.imageInfo.scale}
+  final double scale;
+
+  /// If non-null, this color is blended with each image pixel using [colorBlendMode].
+  final Color? color;
+
+  /// If non-null, the value from the [Animation] is multiplied with the opacity
+  /// of each image pixel before painting onto the canvas.
+  ///
+  /// This is more efficient than using [FadeTransition] to change the opacity
+  /// of an image.
+  final Animation<double>? opacity;
+
+  /// Used to set the filterQuality of the image.
+  ///
+  /// Defaults to [FilterQuality.medium].
+  final FilterQuality filterQuality;
+
+  /// Used to combine [color] with this image.
+  ///
+  /// The default is [BlendMode.srcIn]. In terms of the blend mode, [color] is
+  /// the source and this image is the destination.
+  ///
+  /// See also:
+  ///
+  ///  * [BlendMode], which includes an illustration of the effect of each blend mode.
+  final BlendMode? colorBlendMode;
+
+  /// How to inscribe the image into the space allocated during layout.
+  ///
+  /// The default varies based on the other fields. See the discussion at
+  /// [paintImage].
+  final BoxFit? fit;
+
+  /// How to align the image within its bounds.
+  ///
+  /// The alignment aligns the given position in the image to the given position
+  /// in the layout bounds. For example, an [Alignment] alignment of (-1.0,
+  /// -1.0) aligns the image to the top-left corner of its layout bounds, while a
+  /// [Alignment] alignment of (1.0, 1.0) aligns the bottom right of the
+  /// image with the bottom right corner of its layout bounds. Similarly, an
+  /// alignment of (0.0, 1.0) aligns the bottom middle of the image with the
+  /// middle of the bottom edge of its layout bounds.
+  ///
+  /// To display a subpart of an image, consider using a [CustomPainter] and
+  /// [Canvas.drawImageRect].
+  ///
+  /// If the [alignment] is [TextDirection]-dependent (i.e. if it is a
+  /// [AlignmentDirectional]), then an ambient [Directionality] widget
+  /// must be in scope.
+  ///
+  /// Defaults to [Alignment.center].
+  ///
+  /// See also:
+  ///
+  ///  * [Alignment], a class with convenient constants typically used to
+  ///    specify an [AlignmentGeometry].
+  ///  * [AlignmentDirectional], like [Alignment] for specifying alignments
+  ///    relative to text direction.
+  final AlignmentGeometry alignment;
+
+  /// How to paint any portions of the layout bounds not covered by the image.
+  final ImageRepeat repeat;
+
+  /// The center slice for a nine-patch image.
+  ///
+  /// The region of the image inside the center slice will be stretched both
+  /// horizontally and vertically to fit the image into its destination. The
+  /// region of the image above and below the center slice will be stretched
+  /// only horizontally and the region of the image to the left and right of
+  /// the center slice will be stretched only vertically.
+  final Rect? centerSlice;
+
+  /// Whether to paint the image in the direction of the [TextDirection].
+  ///
+  /// If this is true, then in [TextDirection.ltr] contexts, the image will be
+  /// drawn with its origin in the top left (the "normal" painting direction for
+  /// images); and in [TextDirection.rtl] contexts, the image will be drawn with
+  /// a scaling factor of -1 in the horizontal direction so that the origin is
+  /// in the top right.
+  ///
+  /// This is occasionally used with images in right-to-left environments, for
+  /// images that were designed for left-to-right locales. Be careful, when
+  /// using this, to not flip images with integral shadows, text, or other
+  /// effects that will look incorrect when flipped.
+  ///
+  /// If this is true, there must be an ambient [Directionality] widget in
+  /// scope.
+  final bool matchTextDirection;
+
+  /// Whether the colors of the image are inverted when drawn.
+  ///
+  /// Inverting the colors of an image applies a new color filter to the paint.
+  /// If there is another specified color filter, the invert will be applied
+  /// after it. This is primarily used for implementing smart invert on iOS.
+  ///
+  /// See also:
+  ///
+  ///  * [Paint.invertColors], for the dart:ui implementation.
+  final bool invertColors;
+
+  /// Whether to paint the image with anti-aliasing.
+  ///
+  /// Anti-aliasing alleviates the sawtooth artifact when the image is rotated.
+  final bool isAntiAlias;
+
+  @override
+  RenderImage createRenderObject(BuildContext context) {
+    assert((!matchTextDirection && alignment is Alignment) || debugCheckHasDirectionality(context));
+    assert(
+      image?.debugGetOpenHandleStackTraces()?.isNotEmpty ?? true,
+      'Creator of a RawImage disposed of the image when the RawImage still '
+      'needed it.',
+    );
+    return RenderImage(
+      image: image?.clone(),
+      debugImageLabel: debugImageLabel,
+      width: width,
+      height: height,
+      scale: scale,
+      color: color,
+      opacity: opacity,
+      colorBlendMode: colorBlendMode,
+      fit: fit,
+      alignment: alignment,
+      repeat: repeat,
+      centerSlice: centerSlice,
+      matchTextDirection: matchTextDirection,
+      textDirection: matchTextDirection || alignment is! Alignment
+          ? Directionality.of(context)
+          : null,
+      invertColors: invertColors,
+      isAntiAlias: isAntiAlias,
+      filterQuality: filterQuality,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderImage renderObject) {
+    assert(
+      image?.debugGetOpenHandleStackTraces()?.isNotEmpty ?? true,
+      'Creator of a RawImage disposed of the image when the RawImage still '
+      'needed it.',
+    );
+    renderObject
+      ..image = image?.clone()
+      ..debugImageLabel = debugImageLabel
+      ..width = width
+      ..height = height
+      ..scale = scale
+      ..color = color
+      ..opacity = opacity
+      ..colorBlendMode = colorBlendMode
+      ..fit = fit
+      ..alignment = alignment
+      ..repeat = repeat
+      ..centerSlice = centerSlice
+      ..matchTextDirection = matchTextDirection
+      ..textDirection = matchTextDirection || alignment is! Alignment
+          ? Directionality.of(context)
+          : null
+      ..invertColors = invertColors
+      ..isAntiAlias = isAntiAlias
+      ..filterQuality = filterQuality;
+  }
+
+  @override
+  void didUnmountRenderObject(RenderImage renderObject) {
+    // Have the render object dispose its image handle.
+    renderObject.image = null;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<ui.Image>('image', image));
+    properties.add(DoubleProperty('width', width, defaultValue: null));
+    properties.add(DoubleProperty('height', height, defaultValue: null));
+    properties.add(DoubleProperty('scale', scale, defaultValue: 1.0));
+    properties.add(ColorProperty('color', color, defaultValue: null));
+    properties.add(DiagnosticsProperty<Animation<double>?>('opacity', opacity, defaultValue: null));
+    properties.add(EnumProperty<BlendMode>('colorBlendMode', colorBlendMode, defaultValue: null));
+    properties.add(EnumProperty<BoxFit>('fit', fit, defaultValue: null));
+    properties.add(
+      DiagnosticsProperty<AlignmentGeometry>('alignment', alignment, defaultValue: null),
+    );
+    properties.add(EnumProperty<ImageRepeat>('repeat', repeat, defaultValue: ImageRepeat.noRepeat));
+    properties.add(DiagnosticsProperty<Rect>('centerSlice', centerSlice, defaultValue: null));
+    properties.add(
+      FlagProperty('matchTextDirection', value: matchTextDirection, ifTrue: 'match text direction'),
+    );
+    properties.add(DiagnosticsProperty<bool>('invertColors', invertColors));
+    properties.add(EnumProperty<FilterQuality>('filterQuality', filterQuality));
+  }
+}
+
+/// A widget that determines the default asset bundle for its descendants.
+///
+/// For example, used by [Image] to determine which bundle to use for
+/// [AssetImage]s if no bundle is specified explicitly.
+///
+/// {@tool snippet}
+///
+/// This can be used in tests to override what the current asset bundle is, thus
+/// allowing specific resources to be injected into the widget under test.
+///
+/// For example, a test could create a test asset bundle like this:
+///
+/// ```dart
+/// class TestAssetBundle extends CachingAssetBundle {
+///   @override
+///   Future<ByteData> load(String key) async {
+///     if (key == 'resources/test') {
+///       return ByteData.sublistView(utf8.encode('Hello World!'));
+///     }
+///     return ByteData(0);
+///   }
+/// }
+/// ```
+/// {@end-tool}
+/// {@tool snippet}
+///
+/// ...then wrap the widget under test with a [DefaultAssetBundle] using this
+/// bundle implementation:
+///
+/// ```dart
+/// // continuing from previous example...
+/// await tester.pumpWidget(
+///   MaterialApp(
+///     home: DefaultAssetBundle(
+///       bundle: TestAssetBundle(),
+///       child: const TestWidget(),
+///     ),
+///   ),
+/// );
+/// ```
+/// {@end-tool}
+///
+/// Assuming that `TestWidget` uses [DefaultAssetBundle.of] to obtain its
+/// [AssetBundle], it will now see the `TestAssetBundle`'s "Hello World!" data
+/// when requesting the "resources/test" asset.
+///
+/// See also:
+///
+///  * [AssetBundle], the interface for asset bundles.
+///  * [rootBundle], the default asset bundle.
+class DefaultAssetBundle extends InheritedWidget {
+  /// Creates a widget that determines the default asset bundle for its descendants.
+  const DefaultAssetBundle({super.key, required this.bundle, required super.child});
+
+  /// The bundle to use as a default.
+  final AssetBundle bundle;
+
+  /// The bundle from the closest instance of this class that encloses
+  /// the given context.
+  ///
+  /// If there is no [DefaultAssetBundle] ancestor widget in the tree
+  /// at the given context, then this will return the [rootBundle].
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// AssetBundle bundle = DefaultAssetBundle.of(context);
+  /// ```
+  static AssetBundle of(BuildContext context) {
+    final DefaultAssetBundle? result = context
+        .dependOnInheritedWidgetOfExactType<DefaultAssetBundle>();
+    return result?.bundle ?? rootBundle;
+  }
+
+  @override
+  bool updateShouldNotify(DefaultAssetBundle oldWidget) => bundle != oldWidget.bundle;
+}
+
+/// An adapter for placing a specific [RenderBox] in the widget tree.
+///
+/// A given render object can be placed at most once in the widget tree. This
+/// widget enforces that restriction by keying itself using a [GlobalObjectKey]
+/// for the given render object.
+///
+/// This widget will call [RenderObject.dispose] on the [renderBox] when it is
+/// unmounted. After that point, the [renderBox] will be unusable. If any
+/// children have been added to the [renderBox], they must be disposed in the
+/// [onUnmount] callback.
+class WidgetToRenderBoxAdapter extends LeafRenderObjectWidget {
+  /// Creates an adapter for placing a specific [RenderBox] in the widget tree.
+  WidgetToRenderBoxAdapter({required this.renderBox, this.onBuild, this.onUnmount})
+    : super(key: GlobalObjectKey(renderBox));
+
+  /// The render box to place in the widget tree.
+  ///
+  /// This widget takes ownership of the render object. When it is unmounted,
+  /// it also calls [RenderObject.dispose].
+  final RenderBox renderBox;
+
+  /// Called when it is safe to update the render box and its descendants. If
+  /// you update the RenderObject subtree under this widget outside of
+  /// invocations of this callback, features like hit-testing will fail as the
+  /// tree will be dirty.
+  final VoidCallback? onBuild;
+
+  /// Called when it is safe to dispose of children that were manually added to
+  /// the [renderBox].
+  ///
+  /// Do not dispose the [renderBox] itself, as it will be disposed by the
+  /// framework automatically. However, during that process the framework will
+  /// check that all children of the [renderBox] have also been disposed.
+  /// Typically, child [RenderObject]s are disposed by corresponding [Element]s
+  /// when they are unmounted. However, child render objects that were manually
+  /// added do not have corresponding [Element]s to manage their lifecycle, and
+  /// need to be manually disposed here.
+  ///
+  /// See also:
+  ///
+  ///   * [RenderObjectElement.unmount], which invokes this callback before
+  ///     disposing of its render object.
+  ///   * [RenderObject.dispose], which instructs a render object to release
+  ///     any resources it may be holding.
+  final VoidCallback? onUnmount;
+
+  @override
+  RenderBox createRenderObject(BuildContext context) => renderBox;
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBox renderObject) {
+    onBuild?.call();
+  }
+
+  @override
+  void didUnmountRenderObject(RenderObject renderObject) {
+    assert(renderObject == renderBox);
+    onUnmount?.call();
+  }
+}
+
+// EVENT HANDLING
+
+/// A widget that calls callbacks in response to common pointer events.
+///
+/// It listens to events that can construct gestures, such as when the
+/// pointer is pressed, moved, then released or canceled.
+///
+/// It does not listen to events that are exclusive to mouse, such as when the
+/// mouse enters, exits or hovers a region without pressing any buttons. For
+/// these events, use [MouseRegion].
+///
+/// Rather than listening for raw pointer events, consider listening for
+/// higher-level gestures using [GestureDetector].
+///
+/// ## Layout behavior
+///
+/// _See [BoxConstraints] for an introduction to box layout models._
+///
+/// If it has a child, this widget defers to the child for sizing behavior. If
+/// it does not have a child, it grows to fit the parent instead.
+///
+/// {@tool dartpad}
+/// This example makes a [Container] react to being touched, showing a count of
+/// the number of pointer downs and ups.
+///
+/// ** See code in examples/api/lib/widgets/basic/listener.0.dart **
+/// {@end-tool}
+class Listener extends SingleChildRenderObjectWidget {
+  /// Creates a widget that forwards point events to callbacks.
+  ///
+  /// The [behavior] argument defaults to [HitTestBehavior.deferToChild].
+  const Listener({
+    super.key,
+    this.onPointerDown,
+    this.onPointerMove,
+    this.onPointerUp,
+    this.onPointerHover,
+    this.onPointerCancel,
+    this.onPointerPanZoomStart,
+    this.onPointerPanZoomUpdate,
+    this.onPointerPanZoomEnd,
+    this.onPointerSignal,
+    this.behavior = HitTestBehavior.deferToChild,
+    super.child,
+  });
+
+  /// Called when a pointer comes into contact with the screen (for touch
+  /// pointers), or has its button pressed (for mouse pointers) at this widget's
+  /// location.
+  final PointerDownEventListener? onPointerDown;
+
+  /// Called when a pointer that triggered an [onPointerDown] changes position.
+  final PointerMoveEventListener? onPointerMove;
+
+  /// Called when a pointer that triggered an [onPointerDown] is no longer in
+  /// contact with the screen.
+  final PointerUpEventListener? onPointerUp;
+
+  /// Called when a pointer that has not triggered an [onPointerDown] changes
+  /// position.
+  ///
+  /// This is only fired for pointers which report their location when not down
+  /// (e.g. mouse pointers, but not most touch pointers).
+  final PointerHoverEventListener? onPointerHover;
+
+  /// Called when the input from a pointer that triggered an [onPointerDown] is
+  /// no longer directed towards this receiver.
+  final PointerCancelEventListener? onPointerCancel;
+
+  /// Called when a pan/zoom begins such as from a trackpad gesture.
+  final PointerPanZoomStartEventListener? onPointerPanZoomStart;
+
+  /// Called when a pan/zoom is updated.
+  final PointerPanZoomUpdateEventListener? onPointerPanZoomUpdate;
+
+  /// Called when a pan/zoom finishes.
+  final PointerPanZoomEndEventListener? onPointerPanZoomEnd;
+
+  /// Called when a pointer signal occurs over this object.
+  ///
+  /// See also:
+  ///
+  ///  * [PointerSignalEvent], which goes into more detail on pointer signal
+  ///    events.
+  final PointerSignalEventListener? onPointerSignal;
+
+  /// How to behave during hit testing.
+  final HitTestBehavior behavior;
+
+  @override
+  RenderPointerListener createRenderObject(BuildContext context) {
+    return RenderPointerListener(
+      onPointerDown: onPointerDown,
+      onPointerMove: onPointerMove,
+      onPointerUp: onPointerUp,
+      onPointerHover: onPointerHover,
+      onPointerCancel: onPointerCancel,
+      onPointerPanZoomStart: onPointerPanZoomStart,
+      onPointerPanZoomUpdate: onPointerPanZoomUpdate,
+      onPointerPanZoomEnd: onPointerPanZoomEnd,
+      onPointerSignal: onPointerSignal,
+      behavior: behavior,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderPointerListener renderObject) {
+    renderObject
+      ..onPointerDown = onPointerDown
+      ..onPointerMove = onPointerMove
+      ..onPointerUp = onPointerUp
+      ..onPointerHover = onPointerHover
+      ..onPointerCancel = onPointerCancel
+      ..onPointerPanZoomStart = onPointerPanZoomStart
+      ..onPointerPanZoomUpdate = onPointerPanZoomUpdate
+      ..onPointerPanZoomEnd = onPointerPanZoomEnd
+      ..onPointerSignal = onPointerSignal
+      ..behavior = behavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    final listeners = <String>[
+      if (onPointerDown != null) 'down',
+      if (onPointerMove != null) 'move',
+      if (onPointerUp != null) 'up',
+      if (onPointerHover != null) 'hover',
+      if (onPointerCancel != null) 'cancel',
+      if (onPointerPanZoomStart != null) 'panZoomStart',
+      if (onPointerPanZoomUpdate != null) 'panZoomUpdate',
+      if (onPointerPanZoomEnd != null) 'panZoomEnd',
+      if (onPointerSignal != null) 'signal',
+    ];
+    properties.add(IterableProperty<String>('listeners', listeners, ifEmpty: '<none>'));
+    properties.add(EnumProperty<HitTestBehavior>('behavior', behavior));
+  }
+}
+
+/// A widget that tracks the movement of mice.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=1oF3pI5umck}
+///
+/// [MouseRegion] is used
+/// when it is needed to compare the list of objects that a mouse pointer is
+/// hovering over between this frame and the last frame. This means entering
+/// events, exiting events, and mouse cursors.
+///
+/// To listen to general pointer events, use [Listener], or more preferably,
+/// [GestureDetector].
+///
+/// ## Layout behavior
+///
+/// _See [BoxConstraints] for an introduction to box layout models._
+///
+/// If it has a child, this widget defers to the child for sizing behavior. If
+/// it does not have a child, it grows to fit the parent instead.
+///
+/// {@tool dartpad}
+/// This example makes a [Container] react to being entered by a mouse
+/// pointer, showing a count of the number of entries and exits.
+///
+/// ** See code in examples/api/lib/widgets/basic/mouse_region.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Listener], a similar widget that tracks pointer events when the pointer
+///    has buttons pressed.
+class MouseRegion extends SingleChildRenderObjectWidget {
+  /// Creates a widget that forwards mouse events to callbacks.
+  ///
+  /// By default, all callbacks are empty, [cursor] is [MouseCursor.defer], and
+  /// [opaque] is true.
+  const MouseRegion({
+    super.key,
+    this.onEnter,
+    this.onExit,
+    this.onHover,
+    this.cursor = MouseCursor.defer,
+    this.opaque = true,
+    this.hitTestBehavior,
+    super.child,
+  });
+
+  /// Triggered when a mouse pointer has entered this widget.
+  ///
+  /// This callback is triggered when the pointer, with or without buttons
+  /// pressed, has started to be contained by the region of this widget. More
+  /// specifically, the callback is triggered by the following cases:
+  ///
+  ///  * This widget has appeared under a pointer.
+  ///  * This widget has moved to under a pointer.
+  ///  * A new pointer has been added to somewhere within this widget.
+  ///  * An existing pointer has moved into this widget.
+  ///
+  /// This callback is not always matched by an [onExit]. If the [MouseRegion]
+  /// is unmounted while being hovered by a pointer, the [onExit] of the widget
+  /// callback will never called. For more details, see [onExit].
+  ///
+  /// {@template flutter.widgets.MouseRegion.onEnter.triggerTime}
+  /// The time that this callback is triggered is always between frames: either
+  /// during the post-frame callbacks, or during the callback of a pointer
+  /// event.
+  /// {@endtemplate}
+  ///
+  /// See also:
+  ///
+  ///  * [onExit], which is triggered when a mouse pointer exits the region.
+  ///  * [MouseTrackerAnnotation.onEnter], which is how this callback is
+  ///    internally implemented.
+  final PointerEnterEventListener? onEnter;
+
+  /// Triggered when a pointer moves into a position within this widget without
+  /// buttons pressed.
+  ///
+  /// Usually this is only fired for pointers which report their location when
+  /// not down (e.g. mouse pointers). Certain devices also fire this event on
+  /// single taps in accessibility mode.
+  ///
+  /// This callback is not triggered by the movement of the widget.
+  ///
+  /// The time that this callback is triggered is during the callback of a
+  /// pointer event, which is always between frames.
+  ///
+  /// See also:
+  ///
+  ///  * [Listener.onPointerHover], which does the same job. Prefer using
+  ///    [Listener.onPointerHover], since hover events are similar to other regular
+  ///    events.
+  final PointerHoverEventListener? onHover;
+
+  /// Triggered when a mouse pointer has exited this widget when the widget is
+  /// still mounted.
+  ///
+  /// This callback is triggered when the pointer, with or without buttons
+  /// pressed, has stopped being contained by the region of this widget, except
+  /// when the exit is caused by the disappearance of this widget. More
+  /// specifically, this callback is triggered by the following cases:
+  ///
+  ///  * A pointer that is hovering this widget has moved away.
+  ///  * A pointer that is hovering this widget has been removed.
+  ///  * This widget, which is being hovered by a pointer, has moved away.
+  ///
+  /// And is __not__ triggered by the following case:
+  ///
+  ///  * This widget, which is being hovered by a pointer, has disappeared.
+  ///
+  /// This means that a [MouseRegion.onExit] might not be matched by a
+  /// [MouseRegion.onEnter].
+  ///
+  /// This restriction aims to prevent a common misuse: if [State.setState] is
+  /// called during [MouseRegion.onExit] without checking whether the widget is
+  /// still mounted, an exception will occur. This is because the callback is
+  /// triggered during the post-frame phase, at which point the widget has been
+  /// unmounted. Since [State.setState] is exclusive to widgets, the restriction
+  /// is specific to [MouseRegion], and does not apply to its lower-level
+  /// counterparts, [RenderMouseRegion] and [MouseTrackerAnnotation].
+  ///
+  /// There are a few ways to mitigate this restriction:
+  ///
+  ///  * If the hover state is completely contained within a widget that
+  ///    unconditionally creates this [MouseRegion], then this will not be a
+  ///    concern, since after the [MouseRegion] is unmounted the state is no
+  ///    longer used.
+  ///  * Otherwise, the outer widget very likely has access to the variable that
+  ///    controls whether this [MouseRegion] is present. If so, call [onExit] at
+  ///    the event that turns the condition from true to false.
+  ///  * In cases where the solutions above won't work, you can always
+  ///    override [State.dispose] and call [onExit], or create your own widget
+  ///    using [RenderMouseRegion].
+  ///
+  /// {@tool dartpad}
+  /// The following example shows a blue rectangular that turns yellow when
+  /// hovered. Since the hover state is completely contained within a widget
+  /// that unconditionally creates the `MouseRegion`, you can ignore the
+  /// aforementioned restriction.
+  ///
+  /// ** See code in examples/api/lib/widgets/basic/mouse_region.on_exit.0.dart **
+  /// {@end-tool}
+  ///
+  /// {@tool dartpad}
+  /// The following example shows a widget that hides its content one second
+  /// after being hovered, and also exposes the enter and exit callbacks.
+  /// Because the widget conditionally creates the `MouseRegion`, and leaks the
+  /// hover state, it needs to take the restriction into consideration. In this
+  /// case, since it has access to the event that triggers the disappearance of
+  /// the `MouseRegion`, it triggers the exit callback during that event
+  /// as well.
+  ///
+  /// ** See code in examples/api/lib/widgets/basic/mouse_region.on_exit.1.dart **
+  /// {@end-tool}
+  ///
+  /// {@macro flutter.widgets.MouseRegion.onEnter.triggerTime}
+  ///
+  /// See also:
+  ///
+  ///  * [onEnter], which is triggered when a mouse pointer enters the region.
+  ///  * [RenderMouseRegion] and [MouseTrackerAnnotation.onExit], which are how
+  ///    this callback is internally implemented, but without the restriction.
+  final PointerExitEventListener? onExit;
+
+  /// The mouse cursor for mouse pointers that are hovering over the region.
+  ///
+  /// When a mouse enters the region, its cursor will be changed to the [cursor].
+  /// When the mouse leaves the region, the cursor will be decided by the region
+  /// found at the new location.
+  ///
+  /// The [cursor] defaults to [MouseCursor.defer], deferring the choice of
+  /// cursor to the next region behind it in hit-test order.
+  final MouseCursor cursor;
+
+  /// Whether this widget should prevent other [MouseRegion]s visually behind it
+  /// from detecting the pointer.
+  ///
+  /// This changes the list of regions that a pointer hovers, thus affecting how
+  /// their [onHover], [onEnter], [onExit], and [cursor] behave.
+  ///
+  /// If [opaque] is true, this widget will absorb the mouse pointer and
+  /// prevent this widget's siblings (or any other widgets that are not
+  /// ancestors or descendants of this widget) from detecting the mouse
+  /// pointer even when the pointer is within their areas.
+  ///
+  /// If [opaque] is false, this object will not affect how [MouseRegion]s
+  /// behind it behave, which will detect the mouse pointer as long as the
+  /// pointer is within their areas.
+  ///
+  /// This defaults to true.
+  final bool opaque;
+
+  /// How to behave during hit testing.
+  ///
+  /// This defaults to [HitTestBehavior.opaque] if null.
+  final HitTestBehavior? hitTestBehavior;
+
+  @override
+  RenderMouseRegion createRenderObject(BuildContext context) {
+    return RenderMouseRegion(
+      onEnter: onEnter,
+      onHover: onHover,
+      onExit: onExit,
+      cursor: cursor,
+      opaque: opaque,
+      hitTestBehavior: hitTestBehavior,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderMouseRegion renderObject) {
+    renderObject
+      ..onEnter = onEnter
+      ..onHover = onHover
+      ..onExit = onExit
+      ..cursor = cursor
+      ..opaque = opaque
+      ..hitTestBehavior = hitTestBehavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    final listeners = <String>[
+      if (onEnter != null) 'enter',
+      if (onExit != null) 'exit',
+      if (onHover != null) 'hover',
+    ];
+    properties.add(IterableProperty<String>('listeners', listeners, ifEmpty: '<none>'));
+    properties.add(DiagnosticsProperty<MouseCursor>('cursor', cursor, defaultValue: null));
+    properties.add(DiagnosticsProperty<bool>('opaque', opaque, defaultValue: true));
+  }
+}
+
+/// A widget that creates a separate display list for its child.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=cVAGLDuc2xE}
+///
+/// This widget creates a separate display list for its child, which
+/// can improve performance if the subtree repaints at different times than
+/// the surrounding parts of the tree.
+///
+/// This is useful since [RenderObject.paint] may be triggered even if its
+/// associated [Widget] instances did not change or rebuild. A [RenderObject]
+/// will repaint whenever any [RenderObject] that shares the same [Layer] is
+/// marked as being dirty and needing paint (see [RenderObject.markNeedsPaint]),
+/// such as when an ancestor scrolls or when an ancestor or descendant animates.
+///
+/// Containing [RenderObject.paint] to parts of the render subtree that are
+/// actually visually changing using [RepaintBoundary] explicitly or implicitly
+/// is therefore critical to minimizing redundant work and improving the app's
+/// performance.
+///
+/// When a [RenderObject] is flagged as needing to paint via
+/// [RenderObject.markNeedsPaint], the nearest ancestor [RenderObject] with
+/// [RenderObject.isRepaintBoundary], up to possibly the root of the application,
+/// is requested to repaint. That nearest ancestor's [RenderObject.paint] method
+/// will cause _all_ of its descendant [RenderObject]s to repaint in the same
+/// layer.
+///
+/// [RepaintBoundary] is therefore used, both while propagating the
+/// `markNeedsPaint` flag up the render tree and while traversing down the
+/// render tree via [PaintingContext.paintChild], to strategically contain
+/// repaints to the render subtree that visually changed for performance. This
+/// is done because the [RepaintBoundary] widget creates a [RenderObject] that
+/// always has a [Layer], decoupling ancestor render objects from the descendant
+/// render objects.
+///
+/// [RepaintBoundary] has the further side-effect of possibly hinting to the
+/// engine that it should further optimize animation performance if the render
+/// subtree behind the [RepaintBoundary] is sufficiently complex and is static
+/// while the surrounding tree changes frequently. In those cases, the engine
+/// may choose to pay a one time cost of rasterizing and caching the pixel
+/// values of the subtree for faster future GPU re-rendering speed.
+///
+/// Several framework widgets insert [RepaintBoundary] widgets to mark natural
+/// separation points in applications. For instance, contents in Material Design
+/// drawers typically don't change while the drawer opens and closes, so
+/// repaints are automatically contained to regions inside or outside the drawer
+/// when using the [Drawer] widget during transitions.
+///
+/// See also:
+///
+///  * [debugRepaintRainbowEnabled], a debugging flag to help visually monitor
+///    render tree repaints in a running app.
+///  * [debugProfilePaintsEnabled], a debugging flag to show render tree
+///    repaints in Flutter DevTools' timeline view.
+class RepaintBoundary extends SingleChildRenderObjectWidget {
+  /// Creates a widget that isolates repaints.
+  const RepaintBoundary({super.key, super.child});
+
+  /// Wraps the given child in a [RepaintBoundary].
+  ///
+  /// The key for the [RepaintBoundary] is derived either from the child's key
+  /// (if the child has a non-null key) or from the given `childIndex`.
+  RepaintBoundary.wrap(Widget child, int childIndex)
+    : super(key: ValueKey<Object>(child.key ?? childIndex), child: child);
+
+  /// Wraps each of the given children in [RepaintBoundary]s.
+  ///
+  /// The key for each [RepaintBoundary] is derived either from the wrapped
+  /// child's key (if the wrapped child has a non-null key) or from the wrapped
+  /// child's index in the list.
+  static List<RepaintBoundary> wrapAll(List<Widget> widgets) => <RepaintBoundary>[
+    for (int i = 0; i < widgets.length; ++i) RepaintBoundary.wrap(widgets[i], i),
+  ];
+
+  @override
+  RenderRepaintBoundary createRenderObject(BuildContext context) => RenderRepaintBoundary();
+}
+
+/// A widget that is invisible during hit testing.
+///
+/// When [ignoring] is true, this widget (and its subtree) is invisible
+/// to hit testing. It still consumes space during layout and paints its child
+/// as usual. It just cannot be the target of located events, because it returns
+/// false from [RenderBox.hitTest].
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=qV9pqHWxYgI}
+///
+/// {@tool dartpad}
+/// The following sample has an [IgnorePointer] widget wrapping the `Column`
+/// which contains a button.
+/// When [ignoring] is set to `true` anything inside the `Column` can
+/// not be tapped. When [ignoring] is set to `false` anything
+/// inside the `Column` can be tapped.
+///
+/// ** See code in examples/api/lib/widgets/basic/ignore_pointer.0.dart **
+/// {@end-tool}
+///
+/// ## Semantics
+///
+/// Using this class may also affect how the semantics subtree underneath is
+/// collected.
+///
+/// {@template flutter.widgets.IgnorePointer.semantics}
+/// If [ignoring] is true, pointer-related [SemanticsAction]s are removed from
+/// the semantics subtree. Otherwise, the subtree remains untouched.
+/// {@endtemplate}
+///
+/// {@template flutter.widgets.IgnorePointer.ignoringSemantics}
+/// The usages of [ignoringSemantics] are deprecated and not recommended. This
+/// property was introduced to workaround the semantics behavior of the
+/// [IgnorePointer] and its friends before v3.8.0-12.0.pre.
+///
+/// Before that version, entire semantics subtree is dropped if [ignoring] is
+/// true. Developers can only use [ignoringSemantics] to preserver the semantics
+/// subtrees.
+///
+/// After that version, with [ignoring] set to true, it only prevents semantics
+/// user actions in the semantics subtree but leaves the other
+/// [SemanticsProperties] intact. Therefore, the [ignoringSemantics] is no
+/// longer needed.
+///
+/// If [ignoringSemantics] is true, the semantics subtree is dropped. Therefore,
+/// the subtree will be invisible to assistive technologies.
+///
+/// If [ignoringSemantics] is false, the semantics subtree is collected as
+/// usual.
+/// {@endtemplate}
+///
+/// See also:
+///
+///  * [AbsorbPointer], which also prevents its children from receiving pointer
+///    events but is itself visible to hit testing.
+///  * [SliverIgnorePointer], the sliver version of this widget.
+class IgnorePointer extends SingleChildRenderObjectWidget {
+  /// Creates a widget that is invisible to hit testing.
+  const IgnorePointer({
+    super.key,
+    this.ignoring = true,
+    @Deprecated(
+      'Use ExcludeSemantics or create a custom ignore pointer widget instead. '
+      'This feature was deprecated after v3.8.0-12.0.pre.',
+    )
+    this.ignoringSemantics,
+    super.child,
+  });
+
+  /// Whether this widget is ignored during hit testing.
+  ///
+  /// Regardless of whether this widget is ignored during hit testing, it will
+  /// still consume space during layout and be visible during painting.
+  ///
+  /// {@macro flutter.widgets.IgnorePointer.semantics}
+  ///
+  /// Defaults to true.
+  final bool ignoring;
+
+  /// Whether the semantics of this widget is ignored when compiling the
+  /// semantics subtree.
+  ///
+  /// {@macro flutter.widgets.IgnorePointer.ignoringSemantics}
+  ///
+  /// See [SemanticsNode] for additional information about the semantics tree.
+  @Deprecated(
+    'Use ExcludeSemantics or create a custom ignore pointer widget instead. '
+    'This feature was deprecated after v3.8.0-12.0.pre.',
+  )
+  final bool? ignoringSemantics;
+
+  @override
+  RenderIgnorePointer createRenderObject(BuildContext context) {
+    return RenderIgnorePointer(ignoring: ignoring, ignoringSemantics: ignoringSemantics);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderIgnorePointer renderObject) {
+    renderObject
+      ..ignoring = ignoring
+      ..ignoringSemantics = ignoringSemantics;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('ignoring', ignoring));
+    properties.add(
+      DiagnosticsProperty<bool>('ignoringSemantics', ignoringSemantics, defaultValue: null),
+    );
+  }
+}
+
+/// A widget that absorbs pointers during hit testing.
+///
+/// When [absorbing] is true, this widget prevents its subtree from receiving
+/// pointer events by terminating hit testing at itself. It still consumes space
+/// during layout and paints its child as usual. It just prevents its children
+/// from being the target of located events, because it returns true from
+/// [RenderBox.hitTest].
+///
+/// When [ignoringSemantics] is true, the subtree will be invisible to
+/// the semantics layer (and thus e.g. accessibility tools).
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=65HoWqBboI8}
+///
+/// {@tool dartpad}
+/// The following sample has an [AbsorbPointer] widget wrapping the button on
+/// top of the stack, which absorbs pointer events, preventing its child button
+/// __and__ the button below it in the stack from receiving the pointer events.
+///
+/// ** See code in examples/api/lib/widgets/basic/absorb_pointer.0.dart **
+/// {@end-tool}
+///
+/// ## Semantics
+///
+/// Using this class may also affect how the semantics subtree underneath is
+/// collected.
+///
+/// {@template flutter.widgets.AbsorbPointer.semantics}
+/// If [absorbing] is true, pointer-related [SemanticsAction]s are removed from
+/// the semantics subtree. Otherwise, the subtree remains untouched.
+/// {@endtemplate}
+///
+/// {@template flutter.widgets.AbsorbPointer.ignoringSemantics}
+/// The usages of [ignoringSemantics] are deprecated and not recommended. This
+/// property was introduced to workaround the semantics behavior of the
+/// [IgnorePointer] and its friends before v3.8.0-12.0.pre.
+///
+/// Before that version, entire semantics subtree is dropped if [absorbing] is
+/// true. Developers can only use [ignoringSemantics] to preserver the semantics
+/// subtrees.
+///
+/// After that version, with [absorbing] set to true, it only prevents semantics
+/// user actions in the semantics subtree but leaves the other
+/// [SemanticsProperties] intact. Therefore, the [ignoringSemantics] is no
+/// longer needed.
+///
+/// If [ignoringSemantics] is true, the semantics subtree is dropped. Therefore,
+/// the subtree will be invisible to assistive technologies.
+///
+/// If [ignoringSemantics] is false, the semantics subtree is collected as
+/// usual.
+/// {@endtemplate}
+///
+/// See also:
+///
+///  * [IgnorePointer], which also prevents its children from receiving pointer
+///    events but is itself invisible to hit testing.
+class AbsorbPointer extends SingleChildRenderObjectWidget {
+  /// Creates a widget that absorbs pointers during hit testing.
+  const AbsorbPointer({
+    super.key,
+    this.absorbing = true,
+    @Deprecated(
+      'Use ExcludeSemantics or create a custom absorb pointer widget instead. '
+      'This feature was deprecated after v3.8.0-12.0.pre.',
+    )
+    this.ignoringSemantics,
+    super.child,
+  });
+
+  /// Whether this widget absorbs pointers during hit testing.
+  ///
+  /// Regardless of whether this render object absorbs pointers during hit
+  /// testing, it will still consume space during layout and be visible during
+  /// painting.
+  ///
+  /// {@macro flutter.widgets.AbsorbPointer.semantics}
+  ///
+  /// Defaults to true.
+  final bool absorbing;
+
+  /// Whether the semantics of this render object is ignored when compiling the
+  /// semantics tree.
+  ///
+  /// {@macro flutter.widgets.AbsorbPointer.ignoringSemantics}
+  ///
+  /// See [SemanticsNode] for additional information about the semantics tree.
+  @Deprecated(
+    'Use ExcludeSemantics or create a custom absorb pointer widget instead. '
+    'This feature was deprecated after v3.8.0-12.0.pre.',
+  )
+  final bool? ignoringSemantics;
+
+  @override
+  RenderAbsorbPointer createRenderObject(BuildContext context) {
+    return RenderAbsorbPointer(absorbing: absorbing, ignoringSemantics: ignoringSemantics);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderAbsorbPointer renderObject) {
+    renderObject
+      ..absorbing = absorbing
+      ..ignoringSemantics = ignoringSemantics;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('absorbing', absorbing));
+    properties.add(
+      DiagnosticsProperty<bool>('ignoringSemantics', ignoringSemantics, defaultValue: null),
+    );
+  }
+}
+
+/// Holds opaque meta data in the render tree.
+///
+/// Useful for decorating the render tree with information that will be consumed
+/// later. For example, you could store information in the render tree that will
+/// be used when the user interacts with the render tree but has no visual
+/// impact prior to the interaction.
+class MetaData extends SingleChildRenderObjectWidget {
+  /// Creates a widget that hold opaque meta data.
+  ///
+  /// The [behavior] argument defaults to [HitTestBehavior.deferToChild].
+  const MetaData({
+    super.key,
+    this.metaData,
+    this.behavior = HitTestBehavior.deferToChild,
+    super.child,
+  });
+
+  /// Opaque meta data ignored by the render tree.
+  final dynamic metaData;
+
+  /// How to behave during hit testing.
+  final HitTestBehavior behavior;
+
+  @override
+  RenderMetaData createRenderObject(BuildContext context) {
+    return RenderMetaData(metaData: metaData, behavior: behavior);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderMetaData renderObject) {
+    renderObject
+      ..metaData = metaData
+      ..behavior = behavior;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<HitTestBehavior>('behavior', behavior));
+    properties.add(DiagnosticsProperty<dynamic>('metaData', metaData));
+  }
+}
+
+// UTILITY NODES
+
+/// A widget that annotates the widget tree with a description of the meaning of
+/// the widgets.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=NvtMt_DtFrQ}
+///
+/// {@macro flutter.widgets.SemanticsBase}
+///  * [SliverSemantics], the sliver variant of this widget.
+@immutable
+class Semantics extends _SemanticsBase {
+  /// Creates a semantic annotation.
+  ///
+  /// To create a `const` instance of [Semantics], use the
+  /// [Semantics.fromProperties] constructor.
+  ///
+  /// {@macro flutter.widgets.SemanticsBase}
+  Semantics({
+    super.key,
+    super.child,
+    super.container = false,
+    super.explicitChildNodes = false,
+    super.excludeSemantics = false,
+    super.blockUserActions = false,
+    super.enabled,
+    super.checked,
+    super.mixed,
+    super.selected,
+    super.toggled,
+    super.button,
+    super.slider,
+    super.keyboardKey,
+    super.link,
+    super.linkUrl,
+    super.header,
+    super.headingLevel,
+    super.textField,
+    super.readOnly,
+    super.focusable,
+    super.focused,
+    super.accessibilityFocusBlockType,
+    super.inMutuallyExclusiveGroup,
+    super.obscured,
+    super.multiline,
+    super.scopesRoute,
+    super.namesRoute,
+    super.hidden,
+    super.image,
+    super.liveRegion,
+    super.expanded,
+    super.isRequired,
+    super.maxValueLength,
+    super.currentValueLength,
+    super.identifier,
+    super.traversalParentIdentifier,
+    super.traversalChildIdentifier,
+    super.label,
+    super.attributedLabel,
+    super.value,
+    super.attributedValue,
+    super.increasedValue,
+    super.attributedIncreasedValue,
+    super.decreasedValue,
+    super.attributedDecreasedValue,
+    super.hint,
+    super.attributedHint,
+    super.tooltip,
+    super.onTapHint,
+    super.onLongPressHint,
+    super.textDirection,
+    super.sortKey,
+    super.tagForChildren,
+    super.onTap,
+    super.onLongPress,
+    super.onScrollLeft,
+    super.onScrollRight,
+    super.onScrollUp,
+    super.onScrollDown,
+    super.onIncrease,
+    super.onDecrease,
+    super.onCopy,
+    super.onCut,
+    super.onPaste,
+    super.onDismiss,
+    super.onMoveCursorForwardByCharacter,
+    super.onMoveCursorBackwardByCharacter,
+    super.onSetSelection,
+    super.onSetText,
+    super.onDidGainAccessibilityFocus,
+    super.onDidLoseAccessibilityFocus,
+    super.onFocus,
+    super.onExpand,
+    super.onCollapse,
+    super.customSemanticsActions,
+    super.role,
+    super.controlsNodes,
+    super.validationResult = SemanticsValidationResult.none,
+    super.hitTestBehavior,
+    super.inputType,
+    super.localeForSubtree,
+    super.minValue,
+    super.maxValue,
+  });
+
+  /// {@macro flutter.widgets.SemanticsBase.fromProperties}
+  const Semantics.fromProperties({
+    super.key,
+    super.child,
+    super.container = false,
+    super.explicitChildNodes = false,
+    super.excludeSemantics = false,
+    super.blockUserActions = false,
+    super.localeForSubtree,
+    required super.properties,
+  }) : super.fromProperties();
+
+  @override
+  RenderSemanticsAnnotations createRenderObject(BuildContext context) {
+    return RenderSemanticsAnnotations(
+      container: container,
+      explicitChildNodes: explicitChildNodes,
+      excludeSemantics: excludeSemantics,
+      blockUserActions: blockUserActions,
+      properties: properties,
+      localeForSubtree: localeForSubtree,
+      textDirection: _getTextDirection(context),
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderSemanticsAnnotations renderObject) {
+    renderObject
+      ..container = container
+      ..explicitChildNodes = explicitChildNodes
+      ..excludeSemantics = excludeSemantics
+      ..blockUserActions = blockUserActions
+      ..properties = properties
+      ..textDirection = _getTextDirection(context)
+      ..localeForSubtree = localeForSubtree;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('container', container));
+    properties.add(DiagnosticsProperty<SemanticsProperties>('properties', this.properties));
+    this.properties.debugFillProperties(properties);
+  }
+}
+
+/// A widget that merges the semantics of its descendants.
+///
+/// Causes all the semantics of the subtree rooted at this node to be
+/// merged into one node in the semantics tree. For example, if you
+/// have a widget with a Text node next to a checkbox widget, this
+/// could be used to merge the label from the Text node with the
+/// "checked" semantic state of the checkbox into a single node that
+/// had both the label and the checked state. Otherwise, the label
+/// would be presented as a separate feature than the checkbox, and
+/// the user would not be able to be sure that they were related.
+///
+/// {@tool snippet}
+///
+/// This snippet shows how to use [MergeSemantics] to merge the semantics of
+/// a [Checkbox] and [Text] widget.
+///
+/// ```dart
+/// MergeSemantics(
+///   child: Row(
+///     children: <Widget>[
+///       Checkbox(
+///         value: true,
+///         onChanged: (bool? value) {},
+///       ),
+///       const Text('Settings'),
+///     ],
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// Be aware that if two nodes in the subtree have conflicting
+/// semantics, the result may be nonsensical. For example, a subtree
+/// with a checked checkbox and an unchecked checkbox will be
+/// presented as checked. All the labels will be merged into a single
+/// string (with newlines separating each label from the other). If
+/// multiple nodes in the merged subtree can handle semantic gestures,
+/// the first one in tree order will be the one to receive the
+/// callbacks.
+class MergeSemantics extends SingleChildRenderObjectWidget {
+  /// Creates a widget that merges the semantics of its descendants.
+  const MergeSemantics({super.key, super.child});
+
+  @override
+  RenderMergeSemantics createRenderObject(BuildContext context) => RenderMergeSemantics();
+}
+
+/// A widget that drops the semantics of all widget that were painted before it
+/// in the same semantic container.
+///
+/// This is useful to hide widgets from accessibility tools that are painted
+/// behind a certain widget, e.g. an alert should usually disallow interaction
+/// with any widget located "behind" the alert (even when they are still
+/// partially visible). Similarly, an open [Drawer] blocks interactions with
+/// any widget outside the drawer.
+///
+/// See also:
+///
+///  * [ExcludeSemantics] which drops all semantics of its descendants.
+class BlockSemantics extends SingleChildRenderObjectWidget {
+  /// Creates a widget that excludes the semantics of all widgets painted before
+  /// it in the same semantic container.
+  const BlockSemantics({super.key, this.blocking = true, super.child});
+
+  /// Whether this widget is blocking semantics of all widget that were painted
+  /// before it in the same semantic container.
+  final bool blocking;
+
+  @override
+  RenderBlockSemantics createRenderObject(BuildContext context) =>
+      RenderBlockSemantics(blocking: blocking);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderBlockSemantics renderObject) {
+    renderObject.blocking = blocking;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('blocking', blocking));
+  }
+}
+
+/// A widget that drops all the semantics of its descendants.
+///
+/// When [excluding] is true, this widget (and its subtree) is excluded from
+/// the semantics tree.
+///
+/// This can be used to hide descendant widgets that would otherwise be
+/// reported but that would only be confusing. For example, the
+/// material library's [Chip] widget hides the avatar since it is
+/// redundant with the chip label.
+///
+/// See also:
+///
+///  * [BlockSemantics] which drops semantics of widgets earlier in the tree.
+class ExcludeSemantics extends SingleChildRenderObjectWidget {
+  /// Creates a widget that drops all the semantics of its descendants.
+  const ExcludeSemantics({super.key, this.excluding = true, super.child});
+
+  /// Whether this widget is excluded in the semantics tree.
+  final bool excluding;
+
+  @override
+  RenderExcludeSemantics createRenderObject(BuildContext context) =>
+      RenderExcludeSemantics(excluding: excluding);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderExcludeSemantics renderObject) {
+    renderObject.excluding = excluding;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<bool>('excluding', excluding));
+  }
+}
+
+/// A widget that annotates the child semantics with an index.
+///
+/// Semantic indexes are used by TalkBack/Voiceover to make announcements about
+/// the current scroll state. Certain widgets like the [ListView] will
+/// automatically provide a child index for building semantics. A user may wish
+/// to manually provide semantic indexes if not all child of the scrollable
+/// contribute semantics.
+///
+/// {@tool snippet}
+///
+/// The example below handles spacers in a scrollable that don't contribute
+/// semantics. The automatic indexes would give the spaces a semantic index,
+/// causing scroll announcements to erroneously state that there are four items
+/// visible.
+///
+/// ```dart
+/// ListView(
+///   addSemanticIndexes: false,
+///   semanticChildCount: 2,
+///   children: const <Widget>[
+///     IndexedSemantics(index: 0, child: Text('First')),
+///     Spacer(),
+///     IndexedSemantics(index: 1, child: Text('Second')),
+///     Spacer(),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [CustomScrollView], for an explanation of index semantics.
+class IndexedSemantics extends SingleChildRenderObjectWidget {
+  /// Creates a widget that annotated the first child semantics node with an index.
+  const IndexedSemantics({super.key, required this.index, super.child});
+
+  /// The index used to annotate the first child semantics node.
+  final int index;
+
+  @override
+  RenderIndexedSemantics createRenderObject(BuildContext context) =>
+      RenderIndexedSemantics(index: index);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderIndexedSemantics renderObject) {
+    renderObject.index = index;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<int>('index', index));
+  }
+}
+
+/// A widget that builds its child.
+///
+/// Useful for attaching a key to an existing widget.
+class KeyedSubtree extends StatelessWidget {
+  /// Creates a widget that builds its child while assigning it a key.
+  ///
+  /// This is useful when you want to preserve the state of a widget when it moves
+  /// around in the widget tree by associating it with a consistent key.
+  const KeyedSubtree({super.key, required this.child});
+
+  /// Creates a KeyedSubtree for child with a key that's based on the child's existing key or childIndex.
+  KeyedSubtree.wrap(this.child, int childIndex)
+    : super(key: ValueKey<Object>(child.key ?? childIndex));
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
+  final Widget child;
+
+  /// Wrap each item in a KeyedSubtree whose key is based on the item's existing key or
+  /// the sum of its list index and `baseIndex`.
+  static List<Widget> ensureUniqueKeysForList(List<Widget> items, {int baseIndex = 0}) {
+    if (items.isEmpty) {
+      return items;
+    }
+
+    final itemsWithUniqueKeys = <Widget>[
+      for (final (int i, Widget item) in items.indexed) KeyedSubtree.wrap(item, baseIndex + i),
+    ];
+
+    assert(!debugItemsHaveDuplicateKeys(itemsWithUniqueKeys));
+    return itemsWithUniqueKeys;
+  }
+
+  @override
+  Widget build(BuildContext context) => child;
+}
+
+/// A stateless utility widget whose [build] method uses its
+/// [builder] callback to create the widget's child.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=xXNOkIuSYuA}
+///
+/// This widget is an inline alternative to defining a [StatelessWidget]
+/// subclass. For example, instead of defining a widget as follows:
+///
+/// ```dart
+/// class Foo extends StatelessWidget {
+///   const Foo({super.key});
+///   @override
+///   Widget build(BuildContext context) => const Text('foo');
+/// }
+/// ```
+///
+/// ...and using it in the usual way:
+///
+/// ```dart
+/// // continuing from previous example...
+/// const Center(child: Foo())
+/// ```
+///
+/// ...one could instead define and use it in a single step, without
+/// defining a new widget class:
+///
+/// ```dart
+/// Center(
+///   child: Builder(
+///     builder: (BuildContext context) => const Text('foo'),
+///   ),
+/// )
+/// ```
+///
+/// The difference between either of the previous examples and
+/// creating a child directly without an intervening widget, is the
+/// extra [BuildContext] element that the additional widget adds. This
+/// is particularly noticeable when the tree contains an inherited
+/// widget that is referred to by a method like [Scaffold.of],
+/// which visits the child widget's BuildContext ancestors.
+///
+/// In the following example the button's `onPressed` callback is unable
+/// to find the enclosing [ScaffoldState] with [Scaffold.of]:
+///
+/// ```dart
+/// Widget build(BuildContext context) {
+///   return Scaffold(
+///     body: Center(
+///       child: TextButton(
+///         onPressed: () {
+///           // Fails because Scaffold.of() doesn't find anything
+///           // above this widget's context.
+///           print(Scaffold.of(context).hasAppBar);
+///         },
+///         child: const Text('hasAppBar'),
+///       )
+///     ),
+///   );
+/// }
+/// ```
+///
+/// A [Builder] widget introduces an additional [BuildContext] element
+/// and so the [Scaffold.of] method succeeds.
+///
+/// ```dart
+/// Widget build(BuildContext context) {
+///   return Scaffold(
+///     body: Builder(
+///       builder: (BuildContext context) {
+///         return Center(
+///           child: TextButton(
+///             onPressed: () {
+///               print(Scaffold.of(context).hasAppBar);
+///             },
+///             child: const Text('hasAppBar'),
+///           ),
+///         );
+///       },
+///     ),
+///   );
+/// }
+/// ```
+///
+/// See also:
+///
+///  * [StatefulBuilder], A stateful utility widget whose [build] method uses its
+///    [builder] callback to create the widget's child.
+class Builder extends StatelessWidget {
+  /// Creates a widget that delegates its build to a callback.
+  const Builder({super.key, required this.builder});
+
+  /// Called to obtain the child widget.
+  ///
+  /// This function is called whenever this widget is included in its parent's
+  /// build and the old widget (if any) that it synchronizes with has a distinct
+  /// object identity. Typically the parent's build method will construct
+  /// a new tree of widgets and so a new Builder child will not be [identical]
+  /// to the corresponding old one.
+  final WidgetBuilder builder;
+
+  @override
+  Widget build(BuildContext context) => builder(context);
+}
+
+/// Signature for the builder callback used by [StatefulBuilder].
+///
+/// Call `setState` to schedule the [StatefulBuilder] to rebuild.
+typedef StatefulWidgetBuilder = Widget Function(BuildContext context, StateSetter setState);
+
+/// A platonic widget that both has state and calls a closure to obtain its child widget.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=syvT63CosNE}
+///
+/// The [StateSetter] function passed to the [builder] is used to invoke a
+/// rebuild instead of a typical [State]'s [State.setState].
+///
+/// Since the [builder] is re-invoked when the [StateSetter] is called, any
+/// variables that represents state should be kept outside the [builder] function.
+///
+/// {@tool snippet}
+///
+/// This example shows using an inline StatefulBuilder that rebuilds and that
+/// also has state.
+///
+/// ```dart
+/// await showDialog<void>(
+///   context: context,
+///   builder: (BuildContext context) {
+///     int? selectedRadio = 0;
+///     return AlertDialog(
+///       content: StatefulBuilder(
+///         builder: (BuildContext context, StateSetter setState) {
+///           return RadioGroup<int>(
+///             groupValue: selectedRadio,
+///             onChanged: (int? value) {
+///               setState(() => selectedRadio = value);
+///             },
+///             child: Column(
+///               mainAxisSize: MainAxisSize.min,
+///               children: List<Widget>.generate(4, (int index) {
+///                 return Radio<int>(value: index);
+///               }),
+///             ),
+///           );
+///         },
+///       ),
+///     );
+///   },
+/// );
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [Builder], the platonic stateless widget.
+class StatefulBuilder extends StatefulWidget {
+  /// Creates a widget that both has state and delegates its build to a callback.
+  const StatefulBuilder({super.key, required this.builder});
+
+  /// Called to obtain the child widget.
+  ///
+  /// This function is called whenever this widget is included in its parent's
+  /// build and the old widget (if any) that it synchronizes with has a distinct
+  /// object identity. Typically the parent's build method will construct
+  /// a new tree of widgets and so a new Builder child will not be [identical]
+  /// to the corresponding old one.
+  final StatefulWidgetBuilder builder;
+
+  @override
+  State<StatefulBuilder> createState() => _StatefulBuilderState();
+}
+
+class _StatefulBuilderState extends State<StatefulBuilder> {
+  @override
+  Widget build(BuildContext context) => widget.builder(context, setState);
+}
+
+/// A widget that paints its area with a specified [Color] and then draws its
+/// child on top of that color.
+class ColoredBox extends SingleChildRenderObjectWidget {
+  /// Creates a widget that paints its area with the specified [Color].
+  const ColoredBox({required this.color, this.isAntiAlias = true, super.child, super.key});
+
+  /// The color to paint the background area with.
+  final Color color;
+
+  /// {@template flutter.widgets.ColoredBox.isAntiAlias}
+  /// Whether to apply anti-aliasing when painting the box.
+  ///
+  /// Defaults to `true`.
+  ///
+  /// When `true`, the painted box will have smooth edges. This is crucial for
+  /// animations and transformations (such as rotation or scaling) where the
+  /// widget's edges may not align perfectly with the physical pixel grid.
+  /// Anti-aliasing allows for sub-pixel rendering, which prevents a 'jagged'
+  /// appearance during motion and ensures visually smooth transitions.
+  ///
+  /// Set this to `false` for specific use cases where multiple `ColoredBox`
+  /// widgets are positioned adjacent to each other to form a larger, seamless
+  /// area of solid color. With anti-aliasing enabled (`true`), faint seams or
+  /// gaps might appear between the boxes due to the semi-transparent pixels at
+  /// their edges. Disabling anti-aliasing ensures that the boxes align perfectly
+  /// without such visual artifacts.
+  ///
+  /// See also:
+  ///
+  ///  * [Paint.isAntiAlias], the underlying property that this controls.
+  /// {@endtemplate}
+  final bool isAntiAlias;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderColoredBox(color: color, isAntiAlias: isAntiAlias);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderColoredBox)
+      ..color = color
+      ..isAntiAlias = isAntiAlias;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Color>('color', color));
+    properties.add(DiagnosticsProperty<bool>('isAntiAlias', isAntiAlias, defaultValue: true));
+  }
+}
+
+class _RenderColoredBox extends RenderProxyBoxWithHitTestBehavior {
+  _RenderColoredBox({required Color color, required bool isAntiAlias})
+    : _color = color,
+      _isAntiAlias = isAntiAlias,
+      super(behavior: HitTestBehavior.opaque);
+
+  /// The fill color for this render object.
+  Color get color => _color;
+  Color _color;
+  set color(Color value) {
+    if (value == _color) {
+      return;
+    }
+    _color = value;
+    markNeedsPaint();
+  }
+
+  bool get isAntiAlias => _isAntiAlias;
+  bool _isAntiAlias;
+  set isAntiAlias(bool value) {
+    if (value == _isAntiAlias) {
+      return;
+    }
+    _isAntiAlias = value;
+    markNeedsPaint();
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    // It's tempting to want to optimize out this `drawRect()` call if the
+    // color is transparent (alpha==0), but doing so would be incorrect. See
+    // https://github.com/flutter/flutter/pull/72526#issuecomment-749185938 for
+    // a good description of why.
+    if (size > Size.zero) {
+      context.canvas.drawRect(
+        offset & size,
+        Paint()
+          ..isAntiAlias = isAntiAlias
+          ..color = color,
+      );
+    }
+    if (child != null) {
+      context.paintChild(child!, offset);
+    }
+  }
 }
 ```
 
@@ -10804,6 +23102,3803 @@ class _NullWidget extends Widget {
 ```
 
 // ============================================================
+// 📁 Project: scroll_view.dart
+// 📁 /home/user/flutter/packages/flutter/lib/src/widgets/scroll_view.dart
+// ============================================================
+
+```dart
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// @docImport 'package:flutter/cupertino.dart';
+/// @docImport 'package:flutter/material.dart';
+/// @docImport 'package:flutter/widgets.dart';
+/// @docImport 'package:flutter_test/flutter_test.dart';
+library;
+
+import 'dart:math' as math;
+
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
+
+import 'basic.dart';
+import 'debug.dart';
+import 'focus_manager.dart';
+import 'focus_scope.dart';
+import 'framework.dart';
+import 'media_query.dart';
+import 'notification_listener.dart';
+import 'primary_scroll_controller.dart';
+import 'scroll_configuration.dart';
+import 'scroll_controller.dart';
+import 'scroll_delegate.dart';
+import 'scroll_notification.dart';
+import 'scroll_physics.dart';
+import 'scrollable.dart';
+import 'scrollable_helpers.dart';
+import 'sliver.dart';
+import 'sliver_prototype_extent_list.dart';
+import 'viewport.dart';
+
+// Examples can assume:
+// late int itemCount;
+
+/// A representation of how a [ScrollView] should dismiss the on-screen
+/// keyboard.
+enum ScrollViewKeyboardDismissBehavior {
+  /// `manual` means there is no automatic dismissal of the on-screen keyboard.
+  /// It is up to the client to dismiss the keyboard.
+  manual,
+
+  /// `onDrag` means that the [ScrollView] will dismiss an on-screen keyboard
+  /// when a drag begins.
+  onDrag,
+}
+
+/// A widget that combines a [Scrollable] and a [Viewport] to create an
+/// interactive scrolling pane of content in one dimension.
+///
+/// Scrollable widgets consist of three pieces:
+///
+///  1. A [Scrollable] widget, which listens for various user gestures and
+///     implements the interaction design for scrolling.
+///  2. A viewport widget, such as [Viewport] or [ShrinkWrappingViewport], which
+///     implements the visual design for scrolling by displaying only a portion
+///     of the widgets inside the scroll view.
+///  3. One or more slivers, which are widgets that can be composed to created
+///     various scrolling effects, such as lists, grids, and expanding headers.
+///
+/// [ScrollView] helps orchestrate these pieces by creating the [Scrollable] and
+/// the viewport and deferring to its subclass to create the slivers.
+///
+/// To learn more about slivers, see [CustomScrollView.slivers].
+///
+/// To control the initial scroll offset of the scroll view, provide a
+/// [controller] with its [ScrollController.initialScrollOffset] property set.
+///
+/// {@template flutter.widgets.ScrollView.PageStorage}
+/// ## Persisting the scroll position during a session
+///
+/// Scroll views attempt to persist their scroll position using [PageStorage].
+/// This can be disabled by setting [ScrollController.keepScrollOffset] to false
+/// on the [controller]. If it is enabled, using a [PageStorageKey] for the
+/// [key] of this widget is recommended to help disambiguate different scroll
+/// views from each other.
+/// {@endtemplate}
+///
+/// See also:
+///
+///  * [ListView], which is a commonly used [ScrollView] that displays a
+///    scrolling, linear list of child widgets.
+///  * [PageView], which is a scrolling list of child widgets that are each the
+///    size of the viewport.
+///  * [GridView], which is a [ScrollView] that displays a scrolling, 2D array
+///    of child widgets.
+///  * [CustomScrollView], which is a [ScrollView] that creates custom scroll
+///    effects using slivers.
+///  * [ScrollNotification] and [NotificationListener], which can be used to watch
+///    the scroll position without using a [ScrollController].
+///  * [TwoDimensionalScrollView], which is a similar widget [ScrollView] that
+///    scrolls in two dimensions.
+abstract class ScrollView extends StatelessWidget {
+  /// Creates a widget that scrolls.
+  ///
+  /// The [ScrollView.primary] argument defaults to true for vertical
+  /// scroll views if no [controller] has been provided. The [controller] argument
+  /// must be null if [primary] is explicitly set to true. If [primary] is true,
+  /// the nearest [PrimaryScrollController] surrounding the widget is attached
+  /// to this scroll view.
+  ///
+  /// If the [shrinkWrap] argument is true, the [center] argument must be null.
+  ///
+  /// The [anchor] argument must be in the range zero to one, inclusive.
+  const ScrollView({
+    super.key,
+    this.scrollDirection = Axis.vertical,
+    this.reverse = false,
+    this.controller,
+    this.primary,
+    ScrollPhysics? physics,
+    this.scrollBehavior,
+    this.shrinkWrap = false,
+    this.center,
+    this.anchor = 0.0,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    this.cacheExtent,
+    this.scrollCacheExtent,
+    this.semanticChildCount,
+    this.paintOrder = SliverPaintOrder.firstIsTop,
+    this.dragStartBehavior = DragStartBehavior.start,
+    this.keyboardDismissBehavior,
+    this.restorationId,
+    this.clipBehavior = Clip.hardEdge,
+    this.hitTestBehavior = HitTestBehavior.opaque,
+  }) : assert(
+         !(controller != null && (primary ?? false)),
+         'Primary ScrollViews obtain their ScrollController via inheritance '
+         'from a PrimaryScrollController widget. You cannot both set primary to '
+         'true and pass an explicit controller.',
+       ),
+       assert(!shrinkWrap || center == null),
+       assert(anchor >= 0.0 && anchor <= 1.0),
+       assert(semanticChildCount == null || semanticChildCount >= 0),
+       physics =
+           physics ??
+           ((primary ?? false) ||
+                   (primary == null &&
+                       controller == null &&
+                       identical(scrollDirection, Axis.vertical))
+               ? const AlwaysScrollableScrollPhysics()
+               : null);
+
+  /// {@template flutter.widgets.scroll_view.scrollDirection}
+  /// The [Axis] along which the scroll view's offset increases.
+  ///
+  /// For the direction in which active scrolling may be occurring, see
+  /// [ScrollDirection].
+  ///
+  /// Defaults to [Axis.vertical].
+  /// {@endtemplate}
+  final Axis scrollDirection;
+
+  /// {@template flutter.widgets.scroll_view.reverse}
+  /// Whether the scroll view scrolls in the reading direction.
+  ///
+  /// For example, if the reading direction is left-to-right and
+  /// [scrollDirection] is [Axis.horizontal], then the scroll view scrolls from
+  /// left to right when [reverse] is false and from right to left when
+  /// [reverse] is true.
+  ///
+  /// Similarly, if [scrollDirection] is [Axis.vertical], then the scroll view
+  /// scrolls from top to bottom when [reverse] is false and from bottom to top
+  /// when [reverse] is true.
+  ///
+  /// Defaults to false.
+  /// {@endtemplate}
+  final bool reverse;
+
+  /// {@template flutter.widgets.scroll_view.controller}
+  /// An object that can be used to control the position to which this scroll
+  /// view is scrolled.
+  ///
+  /// Must be null if [primary] is true.
+  ///
+  /// A [ScrollController] serves several purposes. It can be used to control
+  /// the initial scroll position (see [ScrollController.initialScrollOffset]).
+  /// It can be used to control whether the scroll view should automatically
+  /// save and restore its scroll position in the [PageStorage] (see
+  /// [ScrollController.keepScrollOffset]). It can be used to read the current
+  /// scroll position (see [ScrollController.offset]), or change it (see
+  /// [ScrollController.animateTo]).
+  /// {@endtemplate}
+  final ScrollController? controller;
+
+  /// {@template flutter.widgets.scroll_view.primary}
+  /// Whether this is the primary scroll view associated with the parent
+  /// [PrimaryScrollController].
+  ///
+  /// When this is true, the scroll view is scrollable even if it does not have
+  /// sufficient content to actually scroll. Otherwise, by default the user can
+  /// only scroll the view if it has sufficient content. See [physics].
+  ///
+  /// Also when true, the scroll view is used for default [ScrollAction]s. If a
+  /// ScrollAction is not handled by an otherwise focused part of the application,
+  /// the ScrollAction will be evaluated using this scroll view, for example,
+  /// when executing [Shortcuts] key events like page up and down.
+  ///
+  /// On iOS, this also identifies the scroll view that will scroll to top in
+  /// response to a tap in the status bar.
+  ///
+  /// Cannot be true while a [ScrollController] is provided to `controller`,
+  /// only one ScrollController can be associated with a ScrollView.
+  ///
+  /// Setting to false will explicitly prevent inheriting any
+  /// [PrimaryScrollController].
+  ///
+  /// Defaults to null. When null, and a controller is not provided,
+  /// [PrimaryScrollController.shouldInherit] is used to decide automatic
+  /// inheritance.
+  ///
+  /// By default, the [PrimaryScrollController] that is injected by each
+  /// [ModalRoute] is configured to automatically be inherited on
+  /// [TargetPlatformVariant.mobile] for ScrollViews in the [Axis.vertical]
+  /// scroll direction. Adding another to your app will override the
+  /// PrimaryScrollController above it.
+  ///
+  /// The following video contains more information about scroll controllers,
+  /// the PrimaryScrollController widget, and their impact on your apps:
+  ///
+  /// {@youtube 560 315 https://www.youtube.com/watch?v=33_0ABjFJUU}
+  ///
+  /// {@endtemplate}
+  final bool? primary;
+
+  /// {@template flutter.widgets.scroll_view.physics}
+  /// How the scroll view should respond to user input.
+  ///
+  /// For example, determines how the scroll view continues to animate after the
+  /// user stops dragging the scroll view.
+  ///
+  /// Defaults to matching platform conventions. Furthermore, if [primary] is
+  /// false, then the user cannot scroll if there is insufficient content to
+  /// scroll, while if [primary] is true, they can always attempt to scroll.
+  ///
+  /// To force the scroll view to always be scrollable even if there is
+  /// insufficient content, as if [primary] was true but without necessarily
+  /// setting it to true, provide an [AlwaysScrollableScrollPhysics] physics
+  /// object, as in:
+  ///
+  /// ```dart
+  ///   physics: const AlwaysScrollableScrollPhysics(),
+  /// ```
+  ///
+  /// To force the scroll view to use the default platform conventions and not
+  /// be scrollable if there is insufficient content, regardless of the value of
+  /// [primary], provide an explicit [ScrollPhysics] object, as in:
+  ///
+  /// ```dart
+  ///   physics: const ScrollPhysics(),
+  /// ```
+  ///
+  /// The physics can be changed dynamically (by providing a new object in a
+  /// subsequent build), but new physics will only take effect if the _class_ of
+  /// the provided object changes. Merely constructing a new instance with a
+  /// different configuration is insufficient to cause the physics to be
+  /// reapplied. (This is because the final object used is generated
+  /// dynamically, which can be relatively expensive, and it would be
+  /// inefficient to speculatively create this object each frame to see if the
+  /// physics should be updated.)
+  /// {@endtemplate}
+  ///
+  /// If an explicit [ScrollBehavior] is provided to [scrollBehavior], the
+  /// [ScrollPhysics] provided by that behavior will take precedence after
+  /// [physics].
+  final ScrollPhysics? physics;
+
+  /// {@macro flutter.widgets.scrollable.scrollBehavior}
+  final ScrollBehavior? scrollBehavior;
+
+  /// {@template flutter.widgets.scroll_view.shrinkWrap}
+  /// Whether the extent of the scroll view in the [scrollDirection] should be
+  /// determined by the contents being viewed.
+  ///
+  /// If the scroll view does not shrink wrap, then the scroll view will expand
+  /// to the maximum allowed size in the [scrollDirection]. If the scroll view
+  /// has unbounded constraints in the [scrollDirection], then [shrinkWrap] must
+  /// be true.
+  ///
+  /// Shrink wrapping the content of the scroll view is significantly more
+  /// expensive than expanding to the maximum allowed size because the content
+  /// can expand and contract during scrolling, which means the size of the
+  /// scroll view needs to be recomputed whenever the scroll position changes.
+  ///
+  /// Defaults to false.
+  ///
+  /// {@youtube 560 315 https://www.youtube.com/watch?v=LUqDNnv_dh0}
+  /// {@endtemplate}
+  final bool shrinkWrap;
+
+  /// The first child in the [GrowthDirection.forward] growth direction.
+  ///
+  /// Children after [center] will be placed in the [AxisDirection] determined
+  /// by [scrollDirection] and [reverse] relative to the [center]. Children
+  /// before [center] will be placed in the opposite of the axis direction
+  /// relative to the [center]. This makes the [center] the inflection point of
+  /// the growth direction.
+  ///
+  /// The [center] must be the key of one of the slivers built by [buildSlivers].
+  ///
+  /// Of the built-in subclasses of [ScrollView], only [CustomScrollView]
+  /// supports [center]; for that class, the given key must be the key of one of
+  /// the slivers in the [CustomScrollView.slivers] list.
+  ///
+  /// Most scroll views by default are ordered [GrowthDirection.forward].
+  /// Changing the default values of [ScrollView.anchor],
+  /// [ScrollView.center], or both, can configure a scroll view for
+  /// [GrowthDirection.reverse].
+  ///
+  /// {@tool dartpad}
+  /// This sample shows a [CustomScrollView], with [Radio] buttons in the
+  /// [AppBar.bottom] that change the [AxisDirection] to illustrate different
+  /// configurations. The [CustomScrollView.anchor] and [CustomScrollView.center]
+  /// properties are also set to have the 0 scroll offset positioned in the middle
+  /// of the viewport, with [GrowthDirection.forward] and [GrowthDirection.reverse]
+  /// illustrated on either side. The sliver that shares the
+  /// [CustomScrollView.center] key is positioned at the [CustomScrollView.anchor].
+  ///
+  /// ** See code in examples/api/lib/rendering/growth_direction/growth_direction.0.dart **
+  /// {@end-tool}
+  ///
+  /// See also:
+  ///
+  ///  * [anchor], which controls where the [center] as aligned in the viewport.
+  final Key? center;
+
+  /// {@template flutter.widgets.scroll_view.anchor}
+  /// The relative position of the zero scroll offset.
+  ///
+  /// For example, if [anchor] is 0.5 and the [AxisDirection] determined by
+  /// [scrollDirection] and [reverse] is [AxisDirection.down] or
+  /// [AxisDirection.up], then the zero scroll offset is vertically centered
+  /// within the viewport. If the [anchor] is 1.0, and the axis direction is
+  /// [AxisDirection.right], then the zero scroll offset is on the left edge of
+  /// the viewport.
+  ///
+  /// Most scroll views by default are ordered [GrowthDirection.forward].
+  /// Changing the default values of [ScrollView.anchor],
+  /// [ScrollView.center], or both, can configure a scroll view for
+  /// [GrowthDirection.reverse].
+  ///
+  /// {@tool dartpad}
+  /// This sample shows a [CustomScrollView], with [Radio] buttons in the
+  /// [AppBar.bottom] that change the [AxisDirection] to illustrate different
+  /// configurations. The [CustomScrollView.anchor] and [CustomScrollView.center]
+  /// properties are also set to have the 0 scroll offset positioned in the middle
+  /// of the viewport, with [GrowthDirection.forward] and [GrowthDirection.reverse]
+  /// illustrated on either side. The sliver that shares the
+  /// [CustomScrollView.center] key is positioned at the [CustomScrollView.anchor].
+  ///
+  /// ** See code in examples/api/lib/rendering/growth_direction/growth_direction.0.dart **
+  /// {@end-tool}
+  /// {@endtemplate}
+  final double anchor;
+
+  /// {@macro flutter.rendering.RenderViewportBase.cacheExtent}
+  @Deprecated(
+    'Use scrollCacheExtent instead. '
+    'This feature was deprecated after v3.41.0-0.0.pre.',
+  )
+  final double? cacheExtent;
+
+  /// {@macro flutter.rendering.RenderViewportBase.scrollCacheExtent}
+  final ScrollCacheExtent? scrollCacheExtent;
+
+  /// The number of children that will contribute semantic information.
+  ///
+  /// Some subtypes of [ScrollView] can infer this value automatically. For
+  /// example [ListView] will use the number of widgets in the child list,
+  /// while the [ListView.separated] constructor will use half that amount.
+  ///
+  /// For [CustomScrollView] and other types which do not receive a builder
+  /// or list of widgets, the child count must be explicitly provided. If the
+  /// number is unknown or unbounded this should be left unset or set to null.
+  ///
+  /// See also:
+  ///
+  ///  * [SemanticsConfiguration.scrollChildCount], the corresponding semantics property.
+  final int? semanticChildCount;
+
+  /// {@macro flutter.rendering.RenderViewportBase.paintOrder}
+  ///
+  /// Defaults to [SliverPaintOrder.firstIsTop].
+  final SliverPaintOrder paintOrder;
+
+  /// {@macro flutter.widgets.scrollable.dragStartBehavior}
+  final DragStartBehavior dragStartBehavior;
+
+  /// {@template flutter.widgets.scroll_view.keyboardDismissBehavior}
+  /// The [ScrollViewKeyboardDismissBehavior] defines how this [ScrollView] will
+  /// dismiss the keyboard automatically.
+  /// {@endtemplate}
+  ///
+  /// If [keyboardDismissBehavior] is null then it will fallback to
+  /// [scrollBehavior]. If that is also null, the inherited
+  /// [ScrollBehavior.getKeyboardDismissBehavior] will be used.
+  final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
+
+  /// {@macro flutter.widgets.scrollable.restorationId}
+  final String? restorationId;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.hardEdge].
+  final Clip clipBehavior;
+
+  /// {@macro flutter.widgets.scrollable.hitTestBehavior}
+  ///
+  /// Defaults to [HitTestBehavior.opaque].
+  final HitTestBehavior hitTestBehavior;
+
+  /// Returns the [AxisDirection] in which the scroll view scrolls.
+  ///
+  /// Combines the [scrollDirection] with the [reverse] boolean to obtain the
+  /// concrete [AxisDirection].
+  ///
+  /// If the [scrollDirection] is [Axis.horizontal], the ambient
+  /// [Directionality] is also considered when selecting the concrete
+  /// [AxisDirection]. For example, if the ambient [Directionality] is
+  /// [TextDirection.rtl], then the non-reversed [AxisDirection] is
+  /// [AxisDirection.left] and the reversed [AxisDirection] is
+  /// [AxisDirection.right].
+  @protected
+  AxisDirection getDirection(BuildContext context) {
+    return getAxisDirectionFromAxisReverseAndDirectionality(context, scrollDirection, reverse);
+  }
+
+  /// Build the list of widgets to place inside the viewport.
+  ///
+  /// Subclasses should override this method to build the slivers for the inside
+  /// of the viewport.
+  ///
+  /// To learn more about slivers, see [CustomScrollView.slivers].
+  @protected
+  List<Widget> buildSlivers(BuildContext context);
+
+  /// Build the viewport.
+  ///
+  /// Subclasses may override this method to change how the viewport is built.
+  /// The default implementation uses a [ShrinkWrappingViewport] if [shrinkWrap]
+  /// is true, and a regular [Viewport] otherwise.
+  ///
+  /// The `offset` argument is the value obtained from
+  /// [Scrollable.viewportBuilder].
+  ///
+  /// The `axisDirection` argument is the value obtained from [getDirection],
+  /// which by default uses [scrollDirection] and [reverse].
+  ///
+  /// The `slivers` argument is the value obtained from [buildSlivers].
+  @protected
+  Widget buildViewport(
+    BuildContext context,
+    ViewportOffset offset,
+    AxisDirection axisDirection,
+    List<Widget> slivers,
+  ) {
+    assert(() {
+      switch (axisDirection) {
+        case AxisDirection.up:
+        case AxisDirection.down:
+          return debugCheckHasDirectionality(
+            context,
+            why: 'to determine the cross-axis direction of the scroll view',
+            hint:
+                'Vertical scroll views create Viewport widgets that try to determine their cross axis direction '
+                'from the ambient Directionality.',
+          );
+        case AxisDirection.left:
+        case AxisDirection.right:
+          return true;
+      }
+    }());
+    final ScrollCacheExtent? effectiveScrollCacheExtent =
+        scrollCacheExtent ?? (cacheExtent != null ? ScrollCacheExtent.pixels(cacheExtent!) : null);
+    if (shrinkWrap) {
+      return ShrinkWrappingViewport(
+        axisDirection: axisDirection,
+        offset: offset,
+        slivers: slivers,
+        paintOrder: paintOrder,
+        clipBehavior: clipBehavior,
+        scrollCacheExtent: effectiveScrollCacheExtent,
+      );
+    }
+    return Viewport(
+      axisDirection: axisDirection,
+      offset: offset,
+      slivers: slivers,
+      scrollCacheExtent: effectiveScrollCacheExtent,
+      center: center,
+      anchor: anchor,
+      paintOrder: paintOrder,
+      clipBehavior: clipBehavior,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> slivers = buildSlivers(context);
+    final AxisDirection axisDirection = getDirection(context);
+
+    final bool effectivePrimary =
+        primary ??
+        controller == null && PrimaryScrollController.shouldInherit(context, scrollDirection);
+
+    final ScrollController? scrollController = effectivePrimary
+        ? PrimaryScrollController.maybeOf(context)
+        : controller;
+
+    final scrollable = Scrollable(
+      dragStartBehavior: dragStartBehavior,
+      axisDirection: axisDirection,
+      controller: scrollController,
+      physics: physics,
+      scrollBehavior: scrollBehavior,
+      semanticChildCount: semanticChildCount,
+      restorationId: restorationId,
+      hitTestBehavior: hitTestBehavior,
+      viewportBuilder: (BuildContext context, ViewportOffset offset) {
+        return buildViewport(context, offset, axisDirection, slivers);
+      },
+      clipBehavior: clipBehavior,
+    );
+
+    final Widget scrollableResult = effectivePrimary && scrollController != null
+        // Further descendant ScrollViews will not inherit the same PrimaryScrollController
+        ? PrimaryScrollController.none(child: scrollable)
+        : scrollable;
+
+    final ScrollViewKeyboardDismissBehavior effectiveKeyboardDismissBehavior =
+        keyboardDismissBehavior ??
+        scrollBehavior?.getKeyboardDismissBehavior(context) ??
+        ScrollConfiguration.of(context).getKeyboardDismissBehavior(context);
+
+    if (effectiveKeyboardDismissBehavior == ScrollViewKeyboardDismissBehavior.onDrag) {
+      return NotificationListener<ScrollUpdateNotification>(
+        child: scrollableResult,
+        onNotification: (ScrollUpdateNotification notification) {
+          final FocusScopeNode currentScope = FocusScope.of(context);
+          if (notification.dragDetails != null &&
+              !currentScope.hasPrimaryFocus &&
+              currentScope.hasFocus) {
+            FocusManager.instance.primaryFocus?.unfocus();
+          }
+          return false;
+        },
+      );
+    } else {
+      return scrollableResult;
+    }
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(EnumProperty<Axis>('scrollDirection', scrollDirection));
+    properties.add(FlagProperty('reverse', value: reverse, ifTrue: 'reversed', showName: true));
+    properties.add(
+      DiagnosticsProperty<ScrollController>(
+        'controller',
+        controller,
+        showName: false,
+        defaultValue: null,
+      ),
+    );
+    properties.add(
+      FlagProperty('primary', value: primary, ifTrue: 'using primary controller', showName: true),
+    );
+    properties.add(
+      DiagnosticsProperty<ScrollPhysics>('physics', physics, showName: false, defaultValue: null),
+    );
+    properties.add(
+      FlagProperty('shrinkWrap', value: shrinkWrap, ifTrue: 'shrink-wrapping', showName: true),
+    );
+    properties.add(
+      DiagnosticsProperty<ScrollCacheExtent>(
+        'scrollCacheExtent',
+        scrollCacheExtent,
+        defaultValue: null,
+      ),
+    );
+  }
+}
+
+/// A [ScrollView] that creates custom scroll effects using [slivers].
+///
+/// A [CustomScrollView] lets you supply [slivers] directly to create various
+/// scrolling effects, such as lists, grids, and expanding headers. For example,
+/// to create a scroll view that contains an expanding app bar followed by a
+/// list and a grid, use a list of three slivers: [SliverAppBar], [SliverList],
+/// and [SliverGrid].
+///
+/// [Widget]s in these [slivers] must produce [RenderSliver] objects.
+///
+/// To control the initial scroll offset of the scroll view, provide a
+/// [controller] with its [ScrollController.initialScrollOffset] property set.
+///
+/// {@animation 400 376 https://flutter.github.io/assets-for-api-docs/assets/widgets/custom_scroll_view.mp4}
+///
+/// {@tool snippet}
+///
+/// This sample code shows a scroll view that contains a flexible pinned app
+/// bar, a grid, and an infinite list.
+///
+/// ```dart
+/// CustomScrollView(
+///   slivers: <Widget>[
+///     const SliverAppBar(
+///       pinned: true,
+///       expandedHeight: 250.0,
+///       flexibleSpace: FlexibleSpaceBar(
+///         title: Text('Demo'),
+///       ),
+///     ),
+///     SliverGrid(
+///       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+///         maxCrossAxisExtent: 200.0,
+///         mainAxisSpacing: 10.0,
+///         crossAxisSpacing: 10.0,
+///         childAspectRatio: 4.0,
+///       ),
+///       delegate: SliverChildBuilderDelegate(
+///         (BuildContext context, int index) {
+///           return Container(
+///             alignment: Alignment.center,
+///             color: Colors.teal[100 * (index % 9)],
+///             child: Text('Grid Item $index'),
+///           );
+///         },
+///         childCount: 20,
+///       ),
+///     ),
+///     SliverFixedExtentList(
+///       itemExtent: 50.0,
+///       delegate: SliverChildBuilderDelegate(
+///         (BuildContext context, int index) {
+///           return Container(
+///             alignment: Alignment.center,
+///             color: Colors.lightBlue[100 * (index % 9)],
+///             child: Text('List Item $index'),
+///           );
+///         },
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// By default, if items are inserted at the "top" of a scrolling container like
+/// [ListView] or [CustomScrollView], the top item and all of the items below it
+/// are scrolled downwards. In some applications, it's preferable to have the
+/// top of the list just grow upwards, without changing the scroll position.
+/// This example demonstrates how to do that with a [CustomScrollView] with
+/// two [SliverList] children, and the [CustomScrollView.center] set to the key
+/// of the bottom SliverList. The top one SliverList will grow upwards, and the
+/// bottom SliverList will grow downwards.
+///
+/// ** See code in examples/api/lib/widgets/scroll_view/custom_scroll_view.1.dart **
+/// {@end-tool}
+///
+/// ## Accessibility
+///
+/// A [CustomScrollView] can allow Talkback/VoiceOver to make announcements
+/// to the user when the scroll state changes. For example, on Android an
+/// announcement might be read as "showing items 1 to 10 of 23". To produce
+/// this announcement, the scroll view needs three pieces of information:
+///
+///   * The first visible child index.
+///   * The total number of children.
+///   * The total number of visible children.
+///
+/// The last value can be computed exactly by the framework, however the first
+/// two must be provided. Most of the higher-level scrollable widgets provide
+/// this information automatically. For example, [ListView] provides each child
+/// widget with a semantic index automatically and sets the semantic child
+/// count to the length of the list.
+///
+/// To determine visible indexes, the scroll view needs a way to associate the
+/// generated semantics of each scrollable item with a semantic index. This can
+/// be done by wrapping the child widgets in an [IndexedSemantics].
+///
+/// This semantic index is not necessarily the same as the index of the widget in
+/// the scrollable, because some widgets may not contribute semantic
+/// information. Consider a [ListView.separated]: every other widget is a
+/// divider with no semantic information. In this case, only odd numbered
+/// widgets have a semantic index (equal to the index ~/ 2). Furthermore, the
+/// total number of children in this example would be half the number of
+/// widgets. (The [ListView.separated] constructor handles this
+/// automatically; this is only used here as an example.)
+///
+/// The total number of visible children can be provided by the constructor
+/// parameter `semanticChildCount`. This should always be the same as the
+/// number of widgets wrapped in [IndexedSemantics].
+///
+/// {@macro flutter.widgets.ScrollView.PageStorage}
+///
+/// See also:
+///
+///  * [SliverList], which is a sliver that displays linear list of children.
+///  * [SliverFixedExtentList], which is a more efficient sliver that displays
+///    linear list of children that have the same extent along the scroll axis.
+///  * [SliverGrid], which is a sliver that displays a 2D array of children.
+///  * [SliverPadding], which is a sliver that adds blank space around another
+///    sliver.
+///  * [SliverAppBar], which is a sliver that displays a header that can expand
+///    and float as the scroll view scrolls.
+///  * [ScrollNotification] and [NotificationListener], which can be used to watch
+///    the scroll position without using a [ScrollController].
+///  * [IndexedSemantics], which allows annotating child lists with an index
+///    for scroll announcements.
+class CustomScrollView extends ScrollView {
+  /// Creates a [ScrollView] that creates custom scroll effects using slivers.
+  ///
+  /// See the [ScrollView] constructor for more details on these arguments.
+  const CustomScrollView({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.scrollBehavior,
+    super.shrinkWrap,
+    super.center,
+    super.anchor,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    super.paintOrder,
+    this.slivers = const <Widget>[],
+    super.semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  });
+
+  /// The slivers to place inside the viewport.
+  ///
+  /// ## What is a sliver?
+  ///
+  /// > _**sliver** (noun): a small, thin piece of something._
+  ///
+  /// A _sliver_ is a widget backed by a [RenderSliver] subclass, i.e. one that
+  /// implements the constraint/geometry protocol that uses [SliverConstraints]
+  /// and [SliverGeometry].
+  ///
+  /// This is as distinct from those widgets that are backed by [RenderBox]
+  /// subclasses, which use [BoxConstraints] and [Size] respectively, and are
+  /// known as box widgets. (Widgets like [Container], [Row], and [SizedBox] are
+  /// box widgets.)
+  ///
+  /// While boxes are much more straightforward (implementing a simple
+  /// two-dimensional Cartesian layout system), slivers are much more powerful,
+  /// and are optimized for one-axis scrolling environments.
+  ///
+  /// Slivers are hosted in viewports, also known as scroll views, most notably
+  /// [CustomScrollView].
+  ///
+  /// ## Examples of slivers
+  ///
+  /// The Flutter framework has many built-in sliver widgets, and custom widgets
+  /// can be created in the same manner. By convention, sliver widgets always
+  /// start with the prefix `Sliver` and are always used in properties called
+  /// `sliver` or `slivers` (as opposed to `child` and `children` which are used
+  /// for box widgets).
+  ///
+  /// Examples of widgets unique to the sliver world include:
+  ///
+  /// * [SliverList], a lazily-loading list of variably-sized box widgets.
+  /// * [SliverFixedExtentList], a lazily-loading list of box widgets that are
+  ///   all forced to the same height.
+  /// * [SliverPrototypeExtentList], a lazily-loading list of box widgets that
+  ///   are all forced to the same height as a given prototype widget.
+  /// * [SliverGrid], a lazily-loading grid of box widgets.
+  /// * [SliverAnimatedList] and [SliverAnimatedGrid], animated variants of
+  ///   [SliverList] and [SliverGrid].
+  /// * [SliverFillRemaining], a widget that fills all remaining space in a
+  ///   scroll view, and lays a box widget out inside that space.
+  /// * [SliverFillViewport], a widget that lays a list of boxes out, each
+  ///   being sized to fit the whole viewport.
+  /// * [SliverPersistentHeader], a sliver that implements pinned and floating
+  ///   headers, e.g. used to implement [SliverAppBar].
+  /// * [SliverToBoxAdapter], a sliver that wraps a box widget.
+  ///
+  /// Examples of sliver variants of common box widgets include:
+  ///
+  /// * [SliverOpacity], [SliverAnimatedOpacity], and [SliverFadeTransition],
+  ///   sliver versions of [Opacity], [AnimatedOpacity], and [FadeTransition].
+  /// * [SliverIgnorePointer], a sliver version of [IgnorePointer].
+  /// * [SliverLayoutBuilder], a sliver version of [LayoutBuilder].
+  /// * [SliverOffstage], a sliver version of [Offstage].
+  /// * [SliverPadding], a sliver version of [Padding].
+  /// * [SliverReorderableList], a sliver version of [ReorderableList]
+  /// * [SliverSafeArea], a sliver version of [SafeArea].
+  /// * [SliverVisibility], a sliver version of [Visibility].
+  ///
+  /// ## Benefits of slivers over boxes
+  ///
+  /// The sliver protocol ([SliverConstraints] and [SliverGeometry]) enables
+  /// _scroll effects_, such as floating app bars, widgets that expand and
+  /// shrink during scroll, section headers that are pinned only while the
+  /// section's children are visible, etc.
+  ///
+  /// {@youtube 560 315 https://www.youtube.com/watch?v=Mz3kHQxBjGg}
+  ///
+  /// ## Mixing slivers and boxes
+  ///
+  /// In general, slivers always wrap box widgets to actually render anything
+  /// (for example, there is no sliver equivalent of [Text] or [Container]);
+  /// the sliver part of the equation is mostly about how these boxes should
+  /// be laid out in a viewport (i.e. when scrolling).
+  ///
+  /// Typically, the simplest way to combine boxes into a sliver environment is
+  /// to use a [SliverList] (maybe using a [ListView], which is a convenient
+  /// combination of a [CustomScrollView] and a [SliverList]). In rare cases,
+  /// e.g. if a single [Divider] widget is needed between two [SliverGrid]s,
+  /// a [SliverToBoxAdapter] can be used to wrap the box widgets.
+  ///
+  /// ## Performance considerations
+  ///
+  /// Because the purpose of scroll views is to, well, scroll, it is common
+  /// for scroll views to contain more contents than are rendered on the screen
+  /// at any particular time.
+  ///
+  /// To improve the performance of scroll views, the content can be rendered in
+  /// _lazy_ widgets, notably [SliverList] and [SliverGrid] (and their variants,
+  /// such as [SliverFixedExtentList] and [SliverAnimatedGrid]). These widgets
+  /// ensure that only the portion of their child lists that are actually
+  /// visible get built, laid out, and painted.
+  ///
+  /// The [ListView] and [GridView] widgets provide a convenient way to combine
+  /// a [CustomScrollView] and a [SliverList] or [SliverGrid] (respectively).
+  final List<Widget> slivers;
+
+  @override
+  List<Widget> buildSlivers(BuildContext context) => slivers;
+}
+
+/// A [ScrollView] that uses a single child layout model.
+///
+/// {@template flutter.widgets.BoxScroll.scrollBehaviour}
+/// [ScrollView]s are often decorated with [Scrollbar]s and overscroll indicators,
+/// which are managed by the inherited [ScrollBehavior]. Placing a
+/// [ScrollConfiguration] above a ScrollView can modify these behaviors for that
+/// ScrollView, or can be managed app-wide by providing a ScrollBehavior to
+/// [MaterialApp.scrollBehavior] or [CupertinoApp.scrollBehavior].
+/// {@endtemplate}
+///
+/// See also:
+///
+///  * [ListView], which is a [BoxScrollView] that uses a linear layout model.
+///  * [GridView], which is a [BoxScrollView] that uses a 2D layout model.
+///  * [CustomScrollView], which can combine multiple child layout models into a
+///    single scroll view.
+abstract class BoxScrollView extends ScrollView {
+  /// Creates a [ScrollView] uses a single child layout model.
+  ///
+  /// If the [primary] argument is true, the [controller] must be null.
+  const BoxScrollView({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    this.padding,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    super.semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  });
+
+  /// The amount of space by which to inset the children.
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  List<Widget> buildSlivers(BuildContext context) {
+    Widget sliver = buildChildLayout(context);
+    EdgeInsetsGeometry? effectivePadding = padding;
+    if (padding == null) {
+      final MediaQueryData? mediaQuery = MediaQuery.maybeOf(context);
+      if (mediaQuery != null) {
+        // Automatically pad sliver with padding from MediaQuery.
+        final EdgeInsets mediaQueryHorizontalPadding = mediaQuery.padding.copyWith(
+          top: 0.0,
+          bottom: 0.0,
+        );
+        final EdgeInsets mediaQueryVerticalPadding = mediaQuery.padding.copyWith(
+          left: 0.0,
+          right: 0.0,
+        );
+        // Consume the main axis padding with SliverPadding.
+        effectivePadding = scrollDirection == Axis.vertical
+            ? mediaQueryVerticalPadding
+            : mediaQueryHorizontalPadding;
+        // Leave behind the cross axis padding.
+        sliver = MediaQuery(
+          data: mediaQuery.copyWith(
+            padding: scrollDirection == Axis.vertical
+                ? mediaQueryHorizontalPadding
+                : mediaQueryVerticalPadding,
+          ),
+          child: sliver,
+        );
+      }
+    }
+
+    if (effectivePadding != null) {
+      sliver = SliverPadding(padding: effectivePadding, sliver: sliver);
+    }
+    return <Widget>[sliver];
+  }
+
+  /// Subclasses should override this method to build the layout model.
+  @protected
+  Widget buildChildLayout(BuildContext context);
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<EdgeInsetsGeometry>('padding', padding, defaultValue: null));
+  }
+}
+
+/// A scrollable list of widgets arranged linearly.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=KJpkjHGiI5A}
+///
+/// [ListView] is the most commonly used scrolling widget. It displays its
+/// children one after another in the scroll direction. In the cross axis, the
+/// children are required to fill the [ListView].
+///
+/// If non-null, the [itemExtent] forces the children to have the given extent
+/// in the scroll direction.
+///
+/// If non-null, the [prototypeItem] forces the children to have the same extent
+/// as the given widget in the scroll direction.
+///
+/// Specifying an [itemExtent] or an [prototypeItem] is more efficient than
+/// letting the children determine their own extent because the scrolling
+/// machinery can make use of the foreknowledge of the children's extent to save
+/// work, for example when the scroll position changes drastically.
+///
+/// You can't specify both [itemExtent] and [prototypeItem], only one or none of
+/// them.
+///
+/// There are four options for constructing a [ListView]:
+///
+///  1. The default constructor takes an explicit [List<Widget>] of children. This
+///     constructor is appropriate for list views with a small number of
+///     children because constructing the [List] requires doing work for every
+///     child that could possibly be displayed in the list view instead of just
+///     those children that are actually visible.
+///
+///  2. The [ListView.builder] constructor takes an [IndexedWidgetBuilder], which
+///     builds the children on demand. This constructor is appropriate for list views
+///     with a large (or infinite) number of children because the builder is called
+///     only for those children that are actually visible.
+///
+///  3. The [ListView.separated] constructor takes two [IndexedWidgetBuilder]s:
+///     `itemBuilder` builds child items on demand, and `separatorBuilder`
+///     similarly builds separator children which appear in between the child items.
+///     This constructor is appropriate for list views with a fixed number of children.
+///
+///  4. The [ListView.custom] constructor takes a [SliverChildDelegate], which provides
+///     the ability to customize additional aspects of the child model. For example,
+///     a [SliverChildDelegate] can control the algorithm used to estimate the
+///     size of children that are not actually visible.
+///
+/// To control the initial scroll offset of the scroll view, provide a
+/// [controller] with its [ScrollController.initialScrollOffset] property set.
+///
+/// By default, [ListView] will automatically pad the list's scrollable
+/// extremities to avoid partial obstructions indicated by [MediaQuery]'s
+/// padding. To avoid this behavior, override with a zero [padding] property.
+///
+/// {@tool snippet}
+/// This example uses the default constructor for [ListView] which takes an
+/// explicit [List<Widget>] of children. This [ListView]'s children are made up
+/// of [Container]s with [Text].
+///
+/// ![A ListView of 3 amber colored containers with sample text.](https://flutter.github.io/assets-for-api-docs/assets/widgets/list_view.png)
+///
+/// ```dart
+/// ListView(
+///   padding: const EdgeInsets.all(8),
+///   children: <Widget>[
+///     Container(
+///       height: 50,
+///       color: Colors.amber[600],
+///       child: const Center(child: Text('Entry A')),
+///     ),
+///     Container(
+///       height: 50,
+///       color: Colors.amber[500],
+///       child: const Center(child: Text('Entry B')),
+///     ),
+///     Container(
+///       height: 50,
+///       color: Colors.amber[100],
+///       child: const Center(child: Text('Entry C')),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool snippet}
+/// This example mirrors the previous one, creating the same list using the
+/// [ListView.builder] constructor. Using the [IndexedWidgetBuilder], children
+/// are built lazily and can be infinite in number.
+///
+/// ![A ListView of 3 amber colored containers with sample text.](https://flutter.github.io/assets-for-api-docs/assets/widgets/list_view_builder.png)
+///
+/// ```dart
+/// final List<String> entries = <String>['A', 'B', 'C'];
+/// final List<int> colorCodes = <int>[600, 500, 100];
+///
+/// Widget build(BuildContext context) {
+///   return ListView.builder(
+///     padding: const EdgeInsets.all(8),
+///     itemCount: entries.length,
+///     itemBuilder: (BuildContext context, int index) {
+///       return Container(
+///         height: 50,
+///         color: Colors.amber[colorCodes[index]],
+///         child: Center(child: Text('Entry ${entries[index]}')),
+///       );
+///     }
+///   );
+/// }
+/// ```
+/// {@end-tool}
+///
+/// {@tool snippet}
+/// This example continues to build from our the previous ones, creating a
+/// similar list using [ListView.separated]. Here, a [Divider] is used as a
+/// separator.
+///
+/// ![A ListView of 3 amber colored containers with sample text and a Divider
+/// between each of them.](https://flutter.github.io/assets-for-api-docs/assets/widgets/list_view_separated.png)
+///
+/// ```dart
+/// final List<String> entries = <String>['A', 'B', 'C'];
+/// final List<int> colorCodes = <int>[600, 500, 100];
+///
+/// Widget build(BuildContext context) {
+///   return ListView.separated(
+///     padding: const EdgeInsets.all(8),
+///     itemCount: entries.length,
+///     itemBuilder: (BuildContext context, int index) {
+///       return Container(
+///         height: 50,
+///         color: Colors.amber[colorCodes[index]],
+///         child: Center(child: Text('Entry ${entries[index]}')),
+///       );
+///     },
+///     separatorBuilder: (BuildContext context, int index) => const Divider(),
+///   );
+/// }
+/// ```
+/// {@end-tool}
+///
+/// ## Child elements' lifecycle
+///
+/// ### Creation
+///
+/// While laying out the list, visible children's elements, states and render
+/// objects will be created lazily based on existing widgets (such as when using
+/// the default constructor) or lazily provided ones (such as when using the
+/// [ListView.builder] constructor).
+///
+/// ### Destruction
+///
+/// When a child is scrolled out of view, the associated element subtree,
+/// states and render objects are destroyed. A new child at the same position
+/// in the list will be lazily recreated along with new elements, states and
+/// render objects when it is scrolled back.
+///
+/// ### Destruction mitigation
+///
+/// In order to preserve state as child elements are scrolled in and out of
+/// view, the following options are possible:
+///
+///  * Moving the ownership of non-trivial UI-state-driving business logic
+///    out of the list child subtree. For instance, if a list contains posts
+///    with their number of upvotes coming from a cached network response, store
+///    the list of posts and upvote number in a data model outside the list. Let
+///    the list child UI subtree be easily recreate-able from the
+///    source-of-truth model object. Use [StatefulWidget]s in the child
+///    widget subtree to store instantaneous UI state only.
+///
+///  * Letting [KeepAlive] be the root widget of the list child widget subtree
+///    that needs to be preserved. The [KeepAlive] widget marks the child
+///    subtree's top render object child for keepalive. When the associated top
+///    render object is scrolled out of view, the list keeps the child's render
+///    object (and by extension, its associated elements and states) in a cache
+///    list instead of destroying them. When scrolled back into view, the render
+///    object is repainted as-is (if it wasn't marked dirty in the interim).
+///
+///    This only works if `addAutomaticKeepAlives` and `addRepaintBoundaries`
+///    are false since those parameters cause the [ListView] to wrap each child
+///    widget subtree with other widgets.
+///
+///  * Using [AutomaticKeepAlive] widgets (inserted by default when
+///    `addAutomaticKeepAlives` is true). [AutomaticKeepAlive] allows descendant
+///    widgets to control whether the subtree is actually kept alive or not.
+///    This behavior is in contrast with [KeepAlive], which will unconditionally keep
+///    the subtree alive.
+///
+///    As an example, the [EditableText] widget signals its list child element
+///    subtree to stay alive while its text field has input focus. If it doesn't
+///    have focus and no other descendants signaled for keepalive via a
+///    [KeepAliveNotification], the list child element subtree will be destroyed
+///    when scrolled away.
+///
+///    [AutomaticKeepAlive] descendants typically signal it to be kept alive
+///    by using the [AutomaticKeepAliveClientMixin], then implementing the
+///    [AutomaticKeepAliveClientMixin.wantKeepAlive] getter and calling
+///    [AutomaticKeepAliveClientMixin.updateKeepAlive].
+///
+/// ## Transitioning to [CustomScrollView]
+///
+/// A [ListView] is basically a [CustomScrollView] with a single [SliverList] in
+/// its [CustomScrollView.slivers] property.
+///
+/// If [ListView] is no longer sufficient, for example because the scroll view
+/// is to have both a list and a grid, or because the list is to be combined
+/// with a [SliverAppBar], etc, it is straight-forward to port code from using
+/// [ListView] to using [CustomScrollView] directly.
+///
+/// The [key], [scrollDirection], [reverse], [controller], [primary], [physics],
+/// and [shrinkWrap] properties on [ListView] map directly to the identically
+/// named properties on [CustomScrollView].
+///
+/// The [CustomScrollView.slivers] property should be a list containing either:
+///  * a [SliverList] if both [itemExtent] and [prototypeItem] were null;
+///  * a [SliverFixedExtentList] if [itemExtent] was not null; or
+///  * a [SliverPrototypeExtentList] if [prototypeItem] was not null.
+///
+/// The [childrenDelegate] property on [ListView] corresponds to the
+/// [SliverList.delegate] (or [SliverFixedExtentList.delegate]) property. The
+/// [ListView] constructor's `children` argument corresponds to the
+/// [childrenDelegate] being a [SliverChildListDelegate] with that same
+/// argument. The [ListView.builder] constructor's `itemBuilder` and
+/// `itemCount` arguments correspond to the [childrenDelegate] being a
+/// [SliverChildBuilderDelegate] with the equivalent arguments.
+///
+/// The [padding] property corresponds to having a [SliverPadding] in the
+/// [CustomScrollView.slivers] property instead of the list itself, and having
+/// the [SliverList] instead be a child of the [SliverPadding].
+///
+/// [CustomScrollView]s don't automatically avoid obstructions from [MediaQuery]
+/// like [ListView]s do. To reproduce the behavior, wrap the slivers in
+/// [SliverSafeArea]s.
+///
+/// Once code has been ported to use [CustomScrollView], other slivers, such as
+/// [SliverGrid] or [SliverAppBar], can be put in the [CustomScrollView.slivers]
+/// list.
+///
+/// {@tool snippet}
+///
+/// Here are two brief snippets showing a [ListView] and its equivalent using
+/// [CustomScrollView]:
+///
+/// ```dart
+/// ListView(
+///   padding: const EdgeInsets.all(20.0),
+///   children: const <Widget>[
+///     Text("I'm dedicating every day to you"),
+///     Text('Domestic life was never quite my style'),
+///     Text('When you smile, you knock me out, I fall apart'),
+///     Text('And I thought I was so smart'),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+/// {@tool snippet}
+///
+/// ```dart
+/// CustomScrollView(
+///   slivers: <Widget>[
+///     SliverPadding(
+///       padding: const EdgeInsets.all(20.0),
+///       sliver: SliverList(
+///         delegate: SliverChildListDelegate(
+///           <Widget>[
+///             const Text("I'm dedicating every day to you"),
+///             const Text('Domestic life was never quite my style'),
+///             const Text('When you smile, you knock me out, I fall apart'),
+///             const Text('And I thought I was so smart'),
+///           ],
+///         ),
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## Special handling for an empty list
+///
+/// A common design pattern is to have a custom UI for an empty list. The best
+/// way to achieve this in Flutter is just conditionally replacing the
+/// [ListView] at build time with whatever widgets you need to show for the
+/// empty list state:
+///
+/// {@tool snippet}
+///
+/// Example of simple empty list interface:
+///
+/// ```dart
+/// Widget build(BuildContext context) {
+///   return Scaffold(
+///     appBar: AppBar(title: const Text('Empty List Test')),
+///     body: itemCount > 0
+///       ? ListView.builder(
+///           itemCount: itemCount,
+///           itemBuilder: (BuildContext context, int index) {
+///             return ListTile(
+///               title: Text('Item ${index + 1}'),
+///             );
+///           },
+///         )
+///       : const Center(child: Text('No items')),
+///   );
+/// }
+/// ```
+/// {@end-tool}
+///
+/// ## Selection of list items
+///
+/// [ListView] has no built-in notion of a selected item or items. For a small
+/// example of how a caller might wire up basic item selection, see
+/// [ListTile.selected].
+///
+/// {@tool dartpad}
+/// This example shows a custom implementation of [ListTile] selection in a [ListView] or [GridView].
+/// Long press any [ListTile] to enable selection mode.
+///
+/// ** See code in examples/api/lib/widgets/scroll_view/list_view.0.dart **
+/// {@end-tool}
+///
+/// {@macro flutter.widgets.BoxScroll.scrollBehaviour}
+///
+/// {@macro flutter.widgets.ScrollView.PageStorage}
+///
+/// See also:
+///
+///  * [SingleChildScrollView], which is a scrollable widget that has a single
+///    child.
+///  * [PageView], which is a scrolling list of child widgets that are each the
+///    size of the viewport.
+///  * [GridView], which is a scrollable, 2D array of widgets.
+///  * [CustomScrollView], which is a scrollable widget that creates custom
+///    scroll effects using slivers.
+///  * [ListBody], which arranges its children in a similar manner, but without
+///    scrolling.
+///  * [ScrollNotification] and [NotificationListener], which can be used to watch
+///    the scroll position without using a [ScrollController].
+///  * The [catalog of layout widgets](https://docs.flutter.dev/ui/widgets/layout).
+///  * Cookbook: [Use lists](https://docs.flutter.dev/cookbook/lists/basic-list)
+///  * Cookbook: [Work with long lists](https://docs.flutter.dev/cookbook/lists/long-lists)
+///  * Cookbook: [Create a horizontal list](https://docs.flutter.dev/cookbook/lists/horizontal-list)
+///  * Cookbook: [Create lists with different types of items](https://docs.flutter.dev/cookbook/lists/mixed-list)
+///  * Cookbook: [Implement swipe to dismiss](https://docs.flutter.dev/cookbook/gestures/dismissible)
+class ListView extends BoxScrollView {
+  /// Creates a scrollable, linear array of widgets from an explicit [List].
+  ///
+  /// This constructor is appropriate for list views with a small number of
+  /// children because constructing the [List] requires doing work for every
+  /// child that could possibly be displayed in the list view instead of just
+  /// those children that are actually visible.
+  ///
+  /// Like other widgets in the framework, this widget expects that
+  /// the [children] list will not be mutated after it has been passed in here.
+  /// See the documentation at [SliverChildListDelegate.children] for more details.
+  ///
+  /// It is usually more efficient to create children on demand using
+  /// [ListView.builder] because it will create the widget children lazily as necessary.
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildListDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildListDelegate.addRepaintBoundaries] property. The
+  /// `addSemanticIndexes` argument corresponds to the
+  /// [SliverChildListDelegate.addSemanticIndexes] property. None
+  /// may be null.
+  ListView({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    this.itemExtent,
+    this.itemExtentBuilder,
+    this.prototypeItem,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    List<Widget> children = const <Widget>[],
+    int? semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : assert(
+         (itemExtent == null && prototypeItem == null) ||
+             (itemExtent == null && itemExtentBuilder == null) ||
+             (prototypeItem == null && itemExtentBuilder == null),
+         'You can only pass one of itemExtent, prototypeItem and itemExtentBuilder.',
+       ),
+       childrenDelegate = SliverChildListDelegate(
+         children,
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+       ),
+       super(semanticChildCount: semanticChildCount ?? children.length);
+
+  /// Creates a scrollable, linear array of widgets that are created on demand.
+  ///
+  /// This constructor is appropriate for list views with a large (or infinite)
+  /// number of children because the builder is called only for those children
+  /// that are actually visible.
+  ///
+  /// Providing a non-null `itemCount` improves the ability of the [ListView] to
+  /// estimate the maximum scroll extent.
+  ///
+  /// The `itemBuilder` callback will be called only with indices greater than
+  /// or equal to zero and less than `itemCount`.
+  ///
+  /// {@template flutter.widgets.ListView.builder.itemBuilder}
+  /// It is legal for `itemBuilder` to return `null`. If it does, the scroll view
+  /// will stop calling `itemBuilder`, even if it has yet to reach `itemCount`.
+  /// By returning `null`, the [ScrollPosition.maxScrollExtent] will not be accurate
+  /// unless the user has reached the end of the [ScrollView]. This can also cause the
+  /// [Scrollbar] to grow as the user scrolls.
+  ///
+  /// For more accurate [ScrollMetrics], consider specifying `itemCount`.
+  /// {@endtemplate}
+  ///
+  /// The `itemBuilder` should always create the widget instances when called.
+  /// Avoid using a builder that returns a previously-constructed widget; if the
+  /// list view's children are created in advance, or all at once when the
+  /// [ListView] itself is created, it is more efficient to use the [ListView]
+  /// constructor. Even more efficient, however, is to create the instances on
+  /// demand using this constructor's `itemBuilder` callback.
+  ///
+  /// {@macro flutter.widgets.PageView.findChildIndexCallback}
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addRepaintBoundaries] property. The
+  /// `addSemanticIndexes` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addSemanticIndexes] property. None may be
+  /// null.
+  ListView.builder({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    this.itemExtent,
+    this.itemExtentBuilder,
+    this.prototypeItem,
+    required NullableIndexedWidgetBuilder itemBuilder,
+    ChildIndexGetter? findChildIndexCallback,
+    int? itemCount,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    int? semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : assert(itemCount == null || itemCount >= 0),
+       assert(semanticChildCount == null || semanticChildCount <= itemCount!),
+       assert(
+         (itemExtent == null && prototypeItem == null) ||
+             (itemExtent == null && itemExtentBuilder == null) ||
+             (prototypeItem == null && itemExtentBuilder == null),
+         'You can only pass one of itemExtent, prototypeItem and itemExtentBuilder.',
+       ),
+       childrenDelegate = SliverChildBuilderDelegate(
+         itemBuilder,
+         findChildIndexCallback: findChildIndexCallback,
+         childCount: itemCount,
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+       ),
+       super(semanticChildCount: semanticChildCount ?? itemCount);
+
+  /// Creates a fixed-length scrollable linear array of list "items" separated
+  /// by list item "separators".
+  ///
+  /// This constructor is appropriate for list views with a large number of
+  /// item and separator children because the builders are only called for
+  /// the children that are actually visible.
+  ///
+  /// The `itemBuilder` callback will be called with indices greater than
+  /// or equal to zero and less than `itemCount`.
+  ///
+  /// Separators only appear between list items: separator 0 appears after item
+  /// 0 and the last separator appears before the last item.
+  ///
+  /// The `separatorBuilder` callback will be called with indices greater than
+  /// or equal to zero and less than `itemCount - 1`.
+  ///
+  /// The `itemBuilder` and `separatorBuilder` callbacks should always
+  /// actually create widget instances when called. Avoid using a builder that
+  /// returns a previously-constructed widget; if the list view's children are
+  /// created in advance, or all at once when the [ListView] itself is created,
+  /// it is more efficient to use the [ListView] constructor.
+  ///
+  /// {@macro flutter.widgets.ListView.builder.itemBuilder}
+  ///
+  /// {@macro flutter.widgets.PageView.findChildIndexCallback}
+  ///
+  /// {@template flutter.widgets.ListView.separated.findItemIndexCallback}
+  /// The [findItemIndexCallback] returns item indices (excluding separators),
+  /// unlike the deprecated [findChildIndexCallback] which returns child indices
+  /// (including both items and separators).
+  ///
+  /// For example, in a list with 3 items and 2 separators:
+  /// * Item indices: 0, 1, 2
+  /// * Child indices: 0 (item), 1 (separator), 2 (item), 3 (separator), 4 (item)
+  ///
+  /// This callback should be implemented if the order of items may change at a
+  /// later time. If null, reordering items may result in state-loss as widgets
+  /// may not map to their existing [RenderObject]s.
+  /// {@endtemplate}
+  ///
+  /// {@tool snippet}
+  ///
+  /// This example shows how to create [ListView] whose [ListTile] list items
+  /// are separated by [Divider]s.
+  ///
+  /// ```dart
+  /// ListView.separated(
+  ///   itemCount: 25,
+  ///   separatorBuilder: (BuildContext context, int index) => const Divider(),
+  ///   itemBuilder: (BuildContext context, int index) {
+  ///     return ListTile(
+  ///       title: Text('item $index'),
+  ///     );
+  ///   },
+  /// )
+  /// ```
+  /// {@end-tool}
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addRepaintBoundaries] property. The
+  /// `addSemanticIndexes` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addSemanticIndexes] property. None may be
+  /// null.
+  ListView.separated({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    required NullableIndexedWidgetBuilder itemBuilder,
+    @Deprecated(
+      'Use findItemIndexCallback instead. '
+      'findChildIndexCallback returns child indices (which include separators), '
+      'while findItemIndexCallback returns item indices (which do not). '
+      'If you were multiplying results by 2 to account for separators, '
+      'you can remove that workaround when migrating to findItemIndexCallback. '
+      'This feature was deprecated after v3.37.0-1.0.pre.',
+    )
+    ChildIndexGetter? findChildIndexCallback,
+    ChildIndexGetter? findItemIndexCallback,
+    required IndexedWidgetBuilder separatorBuilder,
+    required int itemCount,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : assert(itemCount >= 0),
+       assert(
+         findItemIndexCallback == null || findChildIndexCallback == null,
+         'Cannot provide both findItemIndexCallback and findChildIndexCallback. '
+         'Use findItemIndexCallback as findChildIndexCallback is deprecated.',
+       ),
+       itemExtent = null,
+       itemExtentBuilder = null,
+       prototypeItem = null,
+       childrenDelegate = SliverChildBuilderDelegate(
+         (BuildContext context, int index) {
+           final int itemIndex = index ~/ 2;
+           if (index.isEven) {
+             return itemBuilder(context, itemIndex);
+           }
+           return separatorBuilder(context, itemIndex);
+         },
+         findChildIndexCallback: findItemIndexCallback != null
+             ? (Key key) {
+                 final int? itemIndex = findItemIndexCallback(key);
+                 return itemIndex == null ? null : itemIndex * 2;
+               }
+             : findChildIndexCallback,
+         childCount: _computeActualChildCount(itemCount),
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+         semanticIndexCallback: (Widget widget, int index) {
+           return index.isEven ? index ~/ 2 : null;
+         },
+       ),
+       super(semanticChildCount: itemCount);
+
+  /// Creates a scrollable, linear array of widgets with a custom child model.
+  ///
+  /// For example, a custom child model can control the algorithm used to
+  /// estimate the size of children that are not actually visible.
+  ///
+  /// {@tool dartpad}
+  /// This example shows a [ListView] that uses a custom [SliverChildBuilderDelegate] to support child
+  /// reordering.
+  ///
+  /// ** See code in examples/api/lib/widgets/scroll_view/list_view.1.dart **
+  /// {@end-tool}
+  const ListView.custom({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    this.itemExtent,
+    this.prototypeItem,
+    this.itemExtentBuilder,
+    required this.childrenDelegate,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    super.semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : assert(
+         (itemExtent == null && prototypeItem == null) ||
+             (itemExtent == null && itemExtentBuilder == null) ||
+             (prototypeItem == null && itemExtentBuilder == null),
+         'You can only pass one of itemExtent, prototypeItem and itemExtentBuilder.',
+       );
+
+  /// {@template flutter.widgets.list_view.itemExtent}
+  /// If non-null, forces the children to have the given extent in the scroll
+  /// direction.
+  ///
+  /// Specifying an [itemExtent] is more efficient than letting the children
+  /// determine their own extent because the scrolling machinery can make use of
+  /// the foreknowledge of the children's extent to save work, for example when
+  /// the scroll position changes drastically.
+  ///
+  /// See also:
+  ///
+  ///  * [SliverFixedExtentList], the sliver used internally when this property
+  ///    is provided. It constrains its box children to have a specific given
+  ///    extent along the main axis.
+  ///  * The [prototypeItem] property, which allows forcing the children's
+  ///    extent to be the same as the given widget.
+  ///  * The [itemExtentBuilder] property, which allows forcing the children's
+  ///    extent to be the value returned by the callback.
+  /// {@endtemplate}
+  final double? itemExtent;
+
+  /// {@template flutter.widgets.list_view.itemExtentBuilder}
+  /// If non-null, forces the children to have the corresponding extent returned
+  /// by the builder.
+  ///
+  /// Specifying an [itemExtentBuilder] is more efficient than letting the children
+  /// determine their own extent because the scrolling machinery can make use of
+  /// the foreknowledge of the children's extent to save work, for example when
+  /// the scroll position changes drastically.
+  ///
+  /// This will be called multiple times during the layout phase of a frame to find
+  /// the items that should be loaded by the lazy loading process.
+  ///
+  /// Should return null if asked to build an item extent with a greater index than
+  /// exists.
+  ///
+  /// Unlike [itemExtent] or [prototypeItem], this allows children to have
+  /// different extents.
+  ///
+  /// See also:
+  ///
+  ///  * [SliverVariedExtentList], the sliver used internally when this property
+  ///    is provided. It constrains its box children to have a specific given
+  ///    extent along the main axis.
+  ///  * The [itemExtent] property, which allows forcing the children's extent
+  ///    to a given value.
+  ///  * The [prototypeItem] property, which allows forcing the children's
+  ///    extent to be the same as the given widget.
+  /// {@endtemplate}
+  final ItemExtentBuilder? itemExtentBuilder;
+
+  /// {@template flutter.widgets.list_view.prototypeItem}
+  /// If non-null, forces the children to have the same extent as the given
+  /// widget in the scroll direction.
+  ///
+  /// Specifying an [prototypeItem] is more efficient than letting the children
+  /// determine their own extent because the scrolling machinery can make use of
+  /// the foreknowledge of the children's extent to save work, for example when
+  /// the scroll position changes drastically.
+  ///
+  /// See also:
+  ///
+  ///  * [SliverPrototypeExtentList], the sliver used internally when this
+  ///    property is provided. It constrains its box children to have the same
+  ///    extent as a prototype item along the main axis.
+  ///  * The [itemExtent] property, which allows forcing the children's extent
+  ///    to a given value.
+  ///  * The [itemExtentBuilder] property, which allows forcing the children's
+  ///    extent to be the value returned by the callback.
+  /// {@endtemplate}
+  final Widget? prototypeItem;
+
+  /// A delegate that provides the children for the [ListView].
+  ///
+  /// The [ListView.custom] constructor lets you specify this delegate
+  /// explicitly. The [ListView] and [ListView.builder] constructors create a
+  /// [childrenDelegate] that wraps the given [List] and [IndexedWidgetBuilder],
+  /// respectively.
+  final SliverChildDelegate childrenDelegate;
+
+  @override
+  Widget buildChildLayout(BuildContext context) {
+    if (itemExtent != null) {
+      return SliverFixedExtentList(delegate: childrenDelegate, itemExtent: itemExtent!);
+    } else if (itemExtentBuilder != null) {
+      return SliverVariedExtentList(
+        delegate: childrenDelegate,
+        itemExtentBuilder: itemExtentBuilder!,
+      );
+    } else if (prototypeItem != null) {
+      return SliverPrototypeExtentList(delegate: childrenDelegate, prototypeItem: prototypeItem!);
+    }
+    return SliverList(delegate: childrenDelegate);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('itemExtent', itemExtent, defaultValue: null));
+  }
+
+  // Helper method to compute the actual child count for the separated constructor.
+  static int _computeActualChildCount(int itemCount) {
+    return math.max(0, itemCount * 2 - 1);
+  }
+}
+
+/// A scrollable, 2D array of widgets.
+///
+/// {@youtube 560 315 https://www.youtube.com/watch?v=bLOtZDTm4H8}
+///
+/// The main axis direction of a grid is the direction in which it scrolls (the
+/// [scrollDirection]).
+///
+/// The most commonly used grid layouts are [GridView.count], which creates a
+/// layout with a fixed number of tiles in the cross axis, and
+/// [GridView.extent], which creates a layout with tiles that have a maximum
+/// cross-axis extent. A custom [SliverGridDelegate] can produce an arbitrary 2D
+/// arrangement of children, including arrangements that are unaligned or
+/// overlapping.
+///
+/// To create a grid with a large (or infinite) number of children, use the
+/// [GridView.builder] constructor with either a
+/// [SliverGridDelegateWithFixedCrossAxisCount] or a
+/// [SliverGridDelegateWithMaxCrossAxisExtent] for the [gridDelegate].
+///
+/// To use a custom [SliverChildDelegate], use [GridView.custom].
+///
+/// To create a linear array of children, use a [ListView].
+///
+/// To control the initial scroll offset of the scroll view, provide a
+/// [controller] with its [ScrollController.initialScrollOffset] property set.
+///
+/// ## Transitioning to [CustomScrollView]
+///
+/// A [GridView] is basically a [CustomScrollView] with a single [SliverGrid] in
+/// its [CustomScrollView.slivers] property.
+///
+/// If [GridView] is no longer sufficient, for example because the scroll view
+/// is to have both a grid and a list, or because the grid is to be combined
+/// with a [SliverAppBar], etc, it is straight-forward to port code from using
+/// [GridView] to using [CustomScrollView] directly.
+///
+/// The [key], [scrollDirection], [reverse], [controller], [primary], [physics],
+/// and [shrinkWrap] properties on [GridView] map directly to the identically
+/// named properties on [CustomScrollView].
+///
+/// The [CustomScrollView.slivers] property should be a list containing just a
+/// [SliverGrid].
+///
+/// The [childrenDelegate] property on [GridView] corresponds to the
+/// [SliverGrid.delegate] property, and the [gridDelegate] property on the
+/// [GridView] corresponds to the [SliverGrid.gridDelegate] property.
+///
+/// The [GridView], [GridView.count], and [GridView.extent]
+/// constructors' `children` arguments correspond to the [childrenDelegate]
+/// being a [SliverChildListDelegate] with that same argument. The
+/// [GridView.builder] constructor's `itemBuilder` and `childCount` arguments
+/// correspond to the [childrenDelegate] being a [SliverChildBuilderDelegate]
+/// with the matching arguments.
+///
+/// The [GridView.count] and [GridView.extent] constructors create
+/// custom grid delegates, and have equivalently named constructors on
+/// [SliverGrid] to ease the transition: [SliverGrid.count] and
+/// [SliverGrid.extent] respectively.
+///
+/// The [padding] property corresponds to having a [SliverPadding] in the
+/// [CustomScrollView.slivers] property instead of the grid itself, and having
+/// the [SliverGrid] instead be a child of the [SliverPadding].
+///
+/// Once code has been ported to use [CustomScrollView], other slivers, such as
+/// [SliverList] or [SliverAppBar], can be put in the [CustomScrollView.slivers]
+/// list.
+///
+/// {@macro flutter.widgets.ScrollView.PageStorage}
+///
+/// ## Examples
+///
+/// {@tool snippet}
+/// This example demonstrates how to create a [GridView] with two columns. The
+/// children are spaced apart using the `crossAxisSpacing` and `mainAxisSpacing`
+/// properties.
+///
+/// ![The GridView displays six children with different background colors arranged in two columns](https://flutter.github.io/assets-for-api-docs/assets/widgets/grid_view.png)
+///
+/// ```dart
+/// GridView.count(
+///   primary: false,
+///   padding: const EdgeInsets.all(20),
+///   crossAxisSpacing: 10,
+///   mainAxisSpacing: 10,
+///   crossAxisCount: 2,
+///   children: <Widget>[
+///     Container(
+///       padding: const EdgeInsets.all(8),
+///       color: Colors.teal[100],
+///       child: const Text("He'd have you all unravel at the"),
+///     ),
+///     Container(
+///       padding: const EdgeInsets.all(8),
+///       color: Colors.teal[200],
+///       child: const Text('Heed not the rabble'),
+///     ),
+///     Container(
+///       padding: const EdgeInsets.all(8),
+///       color: Colors.teal[300],
+///       child: const Text('Sound of screams but the'),
+///     ),
+///     Container(
+///       padding: const EdgeInsets.all(8),
+///       color: Colors.teal[400],
+///       child: const Text('Who scream'),
+///     ),
+///     Container(
+///       padding: const EdgeInsets.all(8),
+///       color: Colors.teal[500],
+///       child: const Text('Revolution is coming...'),
+///     ),
+///     Container(
+///       padding: const EdgeInsets.all(8),
+///       color: Colors.teal[600],
+///       child: const Text('Revolution, they...'),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool snippet}
+/// This example shows how to create the same grid as the previous example
+/// using a [CustomScrollView] and a [SliverGrid].
+///
+/// ![The CustomScrollView contains a SliverGrid that displays six children with different background colors arranged in two columns](https://flutter.github.io/assets-for-api-docs/assets/widgets/grid_view_custom_scroll.png)
+///
+/// ```dart
+/// CustomScrollView(
+///   primary: false,
+///   slivers: <Widget>[
+///     SliverPadding(
+///       padding: const EdgeInsets.all(20),
+///       sliver: SliverGrid.count(
+///         crossAxisSpacing: 10,
+///         mainAxisSpacing: 10,
+///         crossAxisCount: 2,
+///         children: <Widget>[
+///           Container(
+///             padding: const EdgeInsets.all(8),
+///             color: Colors.green[100],
+///             child: const Text("He'd have you all unravel at the"),
+///           ),
+///           Container(
+///             padding: const EdgeInsets.all(8),
+///             color: Colors.green[200],
+///             child: const Text('Heed not the rabble'),
+///           ),
+///           Container(
+///             padding: const EdgeInsets.all(8),
+///             color: Colors.green[300],
+///             child: const Text('Sound of screams but the'),
+///           ),
+///           Container(
+///             padding: const EdgeInsets.all(8),
+///             color: Colors.green[400],
+///             child: const Text('Who scream'),
+///           ),
+///           Container(
+///             padding: const EdgeInsets.all(8),
+///             color: Colors.green[500],
+///             child: const Text('Revolution is coming...'),
+///           ),
+///           Container(
+///             padding: const EdgeInsets.all(8),
+///             color: Colors.green[600],
+///             child: const Text('Revolution, they...'),
+///           ),
+///         ],
+///       ),
+///     ),
+///   ],
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This example shows a custom implementation of selection in list and grid views.
+/// Use the button in the top right (possibly hidden under the DEBUG banner) to toggle between
+/// [ListView] and [GridView].
+/// Long press any [ListTile] or [GridTile] to enable selection mode.
+///
+/// ** See code in examples/api/lib/widgets/scroll_view/list_view.0.dart **
+/// {@end-tool}
+///
+/// {@tool dartpad}
+/// This example shows a custom [SliverGridDelegate].
+///
+/// ** See code in examples/api/lib/widgets/scroll_view/grid_view.0.dart **
+/// {@end-tool}
+///
+/// ## Troubleshooting
+///
+/// ### Padding
+///
+/// By default, [GridView] will automatically pad the limits of the
+/// grid's scrollable to avoid partial obstructions indicated by
+/// [MediaQuery]'s padding. To avoid this behavior, override with a
+/// zero [padding] property.
+///
+/// {@tool snippet}
+/// The following example demonstrates how to override the default top padding
+/// using [MediaQuery.removePadding].
+///
+/// ```dart
+/// Widget myWidget(BuildContext context) {
+///   return MediaQuery.removePadding(
+///     context: context,
+///     removeTop: true,
+///     child: GridView.builder(
+///       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+///         crossAxisCount: 3,
+///       ),
+///       itemCount: 300,
+///       itemBuilder: (BuildContext context, int index) {
+///         return Card(
+///           color: Colors.amber,
+///           child: Center(child: Text('$index')),
+///         );
+///       }
+///     ),
+///   );
+/// }
+/// ```
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [SingleChildScrollView], which is a scrollable widget that has a single
+///    child.
+///  * [ListView], which is scrollable, linear list of widgets.
+///  * [PageView], which is a scrolling list of child widgets that are each the
+///    size of the viewport.
+///  * [CustomScrollView], which is a scrollable widget that creates custom
+///    scroll effects using slivers.
+///  * [SliverGridDelegateWithFixedCrossAxisCount], which creates a layout with
+///    a fixed number of tiles in the cross axis.
+///  * [SliverGridDelegateWithMaxCrossAxisExtent], which creates a layout with
+///    tiles that have a maximum cross-axis extent.
+///  * [ScrollNotification] and [NotificationListener], which can be used to watch
+///    the scroll position without using a [ScrollController].
+///  * The [catalog of layout widgets](https://flutter.dev/widgets/layout/).
+class GridView extends BoxScrollView {
+  /// Creates a scrollable, 2D array of widgets with a custom
+  /// [SliverGridDelegate].
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildListDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildListDelegate.addRepaintBoundaries] property. Both must not be
+  /// null.
+  GridView({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    required this.gridDelegate,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    List<Widget> children = const <Widget>[],
+    int? semanticChildCount,
+    super.dragStartBehavior,
+    super.clipBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.hitTestBehavior,
+  }) : childrenDelegate = SliverChildListDelegate(
+         children,
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+       ),
+       super(semanticChildCount: semanticChildCount ?? children.length);
+
+  /// Creates a scrollable, 2D array of widgets that are created on demand.
+  ///
+  /// This constructor is appropriate for grid views with a large (or infinite)
+  /// number of children because the builder is called only for those children
+  /// that are actually visible.
+  ///
+  /// Providing a non-null `itemCount` improves the ability of the [GridView] to
+  /// estimate the maximum scroll extent.
+  ///
+  /// `itemBuilder` will be called only with indices greater than or equal to
+  /// zero and less than `itemCount`.
+  ///
+  /// {@macro flutter.widgets.ListView.builder.itemBuilder}
+  ///
+  /// {@macro flutter.widgets.PageView.findChildIndexCallback}
+  ///
+  /// The [gridDelegate] argument is required.
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addRepaintBoundaries] property. The
+  /// `addSemanticIndexes` argument corresponds to the
+  /// [SliverChildBuilderDelegate.addSemanticIndexes] property.
+  GridView.builder({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    required this.gridDelegate,
+    required NullableIndexedWidgetBuilder itemBuilder,
+    ChildIndexGetter? findChildIndexCallback,
+    int? itemCount,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    int? semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : childrenDelegate = SliverChildBuilderDelegate(
+         itemBuilder,
+         findChildIndexCallback: findChildIndexCallback,
+         childCount: itemCount,
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+       ),
+       super(semanticChildCount: semanticChildCount ?? itemCount);
+
+  /// Creates a scrollable, 2D array of widgets with both a custom
+  /// [SliverGridDelegate] and a custom [SliverChildDelegate].
+  ///
+  /// To use an [IndexedWidgetBuilder] callback to build children, either use
+  /// a [SliverChildBuilderDelegate] or use the [GridView.builder] constructor.
+  const GridView.custom({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    required this.gridDelegate,
+    required this.childrenDelegate,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    super.semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  });
+
+  /// Creates a scrollable, 2D array of widgets with a fixed number of tiles in
+  /// the cross axis.
+  ///
+  /// Uses a [SliverGridDelegateWithFixedCrossAxisCount] as the [gridDelegate].
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildListDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildListDelegate.addRepaintBoundaries] property. Both must not be
+  /// null.
+  ///
+  /// See also:
+  ///
+  ///  * [SliverGrid.count], the equivalent constructor for [SliverGrid].
+  GridView.count({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    required int crossAxisCount,
+    double mainAxisSpacing = 0.0,
+    double crossAxisSpacing = 0.0,
+    double childAspectRatio = 1.0,
+    double? mainAxisExtent,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    List<Widget> children = const <Widget>[],
+    int? semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : gridDelegate = SliverGridDelegateWithFixedCrossAxisCount(
+         crossAxisCount: crossAxisCount,
+         mainAxisSpacing: mainAxisSpacing,
+         crossAxisSpacing: crossAxisSpacing,
+         childAspectRatio: childAspectRatio,
+         mainAxisExtent: mainAxisExtent,
+       ),
+       childrenDelegate = SliverChildListDelegate(
+         children,
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+       ),
+       super(semanticChildCount: semanticChildCount ?? children.length);
+
+  /// Creates a scrollable, 2D array of widgets with tiles that each have a
+  /// maximum cross-axis extent.
+  ///
+  /// Uses a [SliverGridDelegateWithMaxCrossAxisExtent] as the [gridDelegate].
+  ///
+  /// The `addAutomaticKeepAlives` argument corresponds to the
+  /// [SliverChildListDelegate.addAutomaticKeepAlives] property. The
+  /// `addRepaintBoundaries` argument corresponds to the
+  /// [SliverChildListDelegate.addRepaintBoundaries] property. Both must not be
+  /// null.
+  ///
+  /// See also:
+  ///
+  ///  * [SliverGrid.extent], the equivalent constructor for [SliverGrid].
+  GridView.extent({
+    super.key,
+    super.scrollDirection,
+    super.reverse,
+    super.controller,
+    super.primary,
+    super.physics,
+    super.shrinkWrap,
+    super.padding,
+    required double maxCrossAxisExtent,
+    double mainAxisSpacing = 0.0,
+    double crossAxisSpacing = 0.0,
+    double childAspectRatio = 1.0,
+    double? mainAxisExtent,
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    bool addSemanticIndexes = true,
+    @Deprecated(
+      'Use scrollCacheExtent instead. '
+      'This feature was deprecated after v3.41.0-0.0.pre.',
+    )
+    super.cacheExtent,
+    super.scrollCacheExtent,
+    List<Widget> children = const <Widget>[],
+    int? semanticChildCount,
+    super.dragStartBehavior,
+    super.keyboardDismissBehavior,
+    super.restorationId,
+    super.clipBehavior,
+    super.hitTestBehavior,
+  }) : gridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
+         maxCrossAxisExtent: maxCrossAxisExtent,
+         mainAxisSpacing: mainAxisSpacing,
+         crossAxisSpacing: crossAxisSpacing,
+         childAspectRatio: childAspectRatio,
+         mainAxisExtent: mainAxisExtent,
+       ),
+       childrenDelegate = SliverChildListDelegate(
+         children,
+         addAutomaticKeepAlives: addAutomaticKeepAlives,
+         addRepaintBoundaries: addRepaintBoundaries,
+         addSemanticIndexes: addSemanticIndexes,
+       ),
+       super(semanticChildCount: semanticChildCount ?? children.length);
+
+  /// A delegate that controls the layout of the children within the [GridView].
+  ///
+  /// The [GridView], [GridView.builder], and [GridView.custom] constructors let you specify this
+  /// delegate explicitly. The other constructors create a [gridDelegate]
+  /// implicitly.
+  final SliverGridDelegate gridDelegate;
+
+  /// A delegate that provides the children for the [GridView].
+  ///
+  /// The [GridView.custom] constructor lets you specify this delegate
+  /// explicitly. The other constructors create a [childrenDelegate] that wraps
+  /// the given child list.
+  final SliverChildDelegate childrenDelegate;
+
+  @override
+  Widget buildChildLayout(BuildContext context) {
+    return SliverGrid(delegate: childrenDelegate, gridDelegate: gridDelegate);
+  }
+}
+```
+
+// ============================================================
+// 📁 Project: text.dart
+// 📁 /home/user/flutter/packages/flutter/lib/src/widgets/text.dart
+// ============================================================
+
+```dart
+// Copyright 2014 The Flutter Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+/// @docImport 'package:flutter/gestures.dart';
+/// @docImport 'package:flutter/material.dart';
+///
+/// @docImport 'editable_text.dart';
+/// @docImport 'gesture_detector.dart';
+/// @docImport 'implicit_animations.dart';
+/// @docImport 'transitions.dart';
+/// @docImport 'widget_span.dart';
+library;
+
+import 'dart:math';
+import 'dart:ui' as ui show TextHeightBehavior;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
+
+import 'basic.dart';
+import 'default_selection_style.dart';
+import 'framework.dart';
+import 'inherited_theme.dart';
+import 'media_query.dart';
+import 'selectable_region.dart';
+import 'selection_container.dart';
+
+// Examples can assume:
+// late BuildContext context;
+
+/// The text style to apply to descendant [Text] widgets which don't have an
+/// explicit style.
+///
+/// A [MediaQuery] ancestor of a [Text] widget may still override the
+/// [TextStyle.height], [TextStyle.letterSpacing], and [TextStyle.wordSpacing] of
+/// the [TextStyle] set by this [DefaultTextStyle] widget through its
+/// [MediaQueryData.lineHeightScaleFactorOverride], [MediaQueryData.letterSpacingOverride],
+/// and [MediaQueryData.wordSpacingOverride] members.
+///
+/// {@tool dartpad}
+/// This example shows how to use [DefaultTextStyle.merge] to create a default
+/// text style that inherits styling information from the current default text
+/// style and overrides some properties.
+///
+/// ** See code in examples/api/lib/widgets/text/text.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [AnimatedDefaultTextStyle], which animates changes in the text style
+///    smoothly over a given duration.
+///  * [DefaultTextStyleTransition], which takes a provided [Animation] to
+///    animate changes in text style smoothly over time.
+class DefaultTextStyle extends InheritedTheme {
+  /// Creates a default text style for the given subtree.
+  ///
+  /// Consider using [DefaultTextStyle.merge] to inherit styling information
+  /// from the current default text style for a given [BuildContext].
+  ///
+  /// The [maxLines] property may be null (and indeed defaults to null), but if
+  /// it is not null, it must be greater than zero.
+  const DefaultTextStyle({
+    super.key,
+    required this.style,
+    this.textAlign,
+    this.softWrap = true,
+    this.overflow = TextOverflow.clip,
+    this.maxLines,
+    this.textWidthBasis = TextWidthBasis.parent,
+    this.textHeightBehavior,
+    required super.child,
+  }) : assert(maxLines == null || maxLines > 0);
+
+  /// A const-constructable default text style that provides fallback values.
+  ///
+  /// Returned from [of] when the given [BuildContext] doesn't have an enclosing default text style.
+  ///
+  /// This constructor creates a [DefaultTextStyle] with an invalid [child], which
+  /// means the constructed value cannot be incorporated into the tree.
+  const DefaultTextStyle.fallback({super.key})
+    : style = const TextStyle(),
+      textAlign = null,
+      softWrap = true,
+      maxLines = null,
+      overflow = TextOverflow.clip,
+      textWidthBasis = TextWidthBasis.parent,
+      textHeightBehavior = null,
+      super(child: const _NullWidget());
+
+  /// Creates a default text style that overrides the text styles in scope at
+  /// this point in the widget tree.
+  ///
+  /// The given [style] is merged with the [style] from the default text style
+  /// for the [BuildContext] where the widget is inserted, and any of the other
+  /// arguments that are not null replace the corresponding properties on that
+  /// same default text style.
+  ///
+  /// This constructor cannot be used to override the [maxLines] property of the
+  /// ancestor with the value null, since null here is used to mean "defer to
+  /// ancestor". To replace a non-null [maxLines] from an ancestor with the null
+  /// value (to remove the restriction on number of lines), manually obtain the
+  /// ambient [DefaultTextStyle] using [DefaultTextStyle.of], then create a new
+  /// [DefaultTextStyle] using the [DefaultTextStyle.new] constructor directly.
+  /// See the source below for an example of how to do this (since that's
+  /// essentially what this constructor does).
+  ///
+  /// If a [textHeightBehavior] is provided, the existing configuration will be
+  /// replaced completely. To retain part of the original [textHeightBehavior],
+  /// manually obtain the ambient [DefaultTextStyle] using [DefaultTextStyle.of].
+  static Widget merge({
+    Key? key,
+    TextStyle? style,
+    TextAlign? textAlign,
+    bool? softWrap,
+    TextOverflow? overflow,
+    int? maxLines,
+    TextWidthBasis? textWidthBasis,
+    TextHeightBehavior? textHeightBehavior,
+    required Widget child,
+  }) {
+    return Builder(
+      builder: (BuildContext context) {
+        final DefaultTextStyle parent = DefaultTextStyle.of(context);
+        return DefaultTextStyle(
+          key: key,
+          style: parent.style.merge(style),
+          textAlign: textAlign ?? parent.textAlign,
+          softWrap: softWrap ?? parent.softWrap,
+          overflow: overflow ?? parent.overflow,
+          maxLines: maxLines ?? parent.maxLines,
+          textWidthBasis: textWidthBasis ?? parent.textWidthBasis,
+          textHeightBehavior: textHeightBehavior ?? parent.textHeightBehavior,
+          child: child,
+        );
+      },
+    );
+  }
+
+  /// The text style to apply.
+  final TextStyle style;
+
+  /// How each line of text in the Text widget should be aligned horizontally.
+  final TextAlign? textAlign;
+
+  /// Whether the text should break at soft line breaks.
+  ///
+  /// If false, the glyphs in the text will be positioned as if there was unlimited horizontal space.
+  ///
+  /// This also decides the [overflow] property's behavior. If this is true or null,
+  /// the glyph causing overflow, and those that follow, will not be rendered.
+  final bool softWrap;
+
+  /// How visual overflow should be handled.
+  ///
+  /// If [softWrap] is true or null, the glyph causing overflow, and those that follow,
+  /// will not be rendered. Otherwise, it will be shown with the given overflow option.
+  final TextOverflow overflow;
+
+  /// An optional maximum number of lines for the text to span, wrapping if necessary.
+  /// If the text exceeds the given number of lines, it will be truncated according
+  /// to [overflow].
+  ///
+  /// If this is 1, text will not wrap. Otherwise, text will be wrapped at the
+  /// edge of the box.
+  ///
+  /// If this is non-null, it will override even explicit null values of
+  /// [Text.maxLines].
+  final int? maxLines;
+
+  /// The strategy to use when calculating the width of the Text.
+  ///
+  /// See [TextWidthBasis] for possible values and their implications.
+  final TextWidthBasis textWidthBasis;
+
+  /// {@macro dart.ui.textHeightBehavior}
+  final ui.TextHeightBehavior? textHeightBehavior;
+
+  /// The closest instance of this class that encloses the given context.
+  ///
+  /// If no such instance exists, returns an instance created by
+  /// [DefaultTextStyle.fallback], which contains fallback values.
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// DefaultTextStyle style = DefaultTextStyle.of(context);
+  /// ```
+  static DefaultTextStyle of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<DefaultTextStyle>() ??
+        const DefaultTextStyle.fallback();
+  }
+
+  @override
+  bool updateShouldNotify(DefaultTextStyle oldWidget) {
+    return style != oldWidget.style ||
+        textAlign != oldWidget.textAlign ||
+        softWrap != oldWidget.softWrap ||
+        overflow != oldWidget.overflow ||
+        maxLines != oldWidget.maxLines ||
+        textWidthBasis != oldWidget.textWidthBasis ||
+        textHeightBehavior != oldWidget.textHeightBehavior;
+  }
+
+  @override
+  Widget wrap(BuildContext context, Widget child) {
+    return DefaultTextStyle(
+      style: style,
+      textAlign: textAlign,
+      softWrap: softWrap,
+      overflow: overflow,
+      maxLines: maxLines,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      child: child,
+    );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    style.debugFillProperties(properties);
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: null));
+    properties.add(
+      FlagProperty(
+        'softWrap',
+        value: softWrap,
+        ifTrue: 'wrapping at box width',
+        ifFalse: 'no wrapping except at line break characters',
+        showName: true,
+      ),
+    );
+    properties.add(EnumProperty<TextOverflow>('overflow', overflow, defaultValue: null));
+    properties.add(IntProperty('maxLines', maxLines, defaultValue: null));
+    properties.add(
+      EnumProperty<TextWidthBasis>(
+        'textWidthBasis',
+        textWidthBasis,
+        defaultValue: TextWidthBasis.parent,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<ui.TextHeightBehavior>(
+        'textHeightBehavior',
+        textHeightBehavior,
+        defaultValue: null,
+      ),
+    );
+  }
+}
+
+class _NullWidget extends StatelessWidget {
+  const _NullWidget();
+
+  @override
+  Widget build(BuildContext context) {
+    throw FlutterError(
+      'A DefaultTextStyle constructed with DefaultTextStyle.fallback cannot be incorporated into the widget tree, '
+      'it is meant only to provide a fallback value returned by DefaultTextStyle.of() '
+      'when no enclosing default text style is present in a BuildContext.',
+    );
+  }
+}
+
+/// The [TextHeightBehavior] that will apply to descendant [Text] and [EditableText]
+/// widgets which have not explicitly set [Text.textHeightBehavior].
+///
+/// If there is a [DefaultTextStyle] with a non-null [DefaultTextStyle.textHeightBehavior]
+/// below this widget, the [DefaultTextStyle.textHeightBehavior] will be used
+/// over this widget's [TextHeightBehavior].
+///
+/// See also:
+///
+///  * [DefaultTextStyle], which defines a [TextStyle] to apply to descendant
+///    [Text] widgets.
+class DefaultTextHeightBehavior extends InheritedTheme {
+  /// Creates a default text height behavior for the given subtree.
+  const DefaultTextHeightBehavior({
+    super.key,
+    required this.textHeightBehavior,
+    required super.child,
+  });
+
+  /// {@macro dart.ui.textHeightBehavior}
+  final TextHeightBehavior textHeightBehavior;
+
+  /// The closest instance of [DefaultTextHeightBehavior] that encloses the
+  /// given context, or null if none is found.
+  ///
+  /// If no such instance exists, this method will return `null`.
+  ///
+  /// Calling this method will create a dependency on the closest
+  /// [DefaultTextHeightBehavior] in the [context], if there is one.
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// TextHeightBehavior? defaultTextHeightBehavior = DefaultTextHeightBehavior.of(context);
+  /// ```
+  ///
+  /// See also:
+  ///
+  /// * [DefaultTextHeightBehavior.maybeOf], which is similar to this method,
+  ///   but asserts if no [DefaultTextHeightBehavior] ancestor is found.
+  static TextHeightBehavior? maybeOf(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<DefaultTextHeightBehavior>()
+        ?.textHeightBehavior;
+  }
+
+  /// The closest instance of [DefaultTextHeightBehavior] that encloses the
+  /// given context.
+  ///
+  /// If no such instance exists, this method will assert in debug mode, and
+  /// throw an exception in release mode.
+  ///
+  /// Typical usage is as follows:
+  ///
+  /// ```dart
+  /// TextHeightBehavior defaultTextHeightBehavior = DefaultTextHeightBehavior.of(context);
+  /// ```
+  ///
+  /// Calling this method will create a dependency on the closest
+  /// [DefaultTextHeightBehavior] in the [context].
+  ///
+  /// See also:
+  ///
+  /// * [DefaultTextHeightBehavior.maybeOf], which is similar to this method,
+  ///   but returns null if no [DefaultTextHeightBehavior] ancestor is found.
+  static TextHeightBehavior of(BuildContext context) {
+    final TextHeightBehavior? behavior = maybeOf(context);
+    assert(() {
+      if (behavior == null) {
+        throw FlutterError(
+          'DefaultTextHeightBehavior.of() was called with a context that does not contain a '
+          'DefaultTextHeightBehavior widget.\n'
+          'No DefaultTextHeightBehavior widget ancestor could be found starting from the '
+          'context that was passed to DefaultTextHeightBehavior.of(). This can happen '
+          'because you are using a widget that looks for a DefaultTextHeightBehavior '
+          'ancestor, but no such ancestor exists.\n'
+          'The context used was:\n'
+          '  $context',
+        );
+      }
+      return true;
+    }());
+    return behavior!;
+  }
+
+  @override
+  bool updateShouldNotify(DefaultTextHeightBehavior oldWidget) {
+    return textHeightBehavior != oldWidget.textHeightBehavior;
+  }
+
+  @override
+  Widget wrap(BuildContext context, Widget child) {
+    return DefaultTextHeightBehavior(textHeightBehavior: textHeightBehavior, child: child);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<ui.TextHeightBehavior>(
+        'textHeightBehavior',
+        textHeightBehavior,
+        defaultValue: null,
+      ),
+    );
+  }
+}
+
+/// A run of text with a single style.
+///
+/// The [Text] widget displays a string of text with single style. The string
+/// might break across multiple lines or might all be displayed on the same line
+/// depending on the layout constraints.
+///
+/// The [style] argument is optional. When omitted, the text will use the style
+/// from the closest enclosing [DefaultTextStyle]. If the given style's
+/// [TextStyle.inherit] property is true (the default), the given style will
+/// be merged with the closest enclosing [DefaultTextStyle]. This merging
+/// behavior is useful, for example, to make the text bold while using the
+/// default font family and size.
+///
+/// {@tool snippet}
+///
+/// This example shows how to display text using the [Text] widget with the
+/// [overflow] set to [TextOverflow.ellipsis].
+///
+/// ![If the text overflows, the Text widget displays an ellipsis to trim the overflowing text](https://flutter.github.io/assets-for-api-docs/assets/widgets/text_ellipsis.png)
+///
+/// ```dart
+/// Container(
+///   width: 100,
+///   decoration: BoxDecoration(border: Border.all()),
+///   child: const Text(
+///     'Hello, how are you?',
+///     overflow: TextOverflow.ellipsis,
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// {@tool snippet}
+///
+/// Setting [maxLines] to `1` is not equivalent to disabling soft wrapping with
+/// [softWrap]. This is apparent when using [TextOverflow.fade] as the following
+/// examples show.
+///
+/// ![If a second line overflows the Text widget displays a horizontal fade](https://flutter.github.io/assets-for-api-docs/assets/widgets/text_fade_max_lines.png)
+///
+/// ```dart
+/// const Text(
+///   'Hello, how are you?',
+///   overflow: TextOverflow.fade,
+///   maxLines: 1,
+/// )
+/// ```
+///
+/// Here soft wrapping is enabled and the [Text] widget tries to wrap the words
+/// "how are you?" to a second line. This is prevented by the [maxLines] value
+/// of `1`. The result is that a second line overflows and the fade appears in a
+/// horizontal direction at the bottom.
+///
+/// ![If a single line overflows the Text widget displays a horizontal fade](https://flutter.github.io/assets-for-api-docs/assets/widgets/text_fade_soft_wrap.png)
+///
+/// ```dart
+/// const Text(
+///   'Hello, how are you?',
+///   overflow: TextOverflow.fade,
+///   softWrap: false,
+/// )
+/// ```
+///
+/// Here soft wrapping is disabled with `softWrap: false` and the [Text] widget
+/// attempts to display its text in a single unbroken line. The result is that
+/// the single line overflows and the fade appears in a vertical direction at
+/// the right.
+///
+/// {@end-tool}
+///
+/// Using the [Text.rich] constructor, the [Text] widget can
+/// display a paragraph with differently styled [TextSpan]s. The sample
+/// that follows displays "Hello beautiful world" with different styles
+/// for each word.
+///
+/// {@tool snippet}
+///
+/// ![The word "Hello" is shown with the default text styles. The word "beautiful" is italicized. The word "world" is bold.](https://flutter.github.io/assets-for-api-docs/assets/widgets/text_rich.png)
+///
+/// ```dart
+/// const Text.rich(
+///   TextSpan(
+///     text: 'Hello', // default text style
+///     children: <TextSpan>[
+///       TextSpan(text: ' beautiful ', style: TextStyle(fontStyle: FontStyle.italic)),
+///       TextSpan(text: 'world', style: TextStyle(fontWeight: FontWeight.bold)),
+///     ],
+///   ),
+/// )
+/// ```
+/// {@end-tool}
+///
+/// ## Interactivity
+///
+/// To make [Text] react to touch events, wrap it in a [GestureDetector] widget
+/// with a [GestureDetector.onTap] handler.
+///
+/// In a Material Design application, consider using a [TextButton] instead, or
+/// if that isn't appropriate, at least using an [InkWell] instead of
+/// [GestureDetector].
+///
+/// To make sections of the text interactive, use [RichText] and specify a
+/// [TapGestureRecognizer] as the [TextSpan.recognizer] of the relevant part of
+/// the text.
+///
+/// ## Selection
+///
+/// [Text] is not selectable by default. To make a [Text] selectable, one can
+/// wrap a subtree with a [SelectionArea] widget. To exclude a part of a subtree
+/// under [SelectionArea] from selection, once can also wrap that part of the
+/// subtree with [SelectionContainer.disabled].
+///
+/// {@tool dartpad}
+/// This sample demonstrates how to disable selection for a Text under a
+/// SelectionArea.
+///
+/// ** See code in examples/api/lib/material/selection_container/selection_container_disabled.0.dart **
+/// {@end-tool}
+///
+/// See also:
+///
+///  * [RichText], which gives you more control over the text styles.
+///  * [DefaultTextStyle], which sets default styles for [Text] widgets.
+///  * [SelectableRegion], which provides an overview of the selection system.
+class Text extends StatelessWidget {
+  /// Creates a text widget.
+  ///
+  /// If the [style] argument is null, the text will use the style from the
+  /// closest enclosing [DefaultTextStyle].
+  ///
+  /// The [overflow] property's behavior is affected by the [softWrap] argument.
+  /// If the [softWrap] is true or null, the glyph causing overflow, and those
+  /// that follow, will not be rendered. Otherwise, it will be shown with the
+  /// given overflow option.
+  const Text(
+    String this.data, {
+    super.key,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.softWrap,
+    this.overflow,
+    @Deprecated(
+      'Use textScaler instead. '
+      'Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. '
+      'This feature was deprecated after v3.12.0-2.0.pre.',
+    )
+    this.textScaleFactor,
+    this.textScaler,
+    this.maxLines,
+    this.semanticsLabel,
+    this.semanticsIdentifier,
+    this.textWidthBasis,
+    this.textHeightBehavior,
+    this.selectionColor,
+  }) : textSpan = null,
+       assert(
+         textScaler == null || textScaleFactor == null,
+         'textScaleFactor is deprecated and cannot be specified when textScaler is specified.',
+       );
+
+  /// Creates a text widget with a [InlineSpan].
+  ///
+  /// The following subclasses of [InlineSpan] may be used to build rich text:
+  ///
+  /// * [TextSpan]s define text and children [InlineSpan]s.
+  /// * [WidgetSpan]s define embedded inline widgets.
+  ///
+  /// See [RichText] which provides a lower-level way to draw text.
+  const Text.rich(
+    InlineSpan this.textSpan, {
+    super.key,
+    this.style,
+    this.strutStyle,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.softWrap,
+    this.overflow,
+    @Deprecated(
+      'Use textScaler instead. '
+      'Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. '
+      'This feature was deprecated after v3.12.0-2.0.pre.',
+    )
+    this.textScaleFactor,
+    this.textScaler,
+    this.maxLines,
+    this.semanticsLabel,
+    this.semanticsIdentifier,
+    this.textWidthBasis,
+    this.textHeightBehavior,
+    this.selectionColor,
+  }) : data = null,
+       assert(
+         textScaler == null || textScaleFactor == null,
+         'textScaleFactor is deprecated and cannot be specified when textScaler is specified.',
+       );
+
+  /// The text to display.
+  ///
+  /// This will be null if a [textSpan] is provided instead.
+  final String? data;
+
+  /// The text to display as a [InlineSpan].
+  ///
+  /// This will be null if [data] is provided instead.
+  final InlineSpan? textSpan;
+
+  /// If non-null, the style to use for this text.
+  ///
+  /// If the style's "inherit" property is true, the style will be merged with
+  /// the closest enclosing [DefaultTextStyle]. Otherwise, the style will
+  /// replace the closest enclosing [DefaultTextStyle].
+  ///
+  /// The user or platform may override this [style]'s [TextStyle.fontWeight],
+  /// [TextStyle.height], [TextStyle.letterSpacing], and [TextStyle.wordSpacing]
+  /// via a [MediaQuery] ancestor's [MediaQueryData.boldText],
+  /// [MediaQueryData.lineHeightScaleFactorOverride],
+  /// [MediaQueryData.letterSpacingOverride], and [MediaQueryData.wordSpacingOverride]
+  /// regardless of its [TextStyle.inherit] value.
+  final TextStyle? style;
+
+  /// {@macro flutter.painting.textPainter.strutStyle}
+  ///
+  /// The user or platform may override this [strutStyle]'s [StrutStyle.height]
+  /// via a [MediaQuery] ancestor's [MediaQueryData.lineHeightScaleFactorOverride].
+  final StrutStyle? strutStyle;
+
+  /// How the text should be aligned horizontally.
+  final TextAlign? textAlign;
+
+  /// The directionality of the text.
+  ///
+  /// This decides how [textAlign] values like [TextAlign.start] and
+  /// [TextAlign.end] are interpreted.
+  ///
+  /// This is also used to disambiguate how to render bidirectional text. For
+  /// example, if the [data] is an English phrase followed by a Hebrew phrase,
+  /// in a [TextDirection.ltr] context the English phrase will be on the left
+  /// and the Hebrew phrase to its right, while in a [TextDirection.rtl]
+  /// context, the English phrase will be on the right and the Hebrew phrase on
+  /// its left.
+  ///
+  /// Defaults to the ambient [Directionality], if any.
+  final TextDirection? textDirection;
+
+  /// Used to select a font when the same Unicode character can
+  /// be rendered differently, depending on the locale.
+  ///
+  /// It's rarely necessary to set this property. By default its value
+  /// is inherited from the enclosing app with `Localizations.localeOf(context)`.
+  ///
+  /// See [RenderParagraph.locale] for more information.
+  final Locale? locale;
+
+  /// Whether the text should break at soft line breaks.
+  ///
+  /// If false, the glyphs in the text will be positioned as if there was unlimited horizontal space.
+  final bool? softWrap;
+
+  /// How visual overflow should be handled.
+  ///
+  /// If this is null [TextStyle.overflow] will be used, otherwise the value
+  /// from the nearest [DefaultTextStyle] ancestor will be used.
+  final TextOverflow? overflow;
+
+  /// Deprecated. Will be removed in a future version of Flutter. Use
+  /// [textScaler] instead.
+  ///
+  /// The number of font pixels for each logical pixel.
+  ///
+  /// For example, if the text scale factor is 1.5, text will be 50% larger than
+  /// the specified font size.
+  ///
+  /// The value given to the constructor as textScaleFactor. If null, will
+  /// use the [MediaQueryData.textScaleFactor] obtained from the ambient
+  /// [MediaQuery], or 1.0 if there is no [MediaQuery] in scope.
+  @Deprecated(
+    'Use textScaler instead. '
+    'Use of textScaleFactor was deprecated in preparation for the upcoming nonlinear text scaling support. '
+    'This feature was deprecated after v3.12.0-2.0.pre.',
+  )
+  final double? textScaleFactor;
+
+  /// {@macro flutter.painting.textPainter.textScaler}
+  final TextScaler? textScaler;
+
+  /// An optional maximum number of lines for the text to span, wrapping if necessary.
+  /// If the text exceeds the given number of lines, it will be truncated according
+  /// to [overflow].
+  ///
+  /// If this is 1, text will not wrap. Otherwise, text will be wrapped at the
+  /// edge of the box.
+  ///
+  /// If this is null, but there is an ambient [DefaultTextStyle] that specifies
+  /// an explicit number for its [DefaultTextStyle.maxLines], then the
+  /// [DefaultTextStyle] value will take precedence. You can use a [RichText]
+  /// widget directly to entirely override the [DefaultTextStyle].
+  final int? maxLines;
+
+  /// {@template flutter.widgets.Text.semanticsLabel}
+  /// An alternative semantics label for this text.
+  ///
+  /// If present, the semantics of this widget will contain this value instead
+  /// of the actual text. This will overwrite any of the semantics labels applied
+  /// directly to the [TextSpan]s.
+  ///
+  /// This is useful for replacing abbreviations or shorthands with the full
+  /// text value:
+  ///
+  /// ```dart
+  /// const Text(r'$$', semanticsLabel: 'Double dollars')
+  /// ```
+  /// {@endtemplate}
+  final String? semanticsLabel;
+
+  /// A unique identifier for the semantics node for this widget.
+  ///
+  /// This is useful for cases where the text widget needs to have a uniquely
+  /// identifiable ID that is recognized through the automation tools without
+  /// having a dependency on the actual content of the text that can possibly be
+  /// dynamic in nature.
+  final String? semanticsIdentifier;
+
+  /// {@macro flutter.painting.textPainter.textWidthBasis}
+  final TextWidthBasis? textWidthBasis;
+
+  /// {@macro dart.ui.textHeightBehavior}
+  final ui.TextHeightBehavior? textHeightBehavior;
+
+  /// The color to use when painting the selection.
+  ///
+  /// This is ignored if [SelectionContainer.maybeOf] returns null
+  /// in the [BuildContext] of the [Text] widget.
+  ///
+  /// If null, the ambient [DefaultSelectionStyle] is used (if any); failing
+  /// that, the selection color defaults to [DefaultSelectionStyle.defaultColor]
+  /// (semi-transparent grey).
+  final Color? selectionColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
+    TextStyle? effectiveTextStyle = style;
+    if (style == null || style!.inherit) {
+      effectiveTextStyle = defaultTextStyle.style.merge(style);
+    }
+    if (MediaQuery.boldTextOf(context)) {
+      effectiveTextStyle = effectiveTextStyle!.merge(const TextStyle(fontWeight: FontWeight.bold));
+    }
+    // TODO(Renzo-Olivares): Investigate ways the framework can automatically
+    // apply MediaQueryData.paragraphSpacingOverride to its own text components.
+    // See: https://github.com/flutter/flutter/issues/177953 and https://github.com/flutter/flutter/issues/177408.
+    final double? lineHeightScaleFactor = MediaQuery.maybeLineHeightScaleFactorOverrideOf(context);
+    final double? letterSpacing = MediaQuery.maybeLetterSpacingOverrideOf(context);
+    final double? wordSpacing = MediaQuery.maybeWordSpacingOverrideOf(context);
+    final TextSpan effectiveTextSpan = _OverridingTextStyleTextSpanUtils.applyTextSpacingOverrides(
+      lineHeightScaleFactor: lineHeightScaleFactor,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textSpan: TextSpan(
+        style: effectiveTextStyle,
+        text: data,
+        locale: locale,
+        children: textSpan != null ? <InlineSpan>[textSpan!] : null,
+      ),
+    );
+    final StrutStyle? effectiveStrutStyle = strutStyle?.merge(
+      StrutStyle(height: lineHeightScaleFactor),
+    );
+    final SelectionRegistrar? registrar = SelectionContainer.maybeOf(context);
+    final TextScaler textScaler = switch ((this.textScaler, textScaleFactor)) {
+      (final TextScaler textScaler, _) => textScaler,
+      // For unmigrated apps, fall back to textScaleFactor.
+      (null, final double textScaleFactor) => TextScaler.linear(textScaleFactor),
+      (null, null) => MediaQuery.textScalerOf(context),
+    };
+    late Widget result;
+    if (registrar != null) {
+      result = MouseRegion(
+        cursor: DefaultSelectionStyle.of(context).mouseCursor ?? SystemMouseCursors.text,
+        child: _SelectableTextContainer(
+          textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
+          textDirection:
+              textDirection, // RichText uses Directionality.of to obtain a default if this is null.
+          locale:
+              locale, // RichText uses Localizations.localeOf to obtain a default if this is null
+          softWrap: softWrap ?? defaultTextStyle.softWrap,
+          overflow: overflow ?? effectiveTextStyle?.overflow ?? defaultTextStyle.overflow,
+          textScaler: textScaler,
+          maxLines: maxLines ?? defaultTextStyle.maxLines,
+          strutStyle: effectiveStrutStyle,
+          textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
+          textHeightBehavior:
+              textHeightBehavior ??
+              defaultTextStyle.textHeightBehavior ??
+              DefaultTextHeightBehavior.maybeOf(context),
+          selectionColor:
+              selectionColor ??
+              DefaultSelectionStyle.of(context).selectionColor ??
+              DefaultSelectionStyle.defaultColor,
+          text: effectiveTextSpan,
+        ),
+      );
+    } else {
+      result = RichText(
+        textAlign: textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start,
+        textDirection:
+            textDirection, // RichText uses Directionality.of to obtain a default if this is null.
+        locale: locale, // RichText uses Localizations.localeOf to obtain a default if this is null
+        softWrap: softWrap ?? defaultTextStyle.softWrap,
+        overflow: overflow ?? effectiveTextStyle?.overflow ?? defaultTextStyle.overflow,
+        textScaler: textScaler,
+        maxLines: maxLines ?? defaultTextStyle.maxLines,
+        strutStyle: effectiveStrutStyle,
+        textWidthBasis: textWidthBasis ?? defaultTextStyle.textWidthBasis,
+        textHeightBehavior:
+            textHeightBehavior ??
+            defaultTextStyle.textHeightBehavior ??
+            DefaultTextHeightBehavior.maybeOf(context),
+        selectionColor:
+            selectionColor ??
+            DefaultSelectionStyle.of(context).selectionColor ??
+            DefaultSelectionStyle.defaultColor,
+        text: effectiveTextSpan,
+      );
+    }
+    if (semanticsLabel != null || semanticsIdentifier != null) {
+      result = Semantics(
+        textDirection: textDirection,
+        label: semanticsLabel,
+        identifier: semanticsIdentifier,
+        child: ExcludeSemantics(excluding: semanticsLabel != null, child: result),
+      );
+    }
+    return result;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(StringProperty('data', data, showName: false));
+    if (textSpan != null) {
+      properties.add(
+        textSpan!.toDiagnosticsNode(name: 'textSpan', style: DiagnosticsTreeStyle.transition),
+      );
+    }
+    style?.debugFillProperties(properties);
+    properties.add(EnumProperty<TextAlign>('textAlign', textAlign, defaultValue: null));
+    properties.add(EnumProperty<TextDirection>('textDirection', textDirection, defaultValue: null));
+    properties.add(DiagnosticsProperty<Locale>('locale', locale, defaultValue: null));
+    properties.add(
+      FlagProperty(
+        'softWrap',
+        value: softWrap,
+        ifTrue: 'wrapping at box width',
+        ifFalse: 'no wrapping except at line break characters',
+        showName: true,
+      ),
+    );
+    properties.add(EnumProperty<TextOverflow>('overflow', overflow, defaultValue: null));
+    properties.add(DoubleProperty('textScaleFactor', textScaleFactor, defaultValue: null));
+    properties.add(IntProperty('maxLines', maxLines, defaultValue: null));
+    properties.add(
+      EnumProperty<TextWidthBasis>('textWidthBasis', textWidthBasis, defaultValue: null),
+    );
+    properties.add(
+      DiagnosticsProperty<ui.TextHeightBehavior>(
+        'textHeightBehavior',
+        textHeightBehavior,
+        defaultValue: null,
+      ),
+    );
+    if (semanticsLabel != null) {
+      properties.add(StringProperty('semanticsLabel', semanticsLabel));
+    }
+    if (semanticsIdentifier != null) {
+      properties.add(StringProperty('semanticsIdentifier', semanticsIdentifier));
+    }
+  }
+}
+
+class _SelectableTextContainer extends StatefulWidget {
+  const _SelectableTextContainer({
+    required this.text,
+    required this.textAlign,
+    this.textDirection,
+    required this.softWrap,
+    required this.overflow,
+    required this.textScaler,
+    this.maxLines,
+    this.locale,
+    this.strutStyle,
+    required this.textWidthBasis,
+    this.textHeightBehavior,
+    required this.selectionColor,
+  });
+
+  final TextSpan text;
+  final TextAlign textAlign;
+  final TextDirection? textDirection;
+  final bool softWrap;
+  final TextOverflow overflow;
+  final TextScaler textScaler;
+  final int? maxLines;
+  final Locale? locale;
+  final StrutStyle? strutStyle;
+  final TextWidthBasis textWidthBasis;
+  final ui.TextHeightBehavior? textHeightBehavior;
+  final Color selectionColor;
+
+  @override
+  State<_SelectableTextContainer> createState() => _SelectableTextContainerState();
+}
+
+class _SelectableTextContainerState extends State<_SelectableTextContainer> {
+  late final _SelectableTextContainerDelegate _selectionDelegate;
+  final GlobalKey _textKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _selectionDelegate = _SelectableTextContainerDelegate(_textKey);
+  }
+
+  @override
+  void dispose() {
+    _selectionDelegate.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SelectionContainer(
+      delegate: _selectionDelegate,
+      // Use [_RichText] wrapper so the underlying [RenderParagraph] can register
+      // its [Selectable]s to the [SelectionContainer] created by this widget.
+      child: _RichText(
+        textKey: _textKey,
+        textAlign: widget.textAlign,
+        textDirection: widget.textDirection,
+        locale: widget.locale,
+        softWrap: widget.softWrap,
+        overflow: widget.overflow,
+        textScaler: widget.textScaler,
+        maxLines: widget.maxLines,
+        strutStyle: widget.strutStyle,
+        textWidthBasis: widget.textWidthBasis,
+        textHeightBehavior: widget.textHeightBehavior,
+        selectionColor: widget.selectionColor,
+        text: widget.text,
+      ),
+    );
+  }
+}
+
+class _RichText extends StatelessWidget {
+  const _RichText({
+    this.textKey,
+    required this.text,
+    required this.textAlign,
+    this.textDirection,
+    required this.softWrap,
+    required this.overflow,
+    required this.textScaler,
+    this.maxLines,
+    this.locale,
+    this.strutStyle,
+    required this.textWidthBasis,
+    this.textHeightBehavior,
+    required this.selectionColor,
+  });
+
+  final GlobalKey? textKey;
+  final InlineSpan text;
+  final TextAlign textAlign;
+  final TextDirection? textDirection;
+  final bool softWrap;
+  final TextOverflow overflow;
+  final TextScaler textScaler;
+  final int? maxLines;
+  final Locale? locale;
+  final StrutStyle? strutStyle;
+  final TextWidthBasis textWidthBasis;
+  final ui.TextHeightBehavior? textHeightBehavior;
+  final Color selectionColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final SelectionRegistrar? registrar = SelectionContainer.maybeOf(context);
+    return RichText(
+      key: textKey,
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      softWrap: softWrap,
+      overflow: overflow,
+      textScaler: textScaler,
+      maxLines: maxLines,
+      strutStyle: strutStyle,
+      textWidthBasis: textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      selectionRegistrar: registrar,
+      selectionColor: selectionColor,
+      text: text,
+    );
+  }
+}
+
+// In practice some selectables like widgetspan shift several pixels. So when
+// the vertical position diff is within the threshold, compare the horizontal
+// position to make the compareScreenOrder function more robust.
+const double _kSelectableVerticalComparingThreshold = 3.0;
+
+class _SelectableTextContainerDelegate extends StaticSelectionContainerDelegate {
+  _SelectableTextContainerDelegate(GlobalKey textKey) : _textKey = textKey;
+
+  final GlobalKey _textKey;
+  RenderParagraph get paragraph => _textKey.currentContext!.findRenderObject()! as RenderParagraph;
+
+  @override
+  SelectionResult handleSelectParagraph(SelectParagraphSelectionEvent event) {
+    final SelectionResult result = _handleSelectParagraph(event);
+    super.didReceiveSelectionBoundaryEvents();
+    return result;
+  }
+
+  SelectionResult _handleSelectParagraph(SelectParagraphSelectionEvent event) {
+    if (event.absorb) {
+      for (var index = 0; index < selectables.length; index += 1) {
+        dispatchSelectionEventToChild(selectables[index], event);
+      }
+      currentSelectionStartIndex = 0;
+      currentSelectionEndIndex = selectables.length - 1;
+      return SelectionResult.next;
+    }
+
+    // First pass, if the position is on a placeholder then dispatch the selection
+    // event to the [Selectable] at the location and terminate.
+    for (var index = 0; index < selectables.length; index += 1) {
+      final bool selectableIsPlaceholder = !paragraph.selectableBelongsToParagraph(
+        selectables[index],
+      );
+      if (selectableIsPlaceholder && selectables[index].boundingBoxes.isNotEmpty) {
+        for (final Rect rect in selectables[index].boundingBoxes) {
+          final Rect globalRect = MatrixUtils.transformRect(
+            selectables[index].getTransformTo(null),
+            rect,
+          );
+          if (globalRect.contains(event.globalPosition)) {
+            currentSelectionStartIndex = currentSelectionEndIndex = index;
+            return dispatchSelectionEventToChild(selectables[index], event);
+          }
+        }
+      }
+    }
+
+    SelectionResult? lastSelectionResult;
+    var foundStart = false;
+    int? lastNextIndex;
+    for (var index = 0; index < selectables.length; index += 1) {
+      if (!paragraph.selectableBelongsToParagraph(selectables[index])) {
+        if (foundStart) {
+          final SelectionEvent synthesizedEvent = SelectParagraphSelectionEvent(
+            globalPosition: event.globalPosition,
+            absorb: true,
+          );
+          final SelectionResult result = dispatchSelectionEventToChild(
+            selectables[index],
+            synthesizedEvent,
+          );
+          if (selectables.length - 1 == index) {
+            currentSelectionEndIndex = index;
+            _flushInactiveSelections();
+            return result;
+          }
+        }
+        continue;
+      }
+      final SelectionGeometry existingGeometry = selectables[index].value;
+      lastSelectionResult = dispatchSelectionEventToChild(selectables[index], event);
+      if (index == selectables.length - 1 && lastSelectionResult == SelectionResult.next) {
+        if (foundStart) {
+          currentSelectionEndIndex = index;
+        } else {
+          currentSelectionStartIndex = currentSelectionEndIndex = index;
+        }
+        return SelectionResult.next;
+      }
+      if (lastSelectionResult == SelectionResult.next) {
+        if (selectables[index].value == existingGeometry && !foundStart) {
+          lastNextIndex = index;
+        }
+        if (selectables[index].value != existingGeometry && !foundStart) {
+          assert(selectables[index].boundingBoxes.isNotEmpty);
+          assert(selectables[index].value.selectionRects.isNotEmpty);
+          final bool selectionAtStartOfSelectable = selectables[index].boundingBoxes[0].overlaps(
+            selectables[index].value.selectionRects[0],
+          );
+          var startIndex = 0;
+          if (lastNextIndex != null && selectionAtStartOfSelectable) {
+            startIndex = lastNextIndex + 1;
+          } else {
+            startIndex = lastNextIndex == null && selectionAtStartOfSelectable ? 0 : index;
+          }
+          for (var i = startIndex; i < index; i += 1) {
+            final SelectionEvent synthesizedEvent = SelectParagraphSelectionEvent(
+              globalPosition: event.globalPosition,
+              absorb: true,
+            );
+            dispatchSelectionEventToChild(selectables[i], synthesizedEvent);
+          }
+          currentSelectionStartIndex = startIndex;
+          foundStart = true;
+        }
+        continue;
+      }
+      if (index == 0 && lastSelectionResult == SelectionResult.previous) {
+        return SelectionResult.previous;
+      }
+      if (selectables[index].value != existingGeometry) {
+        if (!foundStart && lastNextIndex == null) {
+          currentSelectionStartIndex = 0;
+          for (var i = 0; i < index; i += 1) {
+            final SelectionEvent synthesizedEvent = SelectParagraphSelectionEvent(
+              globalPosition: event.globalPosition,
+              absorb: true,
+            );
+            dispatchSelectionEventToChild(selectables[i], synthesizedEvent);
+          }
+        }
+        currentSelectionEndIndex = index;
+        // Geometry has changed as a result of select paragraph, need to clear the
+        // selection of other selectables to keep selection in sync.
+        _flushInactiveSelections();
+      }
+      return SelectionResult.end;
+    }
+    assert(lastSelectionResult == null);
+    return SelectionResult.end;
+  }
+
+  /// Initializes the selection of the selectable children.
+  ///
+  /// The goal is to find the selectable child that contains the selection edge.
+  /// Returns [SelectionResult.end] if the selection edge ends on any of the
+  /// children. Otherwise, it returns [SelectionResult.previous] if the selection
+  /// does not reach any of its children. Returns [SelectionResult.next]
+  /// if the selection reaches the end of its children.
+  ///
+  /// Ideally, this method should only be called twice at the beginning of the
+  /// drag selection, once for start edge update event, once for end edge update
+  /// event.
+  SelectionResult _initSelection(SelectionEdgeUpdateEvent event, {required bool isEnd}) {
+    assert(
+      (isEnd && currentSelectionEndIndex == -1) || (!isEnd && currentSelectionStartIndex == -1),
+    );
+    SelectionResult? finalResult;
+    // Begin the search for the selection edge at the opposite edge if it exists.
+    final hasOppositeEdge = isEnd
+        ? currentSelectionStartIndex != -1
+        : currentSelectionEndIndex != -1;
+    int newIndex = switch ((isEnd, hasOppositeEdge)) {
+      (true, true) => currentSelectionStartIndex,
+      (true, false) => 0,
+      (false, true) => currentSelectionEndIndex,
+      (false, false) => 0,
+    };
+    bool? forward;
+    late SelectionResult currentSelectableResult;
+    // This loop sends the selection event to one of the following to determine
+    // the direction of the search.
+    //  - The opposite edge index if it exists.
+    //  - Index 0 if the opposite edge index does not exist.
+    //
+    // If the result is `SelectionResult.next`, this loop look backward.
+    // Otherwise, it looks forward.
+    //
+    // The terminate condition are:
+    // 1. the selectable returns end, pending, none.
+    // 2. the selectable returns previous when looking forward.
+    // 2. the selectable returns next when looking backward.
+    while (newIndex < selectables.length && newIndex >= 0 && finalResult == null) {
+      currentSelectableResult = dispatchSelectionEventToChild(selectables[newIndex], event);
+      switch (currentSelectableResult) {
+        case SelectionResult.end:
+        case SelectionResult.pending:
+        case SelectionResult.none:
+          finalResult = currentSelectableResult;
+        case SelectionResult.next:
+          if (forward == false) {
+            newIndex += 1;
+            finalResult = SelectionResult.end;
+          } else if (newIndex == selectables.length - 1) {
+            finalResult = currentSelectableResult;
+          } else {
+            forward = true;
+            newIndex += 1;
+          }
+        case SelectionResult.previous:
+          if (forward ?? false) {
+            newIndex -= 1;
+            finalResult = SelectionResult.end;
+          } else if (newIndex == 0) {
+            finalResult = currentSelectableResult;
+          } else {
+            forward = false;
+            newIndex -= 1;
+          }
+      }
+    }
+    if (isEnd) {
+      currentSelectionEndIndex = newIndex;
+    } else {
+      currentSelectionStartIndex = newIndex;
+    }
+    _flushInactiveSelections();
+    return finalResult!;
+  }
+
+  SelectionResult _adjustSelection(SelectionEdgeUpdateEvent event, {required bool isEnd}) {
+    assert(() {
+      if (isEnd) {
+        assert(currentSelectionEndIndex < selectables.length && currentSelectionEndIndex >= 0);
+        return true;
+      }
+      assert(currentSelectionStartIndex < selectables.length && currentSelectionStartIndex >= 0);
+      return true;
+    }());
+    SelectionResult? finalResult;
+    // Determines if the edge being adjusted is within the current viewport.
+    //  - If so, we begin the search for the new selection edge position at the
+    //    currentSelectionEndIndex/currentSelectionStartIndex.
+    //  - If not, we attempt to locate the new selection edge starting from
+    //    the opposite end.
+    //  - If neither edge is in the current viewport, the search for the new
+    //    selection edge position begins at 0.
+    //
+    // This can happen when there is a scrollable child and the edge being adjusted
+    // has been scrolled out of view.
+    final isCurrentEdgeWithinViewport = isEnd
+        ? value.endSelectionPoint != null
+        : value.startSelectionPoint != null;
+    final isOppositeEdgeWithinViewport = isEnd
+        ? value.startSelectionPoint != null
+        : value.endSelectionPoint != null;
+    int newIndex = switch ((isEnd, isCurrentEdgeWithinViewport, isOppositeEdgeWithinViewport)) {
+      (true, true, true) => currentSelectionEndIndex,
+      (true, true, false) => currentSelectionEndIndex,
+      (true, false, true) => currentSelectionStartIndex,
+      (true, false, false) => 0,
+      (false, true, true) => currentSelectionStartIndex,
+      (false, true, false) => currentSelectionStartIndex,
+      (false, false, true) => currentSelectionEndIndex,
+      (false, false, false) => 0,
+    };
+    bool? forward;
+    late SelectionResult currentSelectableResult;
+    // This loop sends the selection event to one of the following to determine
+    // the direction of the search.
+    //  - currentSelectionEndIndex/currentSelectionStartIndex if the current edge
+    //    is in the current viewport.
+    //  - The opposite edge index if the current edge is not in the current viewport.
+    //  - Index 0 if neither edge is in the current viewport.
+    //
+    // If the result is `SelectionResult.next`, this loop look backward.
+    // Otherwise, it looks forward.
+    //
+    // The terminate condition are:
+    // 1. the selectable returns end, pending, none.
+    // 2. the selectable returns previous when looking forward.
+    // 2. the selectable returns next when looking backward.
+    while (newIndex < selectables.length && newIndex >= 0 && finalResult == null) {
+      currentSelectableResult = dispatchSelectionEventToChild(selectables[newIndex], event);
+      switch (currentSelectableResult) {
+        case SelectionResult.end:
+        case SelectionResult.pending:
+        case SelectionResult.none:
+          finalResult = currentSelectableResult;
+        case SelectionResult.next:
+          if (forward == false) {
+            newIndex += 1;
+            finalResult = SelectionResult.end;
+          } else if (newIndex == selectables.length - 1) {
+            finalResult = currentSelectableResult;
+          } else {
+            forward = true;
+            newIndex += 1;
+          }
+        case SelectionResult.previous:
+          if (forward ?? false) {
+            newIndex -= 1;
+            finalResult = SelectionResult.end;
+          } else if (newIndex == 0) {
+            finalResult = currentSelectableResult;
+          } else {
+            forward = false;
+            newIndex -= 1;
+          }
+      }
+    }
+    if (isEnd) {
+      final bool forwardSelection = currentSelectionEndIndex >= currentSelectionStartIndex;
+      if (forward != null &&
+          ((!forwardSelection && forward && newIndex >= currentSelectionStartIndex) ||
+              (forwardSelection && !forward && newIndex <= currentSelectionStartIndex))) {
+        currentSelectionStartIndex = currentSelectionEndIndex;
+      }
+      currentSelectionEndIndex = newIndex;
+    } else {
+      final bool forwardSelection = currentSelectionEndIndex >= currentSelectionStartIndex;
+      if (forward != null &&
+          ((!forwardSelection && !forward && newIndex <= currentSelectionEndIndex) ||
+              (forwardSelection && forward && newIndex >= currentSelectionEndIndex))) {
+        currentSelectionEndIndex = currentSelectionStartIndex;
+      }
+      currentSelectionStartIndex = newIndex;
+    }
+    _flushInactiveSelections();
+    return finalResult!;
+  }
+
+  /// The compare function this delegate used for determining the selection
+  /// order of the [Selectable]s.
+  ///
+  /// Sorts the [Selectable]s by their top left [Rect].
+  @override
+  Comparator<Selectable> get compareOrder => _compareScreenOrder;
+
+  static int _compareScreenOrder(Selectable a, Selectable b) {
+    // Attempt to sort the selectables under a [_SelectableTextContainerDelegate]
+    // by the top left rect.
+    final Rect rectA = MatrixUtils.transformRect(a.getTransformTo(null), a.boundingBoxes.first);
+    final Rect rectB = MatrixUtils.transformRect(b.getTransformTo(null), b.boundingBoxes.first);
+    final int result = _compareVertically(rectA, rectB);
+    if (result != 0) {
+      return result;
+    }
+    return _compareHorizontally(rectA, rectB);
+  }
+
+  /// Compares two rectangles in the screen order solely by their vertical
+  /// positions.
+  ///
+  /// Returns positive if a is lower, negative if a is higher, 0 if their
+  /// order can't be determine solely by their vertical position.
+  static int _compareVertically(Rect a, Rect b) {
+    // The rectangles overlap so defer to horizontal comparison.
+    if ((a.top - b.top < _kSelectableVerticalComparingThreshold &&
+            a.bottom - b.bottom > -_kSelectableVerticalComparingThreshold) ||
+        (b.top - a.top < _kSelectableVerticalComparingThreshold &&
+            b.bottom - a.bottom > -_kSelectableVerticalComparingThreshold)) {
+      return 0;
+    }
+    if ((a.top - b.top).abs() > _kSelectableVerticalComparingThreshold) {
+      return a.top > b.top ? 1 : -1;
+    }
+    return a.bottom > b.bottom ? 1 : -1;
+  }
+
+  /// Compares two rectangles in the screen order by their horizontal positions
+  /// assuming one of the rectangles enclose the other rect vertically.
+  ///
+  /// Returns positive if a is lower, negative if a is higher.
+  static int _compareHorizontally(Rect a, Rect b) {
+    // a encloses b.
+    if (a.left - b.left < precisionErrorTolerance && a.right - b.right > -precisionErrorTolerance) {
+      return -1;
+    }
+    // b encloses a.
+    if (b.left - a.left < precisionErrorTolerance && b.right - a.right > -precisionErrorTolerance) {
+      return 1;
+    }
+    if ((a.left - b.left).abs() > precisionErrorTolerance) {
+      return a.left > b.left ? 1 : -1;
+    }
+    return a.right > b.right ? 1 : -1;
+  }
+
+  /// This method calculates a local [SelectedContentRange] based on the list
+  /// of [selections] that are accumulated from the [Selectable] children under this
+  /// delegate. This calculation takes into account the accumulated content
+  /// length before the active selection, and returns null when either selection
+  /// edge has not been set.
+  SelectedContentRange? _calculateLocalRange(List<_SelectionInfo> selections) {
+    if (currentSelectionStartIndex == -1 || currentSelectionEndIndex == -1) {
+      return null;
+    }
+    var startOffset = 0;
+    var endOffset = 0;
+    var foundStart = false;
+    bool forwardSelection = currentSelectionEndIndex >= currentSelectionStartIndex;
+    if (currentSelectionEndIndex == currentSelectionStartIndex) {
+      // Determining selection direction is inaccurate if currentSelectionStartIndex == currentSelectionEndIndex.
+      // Use the range from the selectable within the selection as the source of truth for selection direction.
+      final SelectedContentRange rangeAtSelectableInSelection =
+          selectables[currentSelectionStartIndex].getSelection()!;
+      forwardSelection =
+          rangeAtSelectableInSelection.endOffset >= rangeAtSelectableInSelection.startOffset;
+    }
+    for (var index = 0; index < selections.length; index++) {
+      final _SelectionInfo selection = selections[index];
+      if (selection.range == null) {
+        if (foundStart) {
+          return SelectedContentRange(
+            startOffset: forwardSelection ? startOffset : endOffset,
+            endOffset: forwardSelection ? endOffset : startOffset,
+          );
+        }
+        startOffset += selection.contentLength;
+        endOffset = startOffset;
+        continue;
+      }
+      final int selectionStartNormalized = min(
+        selection.range!.startOffset,
+        selection.range!.endOffset,
+      );
+      final int selectionEndNormalized = max(
+        selection.range!.startOffset,
+        selection.range!.endOffset,
+      );
+      if (!foundStart) {
+        // Because a RenderParagraph may split its content into multiple selectables
+        // we have to consider at what offset a selectable starts at relative
+        // to the RenderParagraph, when the selectable is not the start of the content.
+        final bool shouldConsiderContentStart =
+            index > 0 && paragraph.selectableBelongsToParagraph(selectables[index]);
+        startOffset +=
+            (selectionStartNormalized -
+                    (shouldConsiderContentStart
+                        ? paragraph
+                              .getPositionForOffset(
+                                selectables[index].boundingBoxes.first.centerLeft,
+                              )
+                              .offset
+                        : 0))
+                .abs();
+        endOffset = startOffset + (selectionEndNormalized - selectionStartNormalized).abs();
+        foundStart = true;
+      } else {
+        endOffset += (selectionEndNormalized - selectionStartNormalized).abs();
+      }
+    }
+    assert(
+      foundStart,
+      'The start of the selection has not been found despite this selection delegate having an existing currentSelectionStartIndex and currentSelectionEndIndex.',
+    );
+    return SelectedContentRange(
+      startOffset: forwardSelection ? startOffset : endOffset,
+      endOffset: forwardSelection ? endOffset : startOffset,
+    );
+  }
+
+  /// Returns a [SelectedContentRange] considering the [SelectedContentRange]
+  /// from each [Selectable] child managed under this delegate.
+  ///
+  /// When nothing is selected or either selection edge has not been set,
+  /// this method will return `null`.
+  @override
+  SelectedContentRange? getSelection() {
+    final selections = <_SelectionInfo>[
+      for (final Selectable selectable in selectables)
+        (contentLength: selectable.contentLength, range: selectable.getSelection()),
+    ];
+    return _calculateLocalRange(selections);
+  }
+
+  // From [SelectableRegion].
+
+  // Clears the selection on all selectables not in the range of
+  // currentSelectionStartIndex..currentSelectionEndIndex.
+  //
+  // If one of the edges does not exist, then this method will clear the selection
+  // in all selectables except the existing edge.
+  //
+  // If neither of the edges exist this method immediately returns.
+  void _flushInactiveSelections() {
+    if (currentSelectionStartIndex == -1 && currentSelectionEndIndex == -1) {
+      return;
+    }
+    if (currentSelectionStartIndex == -1 || currentSelectionEndIndex == -1) {
+      final int skipIndex = currentSelectionStartIndex == -1
+          ? currentSelectionEndIndex
+          : currentSelectionStartIndex;
+      selectables
+          .where((Selectable target) => target != selectables[skipIndex])
+          .forEach(
+            (Selectable target) =>
+                dispatchSelectionEventToChild(target, const ClearSelectionEvent()),
+          );
+      return;
+    }
+    final int skipStart = min(currentSelectionStartIndex, currentSelectionEndIndex);
+    final int skipEnd = max(currentSelectionStartIndex, currentSelectionEndIndex);
+    for (var index = 0; index < selectables.length; index += 1) {
+      if (index >= skipStart && index <= skipEnd) {
+        continue;
+      }
+      dispatchSelectionEventToChild(selectables[index], const ClearSelectionEvent());
+    }
+  }
+
+  @override
+  SelectionResult handleSelectionEdgeUpdate(SelectionEdgeUpdateEvent event) {
+    if (event.granularity != TextGranularity.paragraph) {
+      return super.handleSelectionEdgeUpdate(event);
+    }
+    updateLastSelectionEdgeLocation(
+      globalSelectionEdgeLocation: event.globalPosition,
+      forEnd: event.type == SelectionEventType.endEdgeUpdate,
+    );
+    if (event.type == SelectionEventType.endEdgeUpdate) {
+      return currentSelectionEndIndex == -1
+          ? _initSelection(event, isEnd: true)
+          : _adjustSelection(event, isEnd: true);
+    }
+    return currentSelectionStartIndex == -1
+        ? _initSelection(event, isEnd: false)
+        : _adjustSelection(event, isEnd: false);
+  }
+}
+
+/// The length of the content that can be selected, and the range that is
+/// selected.
+typedef _SelectionInfo = ({int contentLength, SelectedContentRange? range});
+
+/// A utility class for overriding the text styles of a [TextSpan] tree.
+// When changes are made to this class, the equivalent API in editable_text.dart
+// must also be updated.
+// TODO(Renzo-Olivares): Remove after investigating a solution for overriding all
+// styles for children in an [InlineSpan] tree, see: https://github.com/flutter/flutter/issues/177952.
+class _OverridingTextStyleTextSpanUtils {
+  static TextSpan applyTextSpacingOverrides({
+    double? lineHeightScaleFactor,
+    double? letterSpacing,
+    double? wordSpacing,
+    required TextSpan textSpan,
+  }) {
+    if (lineHeightScaleFactor == null && letterSpacing == null && wordSpacing == null) {
+      return textSpan;
+    }
+    return _applyTextStyleOverrides(
+      TextStyle(
+        height: lineHeightScaleFactor,
+        letterSpacing: letterSpacing,
+        wordSpacing: wordSpacing,
+      ),
+      textSpan,
+    );
+  }
+
+  static TextSpan _applyTextStyleOverrides(TextStyle overrideTextStyle, TextSpan textSpan) {
+    return TextSpan(
+      text: textSpan.text,
+      children: textSpan.children?.map((InlineSpan child) {
+        if (child is TextSpan && child.runtimeType == TextSpan) {
+          return _applyTextStyleOverrides(overrideTextStyle, child);
+        }
+        return child;
+      }).toList(),
+      style: textSpan.style?.merge(overrideTextStyle) ?? overrideTextStyle,
+      recognizer: textSpan.recognizer,
+      mouseCursor: textSpan.mouseCursor,
+      onEnter: textSpan.onEnter,
+      onExit: textSpan.onExit,
+      semanticsLabel: textSpan.semanticsLabel,
+      semanticsIdentifier: textSpan.semanticsIdentifier,
+      locale: textSpan.locale,
+      spellOut: textSpan.spellOut,
+    );
+  }
+}
+```
+
+// ============================================================
 // 📁 Project: deprecated.dart
 // 📁 /home/user/flutter/packages/flutter_test/lib/src/deprecated.dart
 // ============================================================
@@ -11946,6 +28041,185 @@ extension ComparatorExtension<T> on Comparator<T> {
         if (result == 0) result = tieBreaker(a, b);
         return result;
       };
+}
+```
+
+// ============================================================
+// 📦 Package: line_chart.dart
+// 📁 /home/user/.pub-cache/hosted/pub.dev/fl_chart-1.2.0/lib/src/chart/line_chart/line_chart.dart
+// ============================================================
+
+```dart
+import 'package:fl_chart/src/chart/base/axis_chart/axis_chart_scaffold_widget.dart';
+import 'package:fl_chart/src/chart/base/axis_chart/scale_axis.dart';
+import 'package:fl_chart/src/chart/base/axis_chart/transformation_config.dart';
+import 'package:fl_chart/src/chart/base/base_chart/base_chart_data.dart';
+import 'package:fl_chart/src/chart/base/base_chart/fl_touch_event.dart';
+import 'package:fl_chart/src/chart/line_chart/line_chart_data.dart';
+import 'package:fl_chart/src/chart/line_chart/line_chart_helper.dart';
+import 'package:fl_chart/src/chart/line_chart/line_chart_renderer.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+/// Renders a line chart as a widget, using provided [LineChartData].
+class LineChart extends ImplicitlyAnimatedWidget {
+  /// [data] determines how the [LineChart] should be look like,
+  /// when you make any change in the [LineChartData], it updates
+  /// new values with animation, and duration is [duration].
+  /// also you can change the [curve]
+  /// which default is [Curves.linear].
+  const LineChart(
+    this.data, {
+    this.chartRendererKey,
+    super.key,
+    super.duration = const Duration(milliseconds: 150),
+    super.curve = Curves.linear,
+    this.transformationConfig = const FlTransformationConfig(),
+  });
+
+  /// Determines how the [LineChart] should be look like.
+  final LineChartData data;
+
+  /// {@macro fl_chart.AxisChartScaffoldWidget.transformationConfig}
+  final FlTransformationConfig transformationConfig;
+
+  /// We pass this key to our renderers which are supposed to
+  /// render the chart itself (without anything around the chart).
+  final Key? chartRendererKey;
+
+  /// Creates a [_LineChartState]
+  @override
+  _LineChartState createState() => _LineChartState();
+}
+
+class _LineChartState extends AnimatedWidgetBaseState<LineChart> {
+  /// we handle under the hood animations (implicit animations) via this tween,
+  /// it lerps between the old [LineChartData] to the new one.
+  LineChartDataTween? _lineChartDataTween;
+
+  /// If [LineTouchData.handleBuiltInTouches] is true, we override the callback to handle touches internally,
+  /// but we need to keep the provided callback to notify it too.
+  BaseTouchCallback<LineTouchResponse>? _providedTouchCallback;
+
+  final List<ShowingTooltipIndicators> _showingTouchedTooltips = [];
+
+  final Map<int, List<int>> _showingTouchedIndicators = {};
+
+  final _lineChartHelper = LineChartHelper();
+
+  @override
+  Widget build(BuildContext context) {
+    final showingData = _getData();
+
+    return AxisChartScaffoldWidget(
+      transformationConfig: widget.transformationConfig,
+      chartBuilder: (context, chartVirtualRect) => LineChartLeaf(
+        data: _withTouchedIndicators(
+          _lineChartDataTween!.evaluate(animation),
+        ),
+        targetData: _withTouchedIndicators(showingData),
+        key: widget.chartRendererKey,
+        chartVirtualRect: chartVirtualRect,
+        canBeScaled: widget.transformationConfig.scaleAxis != FlScaleAxis.none,
+      ),
+      data: showingData,
+    );
+  }
+
+  LineChartData _withTouchedIndicators(LineChartData lineChartData) {
+    if (!lineChartData.lineTouchData.enabled ||
+        !lineChartData.lineTouchData.handleBuiltInTouches) {
+      return lineChartData;
+    }
+
+    return lineChartData.copyWith(
+      showingTooltipIndicators: _showingTouchedTooltips,
+      lineBarsData: lineChartData.lineBarsData.map((barData) {
+        final index = lineChartData.lineBarsData.indexOf(barData);
+        return barData.copyWith(
+          showingIndicators: _showingTouchedIndicators[index] ?? [],
+        );
+      }).toList(),
+    );
+  }
+
+  LineChartData _getData() {
+    var newData = widget.data;
+
+    /// Calculate minX, maxX, minY, maxY for [LineChartData] if they are null,
+    /// it is necessary to render the chart correctly.
+    if (newData.minX.isNaN ||
+        newData.maxX.isNaN ||
+        newData.minY.isNaN ||
+        newData.maxY.isNaN) {
+      final (minX, maxX, minY, maxY) = _lineChartHelper.calculateMaxAxisValues(
+        newData.lineBarsData,
+      );
+      newData = newData.copyWith(
+        minX: newData.minX.isNaN ? minX : newData.minX,
+        maxX: newData.maxX.isNaN ? maxX : newData.maxX,
+        minY: newData.minY.isNaN ? minY : newData.minY,
+        maxY: newData.maxY.isNaN ? maxY : newData.maxY,
+      );
+    }
+
+    final lineTouchData = newData.lineTouchData;
+    if (lineTouchData.enabled && lineTouchData.handleBuiltInTouches) {
+      _providedTouchCallback = lineTouchData.touchCallback;
+      newData = newData.copyWith(
+        lineTouchData:
+            newData.lineTouchData.copyWith(touchCallback: _handleBuiltInTouch),
+      );
+    }
+
+    return newData;
+  }
+
+  void _handleBuiltInTouch(
+    FlTouchEvent event,
+    LineTouchResponse? touchResponse,
+  ) {
+    if (!mounted) {
+      return;
+    }
+    _providedTouchCallback?.call(event, touchResponse);
+
+    if (!event.isInterestedForInteractions ||
+        touchResponse?.lineBarSpots == null ||
+        touchResponse!.lineBarSpots!.isEmpty) {
+      setState(() {
+        _showingTouchedTooltips.clear();
+        _showingTouchedIndicators.clear();
+      });
+      return;
+    }
+
+    setState(() {
+      final sortedLineSpots = List.of(touchResponse.lineBarSpots!)
+        ..sort((spot1, spot2) => spot2.y.compareTo(spot1.y));
+
+      _showingTouchedIndicators.clear();
+      for (var i = 0; i < touchResponse.lineBarSpots!.length; i++) {
+        final touchedBarSpot = touchResponse.lineBarSpots![i];
+        final barPos = touchedBarSpot.barIndex;
+        _showingTouchedIndicators[barPos] = [touchedBarSpot.spotIndex];
+      }
+
+      _showingTouchedTooltips
+        ..clear()
+        ..add(ShowingTooltipIndicators(sortedLineSpots));
+    });
+  }
+
+  @override
+  void forEachTween(TweenVisitor<dynamic> visitor) {
+    _lineChartDataTween = visitor(
+      _lineChartDataTween,
+      _getData(),
+      (dynamic value) =>
+          LineChartDataTween(begin: value as LineChartData, end: widget.data),
+    ) as LineChartDataTween?;
+  }
 }
 ```
 
@@ -15025,6 +31299,1532 @@ final class AsyncError<ValueT> extends AsyncResult<ValueT> {
 ```
 
 // ============================================================
+// 📦 Package: provider_container.dart
+// 📁 /home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/provider_container.dart
+// ============================================================
+
+```dart
+part of '../framework.dart';
+
+/// An abstraction of both [ProviderContainer] and [$ProviderElement] used by
+/// [ProviderListenable].
+@internal
+@immutable
+sealed class Node {
+  const Node({required this.container});
+  final ProviderContainer container;
+
+  @override
+  @mustBeOverridden
+  String toString();
+}
+
+@internal
+final class ConsumerNode extends Node {
+  const ConsumerNode({
+    required this.buildContext,
+    required super.container,
+    required this.id,
+  });
+
+  final
+  /*BuildContext*/
+  Object
+  buildContext;
+
+  final ConsumerId id;
+
+  @override
+  String toString() => '$buildContext#${shortHash(buildContext)}';
+}
+
+@internal
+final class ProviderNode extends Node {
+  const ProviderNode(this.element, {required super.container});
+  final ProviderElement<Object?, Object?> element;
+
+  @override
+  String toString() => '${element.origin}';
+}
+
+@internal
+final class ContainerNode extends Node {
+  const ContainerNode({required super.container});
+
+  @override
+  String toString() {
+    return container.toString();
+  }
+}
+
+abstract class _PointerBase {
+  bool get isTransitiveOverride;
+
+  /// The container in which the element of this provider will be mounted.
+  ProviderContainer get targetContainer;
+}
+
+@internal
+@publicInCodegen
+class $ProviderPointer implements _PointerBase {
+  $ProviderPointer({
+    required this.providerOverride,
+    required this.targetContainer,
+    required this.origin,
+  });
+
+  @override
+  bool get isTransitiveOverride =>
+      providerOverride is TransitiveProviderOverride ||
+      // Consider pointers from providers with non-empty dependencies on the root container
+      // as "transitive overrides". Even though they aren't overrides due to
+      // being on the root container, they should be treated as such for the sake
+      // of automatic scoping.
+      (targetContainer._parent == null &&
+          providerOverride == null &&
+          (origin.$allTransitiveDependencies?.isNotEmpty ?? false));
+
+  final ProviderBase<Object?> origin;
+
+  /// The override associated with this provider, if any.
+  ///
+  /// If non-null, this pointer should **never** be removed.
+  ///
+  /// This override may be implicitly created by [ProviderOrFamily.$allTransitiveDependencies].
+  // ignore: library_private_types_in_public_api, not public API
+  _ProviderOverride? providerOverride;
+  ProviderElement? element;
+  @override
+  final ProviderContainer targetContainer;
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('ProviderPointer$hashCode(');
+
+    buffer.writeln('  targetContainer: $targetContainer');
+    buffer.writeln('  override: $providerOverride');
+    buffer.writeln('  element: $element');
+
+    buffer.write(')');
+
+    return buffer.toString();
+  }
+}
+
+extension<PointerT extends _PointerBase, ProviderT extends ProviderOrFamily>
+    on Map<ProviderT, PointerT> {
+  /// - [currentContainer]: The container trying to read this pointer.
+  PointerT _upsert(
+    ProviderT provider, {
+    required ProviderContainer currentContainer,
+    required ProviderContainer? targetContainer,
+    required PointerT Function(ProviderContainer) inherit,
+    required PointerT Function({ProviderT? override}) scope,
+  }) {
+    final pointer = this[provider];
+    if (pointer != null) return pointer;
+
+    final deepestTransitiveDependencyContainer = currentContainer
+        ._pointerManager
+        .findDeepestTransitiveDependencyProviderContainer(provider);
+
+    final target =
+        deepestTransitiveDependencyContainer ??
+        pointer?.targetContainer ??
+        targetContainer ??
+        currentContainer._root ??
+        currentContainer;
+
+    if (target == currentContainer) {
+      return this[provider] = scope(
+        override:
+            deepestTransitiveDependencyContainer == null ? null : provider,
+      );
+    }
+
+    return this[provider] = inherit(target);
+  }
+}
+
+extension on ProviderOrFamily {
+  bool get canBeTransitivelyOverridden {
+    final $allTransitiveDependencies = this.$allTransitiveDependencies;
+    return $allTransitiveDependencies != null &&
+        $allTransitiveDependencies.isNotEmpty;
+  }
+}
+
+@internal
+class ProviderDirectory implements _PointerBase {
+  ProviderDirectory.empty(
+    ProviderContainer container, {
+    required this.familyOverride,
+  }) : pointers = HashMap(),
+       targetContainer = container;
+
+  ProviderDirectory.from(
+    ProviderDirectory pointer, {
+    ProviderContainer? targetContainer,
+    _FamilyOverride? familyOverride,
+  }) : assert(
+         (familyOverride == null) == (targetContainer == null),
+         'Either both or neither of familyOverride and targetContainer should be null',
+       ),
+       familyOverride = familyOverride ?? pointer.familyOverride,
+       targetContainer = targetContainer ?? pointer.targetContainer,
+       pointers = HashMap.fromEntries(
+         pointer.pointers.entries.where((e) => !e.value.isTransitiveOverride),
+       );
+
+  @override
+  bool get isTransitiveOverride => familyOverride is TransitiveFamilyOverride;
+
+  /// The override associated with this provider, if any.
+  ///
+  /// If non-null, this pointer should **never** be removed.
+  ///
+  /// This override may be implicitly created by [ProviderOrFamily.$allTransitiveDependencies].
+  // ignore: library_private_types_in_public_api, not public API
+  _FamilyOverride? familyOverride;
+  final HashMap<ProviderBase<Object?>, $ProviderPointer> pointers;
+  @override
+  ProviderContainer targetContainer;
+
+  void addProviderOverride(
+    // ignore: library_private_types_in_public_api, not public API
+    _ProviderOverride override, {
+    required ProviderContainer targetContainer,
+  }) {
+    final origin = override.origin;
+
+    pointers[origin] = $ProviderPointer(
+      targetContainer: targetContainer,
+      providerOverride: override,
+      origin: origin,
+    );
+  }
+
+  $ProviderPointer upsertPointer(
+    ProviderBase<Object?> provider, {
+    required ProviderContainer currentContainer,
+  }) {
+    return pointers._upsert(
+      provider,
+      currentContainer: currentContainer,
+      targetContainer: targetContainer,
+      inherit: (target) => target._pointerManager.upsertPointer(provider),
+      scope:
+          ({override}) => $ProviderPointer(
+            targetContainer: currentContainer,
+            providerOverride:
+                override == null ||
+                        provider.from !=
+                            null //
+                    ? null
+                    : TransitiveProviderOverride(override),
+            origin: provider,
+          ),
+    );
+  }
+
+  /// Initializes a provider and returns its pointer.
+  ///
+  /// Overridden providers, be it directly or transitively,
+  /// are mounted in the current container.
+  ///
+  /// Non-overridden providers are mounted in the root container.
+  $ProviderPointer mount(
+    ProviderBase<Object?> origin, {
+    required ProviderContainer currentContainer,
+  }) {
+    final pointer = upsertPointer(origin, currentContainer: currentContainer);
+
+    if (pointer.element == null) {
+      ProviderElement? element;
+
+      switch ((pointer.providerOverride, familyOverride)) {
+        // The provider is overridden. This takes over any family override
+        case (final override?, _):
+          element = override.providerOverride.$createElement(pointer);
+
+        // The family was overridden using overrideWith & co.
+        case (null, final $FamilyOverride override):
+          element = override.createElement(pointer);
+
+        // Either the provider wasn't overridden or it was scoped.
+        case (null, _FamilyOverride() || null):
+          element = origin.$createElement(pointer);
+      }
+
+      /// Assigning the element before calling "mount" to guarantee
+      /// that even if something goes very wrong, such as a recursive
+      /// initialization or "mount" throwing, next read will not try to
+      /// initialize the provider again.
+      /// This has otherwise no impact unless there is a bug.
+      pointer.element = element;
+    }
+
+    return pointer;
+  }
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('ProviderDirectory$hashCode(');
+
+    buffer.writeln('  targetContainer: $targetContainer');
+    buffer.writeln('  override: $familyOverride');
+
+    buffer.write('  pointers: {');
+    for (final entry in pointers.entries) {
+      buffer.write(
+        '\n    ${entry.key}: ${entry.value.toString().indentAfterFirstLine(2)},',
+      );
+    }
+    if (pointers.isNotEmpty) {
+      buffer.writeln('\n  }');
+    } else {
+      buffer.writeln('}');
+    }
+
+    buffer.write(')');
+
+    return buffer.toString();
+  }
+}
+
+/// A function that returns a duration to wait before retrying a failed
+@internal
+typedef Retry = Duration? Function(int retryCount, Object error);
+
+/// An object responsible for storing the a O(1) access to providers,
+/// while also enabling the "scoping" of providers and ensuring all [ProviderContainer]s
+/// are in sync.
+///
+/// Instead of storing a [Map<Provider, ProviderElement>], we voluntarily
+/// introduce a level of indirection by storing a [Map<Provider, ProviderPointer>].
+///
+/// Then, when overriding a provider, it is guaranteed that the [ProviderContainer]
+/// and all of its children have the same [$ProviderPointer] for a overridden provider.
+///
+/// This way, we can read an overridden provider from any of the [ProviderContainer]s.
+/// And no-matter where the first read is made, all [ProviderContainer]s will
+/// share the same state.
+@internal
+class ProviderPointerManager {
+  ProviderPointerManager(
+    List<Override> overrides, {
+    required this.container,
+    required this.orphanPointers,
+    HashMap<Family, ProviderDirectory>? familyPointers,
+  }) : familyPointers = familyPointers ?? HashMap() {
+    _initializeOverrides(overrides);
+  }
+
+  factory ProviderPointerManager.from(
+    ProviderContainer parent,
+    List<Override> overrides, {
+    required ProviderContainer container,
+  }) {
+    if (overrides.isEmpty) return parent._pointerManager;
+
+    return ProviderPointerManager(
+      overrides,
+      container: container,
+      // Always forks orphan pointers, because of possible transitive overrides.
+      orphanPointers: ProviderDirectory.from(
+        parent._pointerManager.orphanPointers,
+      ),
+
+      familyPointers: HashMap.fromEntries(
+        parent._pointerManager.familyPointers.entries
+            .where(
+              (e) =>
+                  !e.value.isTransitiveOverride &&
+                  // Exclude families that may be automatically scoped unless they are overridden.
+                  (!e.key.canBeTransitivelyOverridden ||
+                      e.value.familyOverride != null),
+            )
+            .map((e) {
+              if (e.key.$allTransitiveDependencies == null) return e;
+
+              return MapEntry(e.key, ProviderDirectory.from(e.value));
+            }),
+      ),
+    );
+  }
+
+  final ProviderContainer container;
+  final ProviderDirectory orphanPointers;
+  final HashMap<Family, ProviderDirectory> familyPointers;
+
+  void _initializeProviderOverride(_ProviderOverride override) {
+    final from = override.origin.from;
+
+    if (from == null) {
+      orphanPointers.addProviderOverride(override, targetContainer: container);
+      return;
+    }
+
+    final familyPointer =
+        familyPointers[from] ??= ProviderDirectory.empty(
+          container._root ?? container,
+          familyOverride: null,
+        );
+
+    familyPointer.addProviderOverride(override, targetContainer: container);
+  }
+
+  void _initializeOverrides(List<Override> overrides) {
+    for (final override in overrides) {
+      switch (override) {
+        case _ProviderOverride():
+          _initializeProviderOverride(override);
+        case _FamilyOverride():
+          final overriddenFamily = override.from;
+
+          final previousPointer = familyPointers[overriddenFamily];
+          if (previousPointer != null) {
+            /// A provider from that family was overridden first.
+            /// We override the family but preserve the provider overrides too.
+
+            previousPointer
+              ..familyOverride = override
+              ..targetContainer = container
+              // Remove inherited family values and keep only local ones
+              ..pointers.removeWhere(
+                (key, value) => value.targetContainer != container,
+              );
+            continue;
+          }
+
+          familyPointers[overriddenFamily] = ProviderDirectory.empty(
+            container,
+            familyOverride: override,
+          );
+      }
+    }
+  }
+
+  /// Obtains the [ProviderContainer] in which provider/family should be mounted,
+  /// if the provider is locally scoped.
+  ///
+  /// Returns `null` if it should be mounted at the root.
+  ProviderContainer? findDeepestTransitiveDependencyProviderContainer(
+    ProviderOrFamily provider,
+  ) {
+    if (container._parent == null) return null;
+    if (!provider.canBeTransitivelyOverridden) {
+      return null;
+    }
+
+    final overrides = provider.$allTransitiveDependencies!
+        .expand<ProviderContainer>((dependency) {
+          switch (dependency) {
+            case Family():
+              final familyPointer = familyPointers[dependency];
+              if (familyPointer == null) return const [];
+
+              return [familyPointer.targetContainer].followedBy(
+                familyPointer.pointers.values.map((e) => e.targetContainer),
+              );
+            case $ProviderBaseImpl():
+              return [
+                if (readPointer(dependency)?.targetContainer
+                    case final container?)
+                  container,
+              ];
+          }
+        });
+
+    return overrides.fold<ProviderContainer?>(null, (deepestContainer, target) {
+      if (deepestContainer == null || deepestContainer._depth < target._depth) {
+        return target;
+      }
+
+      return deepestContainer;
+    });
+  }
+
+  /// Initializes a family and returns its pointer.
+  ///
+  /// Overridden families, be it directly or transitively,
+  /// are mounted in the current container.
+  ///
+  /// Non-overridden families are mounted in the root container.
+  ProviderDirectory _mountFamily(Family family) {
+    return familyPointers._upsert(
+      family,
+      currentContainer: container,
+      targetContainer: null,
+      inherit: (target) {
+        final parentPointer = target._pointerManager._mountFamily(family);
+
+        return ProviderDirectory.from(parentPointer);
+      },
+      scope: ({override}) {
+        final familyOverride =
+            override ==
+                    null //
+                ? null
+                : TransitiveFamilyOverride(override);
+
+        final parent = container.parent?._pointerManager.familyPointers[family];
+
+        if (parent != null) {
+          return ProviderDirectory.from(
+            parent,
+            targetContainer: container,
+            familyOverride: familyOverride,
+          );
+        }
+
+        return ProviderDirectory.empty(
+          container,
+          familyOverride: familyOverride,
+        );
+      },
+    );
+  }
+
+  ProviderDirectory? readDirectory(ProviderBase<Object?> provider) {
+    final from = provider.from;
+
+    if (from == null) {
+      return orphanPointers;
+    } else {
+      return familyPointers[from];
+    }
+  }
+
+  $ProviderPointer? readPointer(ProviderBase<Object?> provider) {
+    return readDirectory(provider)?.pointers[provider];
+  }
+
+  ProviderElement? readElement(ProviderBase<Object?> provider) {
+    return readPointer(provider)?.element;
+  }
+
+  ProviderDirectory upsertDirectory(ProviderBase<Object?> provider) {
+    final from = provider.from;
+
+    if (from == null) {
+      return orphanPointers;
+    } else {
+      return _mountFamily(from);
+    }
+  }
+
+  $ProviderPointer upsertPointer(ProviderBase<Object?> provider) {
+    return upsertDirectory(
+      provider,
+    ).mount(provider, currentContainer: container);
+  }
+
+  ProviderElement upsertElement(ProviderBase<Object?> provider) {
+    return upsertPointer(provider).element!;
+  }
+
+  /// Traverse the [ProviderElement]s associated with this [ProviderContainer].
+  Iterable<$ProviderPointer> listProviderPointers() {
+    return orphanPointers.pointers.values
+        .where((pointer) => pointer.targetContainer == container)
+        .followedBy(
+          familyPointers.values
+              .where((pointer) => pointer.targetContainer == container)
+              .expand((e) => e.pointers.values),
+        );
+  }
+
+  /// Read the [ProviderElement] for a provider, without creating it if it doesn't exist.
+  Iterable<ProviderElement> listFamily(Family family) {
+    final _familyPointers = familyPointers[family];
+    if (_familyPointers == null) return const [];
+
+    return _familyPointers.pointers.values.map((e) => e.element).nonNulls;
+  }
+
+  Iterable<ProviderReference> listFamilyProviders(Family family) {
+    final _familyPointers = familyPointers[family];
+    if (_familyPointers == null) return const <ProviderReference>[];
+
+    return _familyPointers.pointers.entries
+        .where(
+          (entry) =>
+              entry.value.targetContainer == container &&
+              entry.value.element != null,
+        )
+        .map(
+          (entry) =>
+              ProviderReference._(entry.key, entry.value.element!.container),
+        );
+  }
+
+  Iterable<ProviderReference> listProviders() {
+    return orphanPointers.pointers.entries
+        .where(
+          (entry) =>
+              entry.value.targetContainer == container &&
+              entry.value.element != null,
+        )
+        .map(
+          (entry) =>
+              ProviderReference._(entry.key, entry.value.element!.container),
+        )
+        .followedBy(
+          familyPointers.values.expand(
+            (directory) => directory.pointers.entries
+                .where(
+                  (entry) =>
+                      entry.value.targetContainer == container &&
+                      entry.value.element != null,
+                )
+                .map(
+                  (entry) => ProviderReference._(
+                    entry.key,
+                    entry.value.element!.container,
+                  ),
+                ),
+          ),
+        );
+  }
+
+  /// Remove a provider from this container.
+  ///
+  /// Noop if the provider is from an override or doesn't exist.
+  ///
+  /// Returns the associated pointer, even if it was not removed.
+  $ProviderPointer? remove(ProviderBase<Object?> provider) {
+    final directory = readDirectory(provider);
+    if (directory == null) return null;
+
+    final pointer = directory.pointers[provider];
+    // If null, nothing to remove.
+    if (pointer == null) return null;
+    // If from an override, must not be removed unless it is a transitive override
+    if (pointer.providerOverride != null &&
+        pointer.providerOverride is! TransitiveProviderOverride) {
+      return pointer;
+    }
+
+    directory.pointers.remove(provider);
+
+    final from = provider.from;
+    // Cleanup family if empty.
+    // We do so only if it isn't from an override, as overrides are
+    // must never be removed.
+    if (from != null && directory.pointers.isEmpty) {
+      if (directory.familyOverride == null ||
+          directory.familyOverride is TransitiveFamilyOverride) {
+        familyPointers.remove(from);
+      }
+    }
+
+    return pointer;
+  }
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+    buffer.writeln('ProviderPointerManager#${shortHash(this)}(');
+
+    buffer.writeln('  container: $container');
+    buffer.writeln(
+      '  orphanPointers: ${orphanPointers.toString().indentAfterFirstLine(2)}',
+    );
+
+    buffer.write('  familyPointers: {');
+
+    for (final entry in familyPointers.entries) {
+      buffer.write(
+        '\n    ${entry.key}: ${entry.value.toString().indentAfterFirstLine(2)},',
+      );
+    }
+    if (familyPointers.isNotEmpty) {
+      buffer.writeln('\n  }');
+    } else {
+      buffer.writeln('}');
+    }
+
+    buffer.write(')');
+
+    return buffer.toString();
+  }
+}
+
+@internal
+extension InternalProviderContainer on ProviderContainer {
+  /// The scheduler of this container.
+  ///
+  /// This is used to schedule the execution of providers and notify listeners.
+  ProviderScheduler get scheduler => _scheduler;
+  int get depth => _depth;
+
+  void defaultOnError(Object error, StackTrace stackTrace) {
+    if (error is ProviderException) return;
+
+    _onError(error, stackTrace);
+  }
+
+  /// Traverse the [ProviderElement]s associated with this [ProviderContainer].
+  Iterable<ProviderElement> getAllProviderElements() {
+    return _pointerManager
+        .listProviderPointers()
+        .map((e) => e.element)
+        .nonNulls
+        .where((e) => e.container == this);
+  }
+
+  /// Visit all nodes of the graph at most once, from roots to leaves.
+  ///
+  /// This is fairly expensive and should be avoided as much as possible.
+  /// If you do not need for providers to be sorted, consider using [getAllProviderElements]
+  /// instead, which returns an unsorted list and is significantly faster.
+  Iterable<ProviderElement> getAllProviderElementsInOrder() sync* {
+    final visitedNodes = HashSet<ProviderElement>();
+    final queue = DoubleLinkedQueue<ProviderElement>();
+
+    // get providers that don't depend on other providers from this container
+    for (final pointer in _pointerManager.listProviderPointers()) {
+      if (pointer.targetContainer != this) continue;
+      final element = pointer.element;
+      if (element == null) continue;
+
+      var hasAncestorsInContainer = false;
+      element.visitAncestors((element) {
+        // We ignore dependencies that are defined in another container, as
+        // they are in a separate graph
+        if (element.container == this) {
+          hasAncestorsInContainer = true;
+        }
+      });
+
+      if (!hasAncestorsInContainer) {
+        queue.add(element);
+      }
+    }
+
+    while (queue.isNotEmpty) {
+      final element = queue.removeFirst();
+
+      if (!visitedNodes.add(element)) {
+        // Already visited
+        continue;
+      }
+
+      yield element;
+
+      // Queue the children of this element, but only if all of its ancestors
+      // were already visited before.
+      // If a child does not have all of its ancestors visited, when those
+      // ancestors will be visited, they will retry visiting this child.
+      element.visitChildren((dependent) {
+        if (dependent.container == this) {
+          // All the parents of a node must have been visited before a node is visited
+          var areAllAncestorsAlreadyVisited = true;
+          dependent.visitAncestors((e) {
+            if (e.container == this && !visitedNodes.contains(e)) {
+              areAllAncestorsAlreadyVisited = false;
+            }
+          });
+
+          if (areAllAncestorsAlreadyVisited) queue.add(dependent);
+        }
+      });
+    }
+  }
+
+  /// All the containers that have this container as `parent`.
+  ///
+  /// Do not use in production
+  List<ProviderContainer> get debugChildren => UnmodifiableListView(_children);
+
+  /// Run a function while catching errors and reporting possible errors to the zone.
+  @internal
+  void runGuarded(void Function() cb) {
+    try {
+      cb();
+    } catch (err, stack) {
+      defaultOnError(err, stack);
+    }
+  }
+
+  /// Run a function while catching errors and reporting possible errors to the zone.
+  @internal
+  void runUnaryGuarded<FirstT, ResT>(ResT Function(FirstT) cb, FirstT value) {
+    try {
+      cb(value);
+    } catch (err, stack) {
+      defaultOnError(err, stack);
+    }
+  }
+
+  /// Run a function while catching errors and reporting possible errors to the zone.
+  @internal
+  void runBinaryGuarded<FirstT, SecondT>(
+    void Function(FirstT, SecondT) cb,
+    FirstT value,
+    SecondT value2,
+  ) {
+    try {
+      cb(value, value2);
+    } catch (err, stack) {
+      defaultOnError(err, stack);
+    }
+  }
+
+  /// Run a function while catching errors and reporting possible errors to the zone.
+  @internal
+  void runTernaryGuarded<FirstT, SecondT, ThirdT>(
+    void Function(FirstT, SecondT, ThirdT) cb,
+    FirstT value,
+    SecondT value2,
+    ThirdT value3,
+  ) {
+    try {
+      cb(value, value2, value3);
+    } catch (err, stack) {
+      defaultOnError(err, stack);
+    }
+  }
+
+  /// Run a function while catching errors and reporting possible errors to the zone.
+  @internal
+  void runQuaternaryGuarded<FirstT, SecondT, ThirdT, ForthT>(
+    void Function(FirstT, SecondT, ThirdT, ForthT) cb,
+    FirstT value,
+    SecondT value2,
+    ThirdT value3,
+    ForthT value4,
+  ) {
+    try {
+      cb(value, value2, value3, value4);
+    } catch (err, stack) {
+      defaultOnError(err, stack);
+    }
+  }
+}
+
+@internal
+extension ContainerReadElement on ProviderContainer {
+  ProviderElement<StateT, Object?> readProviderElement<StateT>(
+    $ProviderBaseImpl<StateT> provider,
+  ) => _readProviderElement(provider);
+}
+
+@internal
+extension ElementReadElement on ProviderElement<Object?, Object?> {
+  ProviderElement<StateT, Object?> readProviderElement<StateT>(
+    $ProviderBaseImpl<StateT> provider,
+  ) => container._readProviderElement(provider);
+}
+
+/// The response of [ProviderContainer.allProviders].
+final class ProviderReference {
+  ProviderReference._(this.provider, this.container);
+
+  /// An active provider.
+  final ProviderBase<Object?> provider;
+
+  /// The container where [provider] is originating from.
+  final ProviderContainer container;
+
+  @override
+  String toString() => '$provider';
+}
+
+/// {@template riverpod.provider_container}
+/// An object that stores the state of the providers and allows overriding the
+/// behavior of a specific provider.
+///
+/// If you are using Flutter, you do not need to care about this object
+/// (outside of testing), as it is implicitly created for you by `ProviderScope`.
+///
+/// Inside tests, consider using [ProviderContainer.test].
+/// This will automatically dispose the container at the end of the test.
+/// {@endtemplate}
+/// {@category Core}
+@publicInRiverpodAndCodegen
+final class ProviderContainer implements MutationTarget {
+  /// {@macro riverpod.provider_container}
+  ProviderContainer({
+    ProviderContainer? parent,
+    List<Override> overrides = const [],
+    List<ProviderObserver>? observers,
+    @internal void Function(Object error, StackTrace stackTrace)? onError,
+    Retry? retry,
+  }) : _debugOverridesLength = overrides.length,
+       _depth = parent == null ? 0 : parent._depth + 1,
+       _parent = parent,
+       _onError = onError ?? Zone.current.handleUncaughtError,
+       retry = retry ?? parent?.retry,
+       observers = [
+         ...?observers,
+         if (kDebugMode && parent == null) const DevtoolObserver(),
+         if (parent != null) ...parent.observers,
+       ],
+       _root = parent?._root ?? parent {
+    if (parent != null) {
+      if (parent.disposed) {
+        throw StateError(
+          'Cannot create a ProviderContainer that has a disposed parent',
+        );
+      }
+    }
+
+    if (kDebugMode) {
+      final overrideOrigins = <Object?>{};
+      for (final override in overrides) {
+        switch (override) {
+          case _ProviderOverride():
+            if (!overrideOrigins.add(override.origin)) {
+              throw AssertionError(
+                'Tried to override a provider twice within the same container: ${override.origin}',
+              );
+            }
+          case _FamilyOverride():
+            if (!overrideOrigins.add(override.from)) {
+              throw AssertionError(
+                'Tried to override a family twice within the same container: ${override.from}',
+              );
+            }
+        }
+      }
+    }
+
+    _pointerManager =
+        parent != null
+            ? ProviderPointerManager.from(parent, overrides, container: this)
+            : ProviderPointerManager(
+              overrides,
+              container: this,
+              orphanPointers: ProviderDirectory.empty(
+                this,
+                familyOverride: null,
+              ),
+            );
+
+    // Mutate the parent & global state only at the very end.
+    // This ensures that if an error is thrown, the parent & global state
+    // are not affected.
+    parent?._children.add(this);
+
+    for (final obs in this.observers) {
+      container.runUnaryGuarded(obs.didCreateProviderContainer, this);
+    }
+  }
+
+  /// An automatically disposed [ProviderContainer].
+  ///
+  /// This also adds an internal check at the end of tests that verifies
+  /// that all containers were disposed.
+  ///
+  /// This constructor works only inside tests, by relying on `package:test`'s
+  /// `addTearDown`.
+  @visibleForTesting
+  factory ProviderContainer.test({
+    ProviderContainer? parent,
+    List<Override> overrides = const [],
+    List<ProviderObserver>? observers,
+    Retry? retry,
+  }) {
+    final container = ProviderContainer(
+      parent: parent,
+      overrides: overrides,
+      observers: observers,
+      retry: retry,
+    );
+    test.addTearDown(container.dispose);
+
+    return container;
+  }
+
+  /// The default implementation of [retry].
+  ///
+  /// {@macro riverpod.retry}
+  static Duration? defaultRetry(
+    int retryCount,
+    Object error, {
+    int maxRetries = 10,
+    Duration maxDelay = const Duration(milliseconds: 6400),
+    Duration minDelay = const Duration(milliseconds: 200),
+  }) {
+    if (retryCount >= maxRetries) return null;
+    if (error is ProviderException || error is Error) return null;
+
+    final delay = minDelay * math.pow(2, retryCount).toInt();
+    if (delay > maxDelay) return maxDelay;
+
+    return delay;
+  }
+
+  final _debugId = ContainerId(const Uuid().v4());
+
+  final int _debugOverridesLength;
+
+  /// Default error handler for this container.
+  final void Function(Object error, StackTrace stackTrace) _onError;
+
+  /// The object that handles when providers are refreshed and disposed.
+  /// @nodoc
+  late final _scheduler = ProviderScheduler();
+
+  @internal
+  @override
+  ProviderContainer get container => this;
+
+  /// The default retry logic used by providers associated to this container.
+  ///
+  /// {@macro riverpod.retry}
+  final Retry? retry;
+
+  /// How deep this [ProviderContainer] is in the graph of containers.
+  ///
+  /// Starts at 0.
+  final int _depth;
+  final ProviderContainer? _root;
+  final ProviderContainer? _parent;
+
+  final _children = <ProviderContainer>[];
+
+  late final ProviderPointerManager _pointerManager;
+
+  /// The list of observers attached to this container.
+  ///
+  /// Observers can be useful for logging purpose.
+  ///
+  /// This list includes the observers of this container and that of its "parent"
+  /// too.
+  final List<ProviderObserver> observers;
+
+  /// Whether [dispose] was called or not.
+  ///
+  /// This disables the different methods of [ProviderContainer], resulting in
+  /// a [StateError] when attempting to use them.
+  var _disposed = false;
+
+  /// Awaits for providers to rebuild/be disposed and for listeners to be notified.
+  ///
+  ///
+  /// This call is recursive and will wait for ancestor [ProviderContainer]s to
+  /// rebuild their providers too.
+  Future<void> pump() async {
+    final a = scheduler.pendingFuture;
+
+    await Future.wait<void>([
+      if (a != null) a,
+      if (parent case final parent?) parent.pump(),
+    ]);
+  }
+
+  /// Reads a provider without listening to it and returns the currently
+  /// exposed value.
+  ///
+  /// ```dart
+  /// final greetingProvider = Provider((_) => 'Hello world');
+  ///
+  /// void main() {
+  ///   final container = ProviderContainer();
+  ///
+  ///   print(container.read(greetingProvider)); // Hello World
+  /// }
+  /// ```
+  StateT read<StateT>(ProviderListenable<StateT> provider) {
+    final sub = listen(provider, (_, _) {});
+
+    try {
+      return sub.readSafe().valueOrProviderException;
+    } finally {
+      sub.close();
+    }
+  }
+
+  /// {@macro riverpod.exists}
+  bool exists(ProviderBase<Object?> provider) {
+    switch (provider) {
+      case $ProviderBaseImpl():
+        return _pointerManager
+                .readDirectory(provider)
+                ?.pointers[provider]
+                ?.element !=
+            null;
+    }
+  }
+
+  /// Returns all currently active providers in this container.
+  ///
+  /// If [family] is specified, returns only the providers from that family.
+  /// This is more efficient than
+  /// `allProviders().where((p) => p.provider.from == family)`.
+  ///
+  /// The result includes providers mounted in this container and any of its parents,
+  /// but does not include providers from child containers.
+  ///
+  /// Note: Be careful about _when_ you call this method, as you may otherwise
+  /// miss providers that haven't been listened to yet.
+  ///
+  /// For example if you do:
+  ///
+  /// ```dart
+  /// final args = ref.container.allProviders(family: myFamily);
+  /// ref.read(myFamily(0));
+  /// ```
+  Iterable<ProviderReference> allProviders({Family? family}) {
+    final providers =
+        family != null
+            ? _pointerManager.listFamilyProviders(family)
+            : _pointerManager.listProviders();
+
+    if (container.parent case final parent?) {
+      return providers.followedBy(parent.allProviders(family: family));
+    }
+
+    return providers;
+  }
+
+  /// Executes [ProviderElement.debugReassemble] on all the providers.
+  void debugReassemble() {
+    if (kDebugMode) {
+      for (final element in getAllProviderElements()) {
+        element.debugReassemble();
+      }
+    }
+  }
+
+  /// {@macro riverpod.listen}
+  ProviderSubscription<StateT> listen<StateT>(
+    ProviderListenable<StateT> provider,
+    void Function(StateT? previous, StateT next) listener, {
+    bool fireImmediately = false,
+    bool weak = false,
+    void Function(Object error, StackTrace stackTrace)? onError,
+  }) {
+    assert(
+      !(weak && fireImmediately),
+      'Cannot specify both weak and fireImmediately',
+    );
+
+    final sub = provider._addListener(
+      ContainerNode(container: this),
+      listener,
+      weak: weak,
+      onError: onError ?? defaultOnError,
+      onDependencyMayHaveChanged: null,
+    );
+    _handleFireImmediately(container, sub, fireImmediately: fireImmediately);
+
+    sub.impl._listenedElement.addDependentSubscription(sub.impl);
+
+    return sub;
+  }
+
+  /// {@macro riverpod.invalidate}
+  void invalidate(ProviderOrFamily provider, {bool asReload = false}) {
+    switch (provider) {
+      case ProviderBase<Object?>():
+        _pointerManager
+            .readElement(provider)
+            ?.invalidateSelf(asReload: asReload, manual: true);
+      case Family():
+        for (final element in _pointerManager.listFamily(provider)) {
+          element.invalidateSelf(asReload: asReload, manual: true);
+        }
+    }
+  }
+
+  /// {@macro riverpod.refresh}
+  StateT refresh<StateT>(Refreshable<StateT> refreshable) {
+    final providerToRefresh = switch (refreshable) {
+      final ProviderBase<Object?> p => p,
+      _ProviderRefreshable<Object?, Object?>(:final provider) => provider,
+    };
+    invalidate(providerToRefresh);
+
+    return read(refreshable);
+  }
+
+  void _recursivePointerRemoval(
+    ProviderBase<Object?> provider,
+    $ProviderPointer pointer,
+  ) {
+    for (final child in _children) {
+      final childPointer = child._pointerManager.readPointer(provider);
+
+      if (childPointer != null && childPointer != pointer) {
+        continue;
+      }
+
+      child._recursivePointerRemoval(provider, pointer);
+    }
+
+    _pointerManager.remove(provider);
+  }
+
+  void _disposeProvider(ProviderBase<Object?> provider) {
+    final pointer = _pointerManager.remove(provider);
+    // The provider is already disposed, so we don't need to do anything
+    if (pointer == null) return;
+
+    _recursivePointerRemoval(provider, pointer);
+
+    pointer.element?.dispose();
+    pointer.element = null;
+  }
+
+  /// Updates the list of provider overrides.
+  ///
+  /// If you are using flutter, this is done implicitly for you by `ProviderScope`.
+  ///
+  /// Updating a `overrideWithValue` with a different value
+  /// will cause the listeners to rebuild.
+  ///
+  /// It is not possible, to remove or add new overrides, only update existing ones.
+  void updateOverrides(List<Override> overrides) {
+    if (_disposed) {
+      throw StateError(
+        'Called updateOverrides on a ProviderContainer that was already disposed',
+      );
+    }
+
+    assert(
+      _debugOverridesLength == overrides.length,
+      'Tried to change the number of overrides. This is not allowed – '
+      'overrides cannot be removed/added, they can only be updated.',
+    );
+
+    for (final override in overrides) {
+      void debugValidateOverride(
+        Override? previousOverride,
+        Type newOverrideType,
+      ) {
+        if (previousOverride == null) {
+          throw AssertionError(
+            'Tried to update the override of a provider that was not overridden before',
+          );
+        }
+
+        assert(
+          previousOverride.runtimeType == newOverrideType,
+          'Replaced the override of type ${previousOverride.runtimeType} '
+          'with an override of type $newOverrideType, which is different.\n'
+          'Changing the kind of override or reordering overrides is not supported.',
+        );
+      }
+
+      switch (override) {
+        case _ProviderOverride():
+          final pointer = _pointerManager.readPointer(override.origin);
+
+          if (kDebugMode) {
+            debugValidateOverride(
+              pointer?.providerOverride,
+              override.runtimeType,
+            );
+          }
+
+          pointer!.providerOverride = override;
+
+          final element = pointer.element;
+          if (element == null) continue;
+
+          runUnaryGuarded(element.update, override.providerOverride);
+
+        case _FamilyOverride():
+          final pointer = _pointerManager.familyPointers[override.from];
+
+          if (kDebugMode) {
+            debugValidateOverride(
+              pointer?.familyOverride,
+              override.runtimeType,
+            );
+          }
+
+          pointer!.familyOverride = override;
+      }
+    }
+  }
+
+  ProviderElement<StateT, Object?> _readProviderElement<StateT>(
+    $ProviderBaseImpl<StateT> provider,
+  ) {
+    if (_disposed) {
+      throw StateError(
+        'Tried to read a provider from a ProviderContainer that was already disposed',
+      );
+    }
+
+    final element = _pointerManager.upsertElement(provider);
+
+    return element as ProviderElement<StateT, Object?>;
+  }
+
+  void _dispose({
+    // A flag to optimize recursive dispose calls.
+    // When disposing a graph of containers, there is no need to call `children.remove`
+    // individually, as all children will be disposed at once.
+    required bool updateChildren,
+  }) {
+    if (_disposed) return;
+    _disposed = true;
+
+    // We dispose children before disposing "this"
+    // This is important to dispose providers from leaves to roots.
+    // We can safely iterate over "children" without using "toList" thanks to
+    // the "updateChildren" flag.
+    for (final child in _children) {
+      child._dispose(updateChildren: false);
+    }
+
+    if (updateChildren) _parent?._children.remove(this);
+
+    if (_root == null) scheduler.dispose();
+
+    for (final element in getAllProviderElementsInOrder().toList().reversed) {
+      element.dispose();
+    }
+
+    for (final obs in observers) {
+      container.runUnaryGuarded(obs.didDisposeProviderContainer, this);
+    }
+  }
+
+  /// Release all the resources associated with this [ProviderContainer].
+  ///
+  /// This will destroy the state of all providers associated with this
+  /// [ProviderContainer] and call [Ref.onDispose] listeners.
+  ///
+  /// It is safe to call this method multiple times. Subsequent calls will be no-op.
+  ///
+  /// If this container has non-disposed child [ProviderContainer]s (cf `parent`),
+  /// then this method will dispose those children first.
+  /// Therefore, disposing the root [ProviderContainer] the entire graph.
+  void dispose() => _dispose(updateChildren: true);
+
+  @override
+  String toString() => 'ProviderContainer#${shortHash(this)}()';
+}
+
+@internal
+extension ProviderContainerTest on ProviderContainer {
+  bool get disposed => _disposed;
+
+  ProviderContainer? get root => _root;
+  ProviderContainer? get parent => _parent;
+
+  List<ProviderContainer> get children => _children;
+
+  ProviderPointerManager get pointerManager => _pointerManager;
+}
+
+/// Information about the [ProviderObserver] event.
+/// {@category Core}
+final class ProviderObserverContext {
+  /// Information about the [ProviderObserver] event.
+  /// @nodoc
+  @internal
+  ProviderObserverContext(
+    this.provider,
+    this.container,
+    this._element, {
+    required this.mutation,
+  });
+
+  /// The provider that triggered the event.
+  final ProviderBase<Object?> provider;
+
+  /// The element associated to [provider].
+  final ProviderElement _element;
+
+  /// The container that owns [provider]'s state.
+  final ProviderContainer container;
+
+  /// The pending mutation while the observer was called.
+  ///
+  /// Pretty much all observer events may be triggered by a mutation under some
+  /// conditions.
+  /// For example, if a mutation refreshes another provider, then
+  /// [ProviderObserver.didDisposeProvider] will contain the mutation that
+  /// disposed the provider.
+  final Mutation<Object?>? mutation;
+
+  @override
+  String toString() {
+    final args = [
+      'provider: $provider',
+      'container: $container',
+      if (mutation != null) 'mutation: ${describeIdentity(mutation)}',
+    ];
+    return 'ProviderObserverContext(${args.join(', ')})';
+  }
+}
+
+@internal
+@immutable
+class ConsumerContext {
+  const ConsumerContext({required this.container, required this.buildContext});
+
+  final ProviderContainer container;
+  final /*BuildContext*/ Object? buildContext;
+}
+
+/// An object that listens to the changes of a [ProviderContainer].
+///
+/// This can be used for logging or making devtools.
+/// {@category Core}
+abstract base class ProviderObserver {
+  /// An object that listens to the changes of a [ProviderContainer].
+  ///
+  /// This can be used for logging or making devtools.
+  const ProviderObserver();
+
+  /// A new [ProviderContainer] was created.
+  void didCreateProviderContainer(ProviderContainer container) {}
+
+  /// A [ProviderContainer] was disposed.
+  void didDisposeProviderContainer(ProviderContainer container) {}
+
+  /// A provider was initialized, and the value exposed is [value].
+  ///
+  /// [value] will be `null` if the provider threw during initialization.
+  void didAddProvider(ProviderObserverContext context, Object? value) {}
+
+  /// A provider emitted an error, be it by throwing during initialization
+  /// or by having a [Future]/[Stream] emit an error
+  void providerDidFail(
+    ProviderObserverContext context,
+    Object error,
+    StackTrace stackTrace,
+  ) {}
+
+  /// A provider was unmounted and fully removed from memory.
+  ///
+  /// See also [didDisposeProvider], for [Ref.onDispose] listeners being called.
+  void didUnmountProvider(ProviderObserverContext context) {}
+
+  /// Called by providers when they emit a notification.
+  ///
+  /// - [newValue] will be `null` if the provider threw during initialization.
+  /// - [previousValue] will be `null` if the previous build threw during initialization.
+  ///mutation
+  /// If the change is caused by a "mutation", [] will be the invocation
+  /// that caused the state change.
+  /// This includes when a mutation manually calls `state=`:
+  ///
+  /// ```dart
+  /// @riverpod
+  /// class Example extends _$Example {
+  ///   @override
+  ///   int count() => 0;
+  ///
+  ///   @mutation
+  ///   int increment() {
+  ///     state++; // This will trigger `didUpdateProvider` and "mutation" will be `#increment`
+  ///
+  ///     // ...
+  ///   }
+  /// }
+  /// ```
+  void didUpdateProvider(
+    ProviderObserverContext context,
+    Object? previousValue,
+    Object? newValue,
+  ) {}
+
+  /// A provider was disposed. This does not mean that the provider was fully
+  /// removed from memory, only that [Ref.onDispose] listeners were called.
+  ///
+  /// See also [didUnmountProvider], for full memory removal.
+  void didDisposeProvider(ProviderObserverContext context) {}
+
+  /// A mutation was reset.
+  ///
+  /// This includes both manual calls to [Mutation.reset] and automatic
+  /// resets.
+  ///
+  /// {@macro auto_reset}
+  void mutationReset(
+    ProviderObserverContext context,
+    Mutation<Object?> mutation,
+  ) {}
+
+  /// A mutation was started.
+  ///
+  /// {@template obs_mutation_arg}
+  /// [mutation] is strictly the same as [ProviderObserverContext.mutation].
+  /// It is provided as a convenience, as this life-cycle is guaranteed
+  /// to have a non-null [ProviderObserverContext.mutation].
+  /// {@endtemplate}
+  void mutationStart(
+    ProviderObserverContext context,
+    Mutation<Object?> mutation,
+  ) {}
+
+  /// A mutation failed.
+  ///
+  /// [error] is the error thrown by the mutation.
+  /// [stackTrace] is the stack trace of the error.
+  ///
+  /// {@macro obs_mutation_arg}
+  void mutationError(
+    ProviderObserverContext context,
+    Mutation<Object?> mutation,
+    Object error,
+    StackTrace stackTrace,
+  ) {}
+
+  /// A mutation succeeded.
+  ///
+  /// [result] is the value returned by the mutation.
+  ///
+  /// {@macro obs_mutation_arg}
+  void mutationSuccess(
+    ProviderObserverContext context,
+    Mutation<Object?> mutation,
+    Object? result,
+  ) {}
+}
+
+/// An implementation detail for the override mechanism of providers
+@internal
+typedef SetupOverride =
+    void Function({
+      required ProviderBase<Object?> origin,
+      required ProviderBase<Object?> override,
+    });
+
+/// An error thrown when a call to [Ref.read]/[Ref.watch]
+/// leads to a provider depending on itself.
+///
+/// Circular dependencies are both not supported for performance reasons
+/// and maintainability reasons.
+/// Consider reading about unidirectional data flow to learn about the
+/// benefits of avoiding circular dependencies.
+@internal
+class CircularDependencyError extends Error {
+  CircularDependencyError._(this.loop)
+    : assert(
+        loop.isNotEmpty,
+        'Circular dependency must have at least one provider',
+      ),
+      assert(loop.first == loop.last, 'Circular dependency must be a loop');
+
+  final List<ProviderBase<Object?>> loop;
+
+  @override
+  String toString() {
+    return '''
+CircularDependencyError: Circular dependency detected.
+This happens when a provider somehow depends on itself.
+
+The circular dependency chain is as follows:
+${loop.map((e) => '  $e\n').join()}
+''';
+  }
+}
+```
+
+// ============================================================
 // 📦 Package: ref.dart
 // 📁 /home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/ref.dart
 // ============================================================
@@ -16144,6 +33944,782 @@ class MissingScopeException implements Exception {
     return 'MissingScopeException: The provider ${element.origin} is scoped, '
         'but was accessed in a place where it is not overridden. '
         'Either you forgot to override the provider, or you tried to read it outside of where it is defined';
+  }
+}
+```
+
+// ============================================================
+// 📦 Package: shared_preferences_async.dart
+// 📁 /home/user/.pub-cache/hosted/pub.dev/shared_preferences-2.5.5/lib/src/shared_preferences_async.dart
+// ============================================================
+
+```dart
+// Copyright 2013 The Flutter Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
+import 'package:shared_preferences_platform_interface/types.dart';
+
+import 'shared_preferences_devtools_extension_data.dart';
+
+/// Provides a persistent store for simple data.
+///
+/// Data is persisted to and fetched from the disk asynchronously.
+/// If synchronous access to preferences in a locally cached version of preferences
+/// is preferred, consider using [SharedPreferencesWithCache] instead.
+@immutable
+class SharedPreferencesAsync {
+  /// Creates a new instance with the given [options].
+  SharedPreferencesAsync({
+    SharedPreferencesOptions options = const SharedPreferencesOptions(),
+  }) : _options = options {
+    if (SharedPreferencesAsyncPlatform.instance == null) {
+      throw StateError(
+        'The SharedPreferencesAsyncPlatform instance must be set.',
+      );
+    } else {
+      _platform = SharedPreferencesAsyncPlatform.instance!;
+    }
+  }
+
+  /// Options that determine the behavior of contained methods, usually
+  /// platform specific extensions of the [SharedPreferencesOptions] class.
+  final SharedPreferencesOptions _options;
+
+  late final SharedPreferencesAsyncPlatform _platform;
+
+  /// Returns all keys on the the platform that match provided [parameters].
+  ///
+  /// If no restrictions are provided, fetches all keys stored on the platform.
+  ///
+  /// Ignores any keys whose values are types which are incompatible with shared_preferences.
+  Future<Set<String>> getKeys({Set<String>? allowList}) async {
+    final parameters = GetPreferencesParameters(
+      filter: PreferencesFilters(allowList: allowList),
+    );
+    return _platform.getKeys(parameters, _options);
+  }
+
+  /// Returns all keys and values on the the platform that match provided [parameters].
+  ///
+  /// If no restrictions are provided, fetches all entries stored on the platform.
+  ///
+  /// Ignores any entries of types which are incompatible with shared_preferences.
+  Future<Map<String, Object?>> getAll({Set<String>? allowList}) async {
+    final parameters = GetPreferencesParameters(
+      filter: PreferencesFilters(allowList: allowList),
+    );
+    return _platform.getPreferences(parameters, _options);
+  }
+
+  /// Reads a value from the platform, throwing a [TypeError] if the value is
+  /// not a `bool`.
+  Future<bool?> getBool(String key) async {
+    return _platform.getBool(key, _options);
+  }
+
+  /// Reads a value from the platform, throwing a [TypeError] if the value is
+  /// not an `int`.
+  Future<int?> getInt(String key) async {
+    return _platform.getInt(key, _options);
+  }
+
+  /// Reads a value from the platform, throwing a [TypeError] if the value is
+  /// not a `double`.
+  Future<double?> getDouble(String key) async {
+    return _platform.getDouble(key, _options);
+  }
+
+  /// Reads a value from the platform, throwing a [TypeError] if the value is
+  /// not a `String`.
+  Future<String?> getString(String key) async {
+    return _platform.getString(key, _options);
+  }
+
+  /// Reads a list of string values from the platform, throwing a [TypeError]
+  /// if the value is not a `List<String>`.
+  Future<List<String>?> getStringList(String key) async {
+    return _platform.getStringList(key, _options);
+  }
+
+  /// Returns true if the the platform contains the given [key].
+  Future<bool> containsKey(String key) async {
+    return (await getKeys(allowList: <String>{key})).isNotEmpty;
+  }
+
+  /// Saves a boolean [value] to the platform.
+  Future<void> setBool(String key, bool value) {
+    return _platform.setBool(key, value, _options);
+  }
+
+  /// Saves an integer [value] to the platform.
+  Future<void> setInt(String key, int value) {
+    return _platform.setInt(key, value, _options);
+  }
+
+  /// Saves a double [value] to the platform.
+  ///
+  /// On platforms that do not support storing doubles,
+  /// the value will be stored as a float.
+  Future<void> setDouble(String key, double value) {
+    return _platform.setDouble(key, value, _options);
+  }
+
+  /// Saves a string [value] to the platform.
+  ///
+  /// Some platforms have special values that cannot be stored, please refer to
+  /// the README for more information.
+  Future<void> setString(String key, String value) {
+    return _platform.setString(key, value, _options);
+  }
+
+  /// Saves a list of strings [value] to the platform.
+  Future<void> setStringList(String key, List<String> value) {
+    return _platform.setStringList(key, value, _options);
+  }
+
+  /// Removes an entry from the platform.
+  Future<void> remove(String key) {
+    return _platform.clear(
+      ClearPreferencesParameters(
+        filter: PreferencesFilters(allowList: <String>{key}),
+      ),
+      _options,
+    );
+  }
+
+  /// Clears all preferences from the platform.
+  ///
+  /// If no [parameters] are provided, and [SharedPreferencesAsync] has no filter,
+  /// all preferences will be removed. This may include values not set by this instance,
+  /// such as those stored by native code or by other packages using
+  /// shared_preferences internally, which may cause unintended side effects.
+  ///
+  /// It is highly recommended that an [allowList] be provided to this call.
+  Future<void> clear({Set<String>? allowList}) {
+    final parameters = ClearPreferencesParameters(
+      filter: PreferencesFilters(allowList: allowList),
+    );
+    return _platform.clear(parameters, _options);
+  }
+}
+
+/// Options necessary to create a [SharedPreferencesWithCache].
+class SharedPreferencesWithCacheOptions {
+  /// Creates a new instance with the given options.
+  const SharedPreferencesWithCacheOptions({this.allowList});
+
+  /// Information about what data will be fetched during `get` and `init`
+  /// methods, what data can be `set`, as well as what data will be removed by `clear`.
+  ///
+  /// A `null` allowList will prevent filtering, allowing all items to be cached.
+  /// An empty allowList will prevent all caching as well as getting and setting.
+  ///
+  /// Setting an allowList is strongly recommended, to prevent getting and
+  /// caching unneeded or unexpected data.
+  final Set<String>? allowList;
+}
+
+/// Provides a persistent store for simple data.
+///
+/// Cache provided to allow for synchronous gets.
+///
+/// If preferences on the platform may be altered by other means than through
+/// this instance, consider using [SharedPreferencesAsync] instead. You may also
+/// refresh the cached data using [reloadCache] prior to a get request to prevent
+/// missed changes that may have occurred since the cache was last updated.
+@immutable
+class SharedPreferencesWithCache {
+  /// Creates a new instance with the given options.
+  SharedPreferencesWithCache._create({
+    required SharedPreferencesOptions sharedPreferencesOptions,
+    required SharedPreferencesWithCacheOptions cacheOptions,
+    Map<String, Object?>? cache,
+  }) : _cacheOptions = cacheOptions,
+       _platformMethods = SharedPreferencesAsync(
+         options: sharedPreferencesOptions,
+       ),
+       _cache = cache ?? <String, Object?>{};
+
+  /// Creates a new instance with the given options and reloads the cache from
+  /// the platform data.
+  static Future<SharedPreferencesWithCache> create({
+    SharedPreferencesOptions sharedPreferencesOptions =
+        const SharedPreferencesOptions(),
+    required SharedPreferencesWithCacheOptions cacheOptions,
+    Map<String, Object?>? cache,
+  }) async {
+    final preferences = SharedPreferencesWithCache._create(
+      sharedPreferencesOptions: sharedPreferencesOptions,
+      cacheOptions: cacheOptions,
+      cache: cache,
+    );
+
+    await preferences.reloadCache();
+
+    return preferences;
+  }
+
+  /// Cache containing in-memory data.
+  final Map<String, Object?> _cache;
+
+  /// Options that define cache behavior.
+  final SharedPreferencesWithCacheOptions _cacheOptions;
+
+  /// Async access directly to the platform.
+  ///
+  /// Methods called through [_platformMethods] will NOT update the cache.
+  final SharedPreferencesAsync _platformMethods;
+
+  /// Updates cache with latest values from platform.
+  ///
+  /// This should be called before reading any values if the values may have
+  /// been changed by anything other than this cache instance,
+  /// such as from another isolate or native code that changes the underlying
+  /// preference storage directly.
+  Future<void> reloadCache() async {
+    _cache.clear();
+    _cache.addAll(
+      await _platformMethods.getAll(allowList: _cacheOptions.allowList),
+    );
+  }
+
+  /// Returns true if cache contains the given [key].
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  bool containsKey(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    return _cache.containsKey(key);
+  }
+
+  /// Returns all keys in the cache.
+  Set<String> get keys => _cache.keys.toSet();
+
+  /// Reads a value of any type from the cache.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Object? get(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    return _cache[key];
+  }
+
+  /// Reads a value from the cache, throwing a [TypeError] if the value is not a
+  /// bool.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  bool? getBool(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    return get(key) as bool?;
+  }
+
+  /// Reads a value from the cache, throwing a [TypeError] if the value is not
+  /// an int.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  int? getInt(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    return get(key) as int?;
+  }
+
+  /// Reads a value from the cache, throwing a [TypeError] if the value is not a
+  /// double.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  double? getDouble(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    return get(key) as double?;
+  }
+
+  /// Reads a value from the cache, throwing a [TypeError] if the value is not a
+  /// String.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  String? getString(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    return get(key) as String?;
+  }
+
+  /// Reads a list of string values from the cache, throwing an
+  /// exception if it's not a string list.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  List<String>? getStringList(String key) {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    // Make a copy of the list so that later mutations won't propagate
+    return (_cache[key] as List<Object?>?)?.cast<String>().toList();
+  }
+
+  /// Saves a boolean [value] to the cache and platform.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Future<void> setBool(String key, bool value) async {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    _cache[key] = value;
+    return _platformMethods.setBool(key, value);
+  }
+
+  /// Saves an integer [value] to the cache and platform.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Future<void> setInt(String key, int value) async {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    _cache[key] = value;
+    return _platformMethods.setInt(key, value);
+  }
+
+  /// Saves a double [value] to the cache and platform.
+  ///
+  /// On platforms that do not support storing doubles,
+  /// the value will be stored as a float instead.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Future<void> setDouble(String key, double value) async {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    _cache[key] = value;
+    return _platformMethods.setDouble(key, value);
+  }
+
+  /// Saves a string [value] to the cache and platform.
+  ///
+  /// Note: Due to limitations on some platforms,
+  /// values cannot start with the following:
+  ///
+  /// - 'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu'
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Future<void> setString(String key, String value) async {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    _cache[key] = value;
+    return _platformMethods.setString(key, value);
+  }
+
+  /// Saves a list of strings [value] to the cache and platform.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Future<void> setStringList(String key, List<String> value) async {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    _cache[key] = value;
+    return _platformMethods.setStringList(key, value);
+  }
+
+  /// Removes an entry from cache and platform.
+  ///
+  /// Throws an [ArgumentError] if [key] is not in this instance's filter.
+  Future<void> remove(String key) async {
+    if (!_isValidKey(key)) {
+      throw ArgumentError(
+        '$key is not included in the PreferencesFilter allowlist',
+      );
+    }
+    _cache.remove(key);
+    return _platformMethods.remove(key);
+  }
+
+  /// Clears cache and platform preferences that match filter options.
+  Future<void> clear() async {
+    _cache.clear();
+    return _platformMethods.clear(allowList: _cacheOptions.allowList);
+  }
+
+  bool _isValidKey(String key) {
+    return _cacheOptions.allowList?.contains(key) ?? true;
+  }
+}
+
+// Include an unused import to ensure this library is included
+// when running `flutter run -d chrome`.
+// Check this discussion for more info: https://github.com/flutter/packages/pull/6749/files/6eb1b4fdce1eba107294770d581713658ff971e9#discussion_r1755375409
+// ignore: unused_element
+final bool _fieldToKeepDevtoolsExtensionReachable =
+    fieldToKeepDevtoolsExtensionLibraryAlive;
+```
+
+// ============================================================
+// 📦 Package: workmanager_impl.dart
+// 📁 /home/user/.pub-cache/hosted/pub.dev/workmanager-0.9.0+3/lib/src/workmanager_impl.dart
+// ============================================================
+
+```dart
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/widgets.dart';
+import 'package:workmanager_platform_interface/workmanager_platform_interface.dart';
+import 'package:workmanager_android/workmanager_android.dart';
+import 'package:workmanager_apple/workmanager_apple.dart';
+
+/// Function that executes your background work.
+/// You should return whether the task ran successfully or not.
+///
+/// [taskName] Returns the value you provided when registering the task.
+/// iOS will pass [Workmanager.iOSBackgroundTask] (for background-fetch) or
+/// custom task IDs for BGTaskScheduler based tasks.
+///
+/// The behavior for retries is different on each platform:
+/// - Android: return `false` from the this method will reschedule the work
+///   based on the policy given in [Workmanager.registerOneOffTask], for example
+/// - iOS: The return value is ignored, but if work has failed, you can schedule
+///   another attempt using [Workmanager.registerOneOffTask]. This depends on
+///   BGTaskScheduler being set up correctly. Please follow the README for
+///   instructions.
+typedef BackgroundTaskHandler = Future<bool> Function(
+    String taskName, Map<String, dynamic>? inputData);
+
+/// Make sure you followed the platform setup steps first before trying to register any task.
+///
+/// Android:
+/// - Custom Application class
+///
+/// iOS:
+/// - Enabled the Background Fetch API
+///
+/// Inside your Dart code
+///
+/// Initialize the plugin first
+///
+/// ```
+/// @pragma('vm:entry-point')
+/// void callbackDispatcher() {
+///   Workmanager().executeTask((taskName, inputData) {
+///     switch(taskName) {
+///       case "":
+///         print("Replace this print statement with your code that should be executed in the background here");
+///         break;
+///     }
+///     return Future.value(true);
+///   });
+/// }
+///
+/// void main() {
+///   Workmanager().initialize(callbackDispatcher);
+/// }
+/// ```
+///
+/// ## You can schedule a specific iOS task using:
+/// - `Workmanager().registerOneOffTask()`
+/// Please read the documentation on limitations for background processing on iOS.
+///
+///
+/// iOS periodic background fetch task is automatically scheduled if you setup the plugin properly for Background Fetch.
+///
+/// If you are targeting iOS 13+, you can use `Workmanager().registerPeriodicTask()`
+///
+/// Note: On iOS 13+, adding a BGTaskSchedulerPermittedIdentifiers key to the Info.plist
+/// disables the performFetchWithCompletionHandler and setMinimumBackgroundFetchInterval
+/// methods, which means you cannot use both old Background Fetch and new registerPeriodicTask
+/// at the same time, you have to choose one based on your minimum iOS target version.
+/// For details see [Using background tasks to update your app](https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/using_background_tasks_to_update_your_app/)
+///
+///
+/// ## You can schedule Android tasks using:
+/// - `Workmanager().registerOneOffTask()` or `Workmanager().registerPeriodicTask()`
+class Workmanager {
+  factory Workmanager() => _instance;
+
+  Workmanager._internal() {
+    _ensurePlatformImplementation();
+  }
+
+  static final Workmanager _instance = Workmanager._internal();
+
+  static void _ensurePlatformImplementation() {
+    if (WorkmanagerPlatform.instance is! WorkmanagerAndroid &&
+        WorkmanagerPlatform.instance is! WorkmanagerApple) {
+      if (Platform.isAndroid) {
+        WorkmanagerPlatform.instance = WorkmanagerAndroid();
+      } else if (Platform.isIOS) {
+        WorkmanagerPlatform.instance = WorkmanagerApple();
+      }
+    }
+  }
+
+  /// Use this constant inside your callbackDispatcher to identify when an iOS Background Fetch occurred.
+  ///
+  /// ```
+  /// @pragma('vm:entry-point')
+  /// void callbackDispatcher() {
+  ///   Workmanager().executeTask((taskName, inputData) {
+  ///      switch (taskName) {
+  ///        case Workmanager.iOSBackgroundTask:
+  ///          stderr.writeln("The iOS background fetch was triggered");
+  ///          break;
+  ///      }
+  ///
+  ///     return Future.value(true);
+  ///   });
+  /// }
+  /// ```
+  static const String iOSBackgroundTask = "iOSPerformFetch";
+
+  static BackgroundTaskHandler? _backgroundTaskHandler;
+  static late final WorkmanagerFlutterApi _flutterApi;
+
+  /// Platform implementation
+  static WorkmanagerPlatform get _platform => WorkmanagerPlatform.instance;
+
+  /// Initialize the Workmanager with a [callbackDispatcher].
+  ///
+  /// The [callbackDispatcher] is a top level function which will be invoked by Android or iOS whenever a scheduled task is due.
+  ///
+  /// [isInDebugMode] is deprecated and has no effect. Use WorkmanagerDebug handlers instead.
+  Future<void> initialize(
+    Function callbackDispatcher, {
+    @Deprecated(
+        'Use WorkmanagerDebug handlers instead. This parameter has no effect.')
+    bool isInDebugMode = false,
+  }) async {
+    return _platform.initialize(callbackDispatcher,
+        // ignore: deprecated_member_use
+        isInDebugMode: isInDebugMode);
+  }
+
+  /// This method needs to be called from within your [callbackDispatcher].
+  ///
+  /// [backgroundTaskHandler] is the callback that is provided when a background task is run.
+  ///
+  /// This is used by iOS and Android to identify which task was selected to run in the background.
+  /// The [BackgroundTaskHandler] will provide you with the [taskName] and the [inputData].
+  /// The [taskName] will always be the value you provided when registering the task.
+  /// The [inputData] will contain all the data you registered the task with.
+  ///
+  /// You need to return a [Future<bool>] that will tell the OS if the task was successful or not.
+  ///
+  /// You can perfectly call other Flutter plugins inside this callback, as the callback is simply running within a Flutter background isolate.
+  ///
+  /// Scheduling other background tasks inside the [BackgroundTaskHandler] is allowed.
+  void executeTask(BackgroundTaskHandler backgroundTaskHandler) async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    _backgroundTaskHandler = backgroundTaskHandler;
+    _flutterApi = _WorkmanagerFlutterApiImpl();
+    WorkmanagerFlutterApi.setUp(_flutterApi);
+
+    await _flutterApi.backgroundChannelInitialized();
+  }
+
+  /// Schedule a one-off task.
+  ///
+  /// A [uniqueName] is required so only one task can be registered.
+  ///
+  /// Calling this method again with the same [uniqueName] will update the current pending task, unless an [ExistingWorkPolicy] is provided.
+  ///
+  /// - [taskName]: is the value that will be returned in the [BackgroundTaskHandler], ignored on iOS where you should use [uniqueName].
+  /// - [inputData]: is the input data for task. Valid value types are: int, bool, double, String and their list
+  /// - [initialDelay]: is an [Duration] after which the task will run. Ignored on iOS where you should schedule the task in AppDelegate.swift
+  /// - [constraints]: are the requirements that need to be met before the task runs.
+  /// - [backoffPolicy]: is the backoff policy to use when retrying work.
+  /// - [backoffPolicyDelay]: is the delay for the backoff policy.
+  /// - [tag]: is an optional tag that can be used to identify or cancel the task.
+  /// - [existingWorkPolicy]: is the policy to use when work with the same [uniqueName] already exists.
+  /// - [outOfQuotaPolicy]: is the policy to use when the device is out of quota. (Android only)
+  Future<void> registerOneOffTask(
+    String uniqueName,
+    String taskName, {
+    Map<String, dynamic>? inputData,
+    Duration? initialDelay,
+    Constraints? constraints,
+    ExistingWorkPolicy? existingWorkPolicy,
+    BackoffPolicy? backoffPolicy,
+    Duration? backoffPolicyDelay,
+    String? tag,
+    OutOfQuotaPolicy? outOfQuotaPolicy,
+  }) async {
+    return _platform.registerOneOffTask(
+      uniqueName,
+      taskName,
+      inputData: inputData,
+      initialDelay: initialDelay,
+      constraints: constraints,
+      existingWorkPolicy: existingWorkPolicy,
+      backoffPolicy: backoffPolicy,
+      backoffPolicyDelay: backoffPolicyDelay,
+      tag: tag,
+      outOfQuotaPolicy: outOfQuotaPolicy,
+    );
+  }
+
+  /// Schedules a periodic task that will run every provided [frequency].
+  ///
+  /// On iOS it is not guaranteed when or how often it will run, iOS will schedule
+  /// it as per user's App usage pattern, iOS might terminate the task or throttle
+  /// it's frequency if it takes more than 30 seconds.
+  ///
+  /// A [uniqueName] is required so only one task can be registered.
+  /// The [taskName] is the value that will be returned in the [BackgroundTaskHandler], ignored on iOS where you should use [uniqueName].
+  /// a [frequency] is not required and will be defaulted to 15 minutes if not provided.
+  /// a [frequency] has a minimum of 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
+  /// the [flexInterval] If the nature of the work is time-sensitive, you can configure the PeriodicWorkRequest to run in a flexible period at each interval.
+  /// The [inputData] is the input data for task. Valid value types are: int, bool, double, String and their list
+  ///
+  /// Unlike Android, you cannot set [frequency] for iOS here rather you have to set in `AppDelegate.swift` while registering the task.
+  /// The [inputData] is the input data for task. Valid value types are: int, bool, double, String and their list. It is not supported on iOS.
+  ///
+  /// For iOS see Apple docs:
+  /// [iOS 13+ Using background tasks to update your app](https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/using_background_tasks_to_update_your_app/)
+  ///
+  /// [iOS 13+ BGAppRefreshTask](https://developer.apple.com/documentation/backgroundtasks/bgapprefreshtask/)
+  Future<void> registerPeriodicTask(
+    String uniqueName,
+    String taskName, {
+    Duration? frequency,
+    Duration? flexInterval,
+    Map<String, dynamic>? inputData,
+    Duration? initialDelay,
+    Constraints? constraints,
+    ExistingPeriodicWorkPolicy? existingWorkPolicy,
+    BackoffPolicy? backoffPolicy,
+    Duration? backoffPolicyDelay,
+    String? tag,
+  }) async {
+    return _platform.registerPeriodicTask(
+      uniqueName,
+      taskName,
+      frequency: frequency,
+      flexInterval: flexInterval,
+      inputData: inputData,
+      initialDelay: initialDelay,
+      constraints: constraints,
+      existingWorkPolicy: existingWorkPolicy,
+      backoffPolicy: backoffPolicy,
+      backoffPolicyDelay: backoffPolicyDelay,
+      tag: tag,
+    );
+  }
+
+  /// Checks whether a period task is scheduled by its [uniqueName].
+  ///
+  /// Scheduled means the work state is either ENQUEUED or RUNNING
+  ///
+  /// Only available on Android.
+  Future<bool> isScheduledByUniqueName(String uniqueName) async {
+    return _platform.isScheduledByUniqueName(uniqueName);
+  }
+
+  /// Schedule a background long running task, currently only available on iOS.
+  ///
+  /// Processing tasks are for long processes like data processing and app maintenance.
+  /// Processing tasks can run for minutes, but the system can interrupt these.
+  /// Processing tasks run only when the device is idle. iOS might terminate any
+  /// running background processing tasks when the user starts using the device.
+  /// However background refresh tasks aren't affected.
+  ///
+  /// For iOS see Apple docs:
+  /// [iOS 13+ Using background tasks to update your app](https://developer.apple.com/documentation/uikit/app_and_environment/scenes/preparing_your_ui_to_run_in_the_background/using_background_tasks_to_update_your_app/)
+  ///
+  /// [iOS 13+ BGProcessingTask](https://developer.apple.com/documentation/backgroundtasks/bgprocessingtask/)
+  Future<void> registerProcessingTask(
+    String uniqueName,
+    String taskName, {
+    Duration? initialDelay,
+    Map<String, dynamic>? inputData,
+    Constraints? constraints,
+  }) async {
+    return _platform.registerProcessingTask(
+      uniqueName,
+      taskName,
+      initialDelay: initialDelay,
+      inputData: inputData,
+      constraints: constraints,
+    );
+  }
+
+  /// Cancels task by [uniqueName]
+  Future<void> cancelByUniqueName(String uniqueName) async =>
+      _platform.cancelByUniqueName(uniqueName);
+
+  /// Cancels task by [tag]
+  Future<void> cancelByTag(String tag) async => _platform.cancelByTag(tag);
+
+  /// Cancels all tasks
+  Future<void> cancelAll() async => _platform.cancelAll();
+
+  /// Prints details of un-executed scheduled tasks to console. To be used during
+  /// development/debugging.
+  ///
+  /// Currently only supported on iOS and only on iOS 13+.
+  /// Returns a string containing the scheduled tasks information.
+  Future<String> printScheduledTasks() async => _platform.printScheduledTasks();
+}
+
+/// Converts inputData from Pigeon format, filtering out null keys
+@visibleForTesting
+Map<String, dynamic>? convertPigeonInputData(Map<String?, Object?>? inputData) {
+  Map<String, dynamic>? convertedInputData;
+  if (inputData != null) {
+    convertedInputData = <String, dynamic>{};
+    for (final entry in inputData.entries) {
+      if (entry.key != null) {
+        convertedInputData[entry.key!] = entry.value;
+      }
+    }
+  }
+  return convertedInputData;
+}
+
+/// Implementation of WorkmanagerFlutterApi for handling background task execution
+class _WorkmanagerFlutterApiImpl extends WorkmanagerFlutterApi {
+  @override
+  Future<void> backgroundChannelInitialized() async {}
+
+  @override
+  Future<bool> executeTask(
+      String taskName, Map<String?, Object?>? inputData) async {
+    final convertedInputData = convertPigeonInputData(inputData);
+    final result = await Workmanager._backgroundTaskHandler
+        ?.call(taskName, convertedInputData);
+    return result ?? false;
   }
 }
 ```
