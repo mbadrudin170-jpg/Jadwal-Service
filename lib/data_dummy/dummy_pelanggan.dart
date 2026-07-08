@@ -17,9 +17,12 @@ const String idMaya = 'Maya-Sari-id';
 const String idRudi = 'Rudi-Hartono-id';
 const String idLisa = 'Lisa-Anggraini-id';
 
-// ✅ ID INVESTOR
+// ✅ ID INVESTOR (5 Investor)
 const String idInvestor1 = 'Investor-Satu-id';
 const String idInvestor2 = 'Investor-Dua-id';
+const String idInvestor3 = 'Investor-Tiga-id';
+const String idInvestor4 = 'Investor-Empat-id';
+const String idInvestor5 = 'Investor-Lima-id';
 
 /// Daftar pelanggan dummy (SEMUA DATA TETAP ADA)
 List<PelangganModel> get daftarPelanggan => [
@@ -109,7 +112,7 @@ List<PelangganModel> get daftarPelanggan => [
   ),
 
   // ============================================================
-  // ✅ DATA INVESTOR (TAMBAHAN)
+  // ✅ DATA INVESTOR (5 INVESTOR)
   // ============================================================
   const PelangganModel(
     id: idInvestor1,
@@ -127,6 +130,33 @@ List<PelangganModel> get daftarPelanggan => [
     kataSandi: 'investor2',
     alamat: 'Jl. Investasi No. 2, Surabaya',
     macAddress: '00:1B:44:11:3A:D2',
+    role: AppRole.investor,
+  ),
+  const PelangganModel(
+    id: idInvestor3,
+    nama: 'Investor Tiga',
+    telepon: '081234567893',
+    kataSandi: 'investor3',
+    alamat: 'Jl. Investasi No. 3, Bandung',
+    macAddress: '00:1B:44:11:3A:D3',
+    role: AppRole.investor,
+  ),
+  const PelangganModel(
+    id: idInvestor4,
+    nama: 'Investor Empat',
+    telepon: '081234567894',
+    kataSandi: 'investor4',
+    alamat: 'Jl. Investasi No. 4, Yogyakarta',
+    macAddress: '00:1B:44:11:3A:D4',
+    role: AppRole.investor,
+  ),
+  const PelangganModel(
+    id: idInvestor5,
+    nama: 'Investor Lima',
+    telepon: '081234567895',
+    kataSandi: 'investor5',
+    alamat: 'Jl. Investasi No. 5, Makassar',
+    macAddress: '00:1B:44:11:3A:D5',
     role: AppRole.investor,
   ),
 ];
@@ -174,9 +204,12 @@ Map<String, int> get totalPoin {
     idMaya: 80,
     idRudi: 250,
     idLisa: 100,
-    // ✅ Poin untuk investor
+    // ✅ Poin untuk 5 investor
     idInvestor1: 1000,
     idInvestor2: 750,
+    idInvestor3: 600,
+    idInvestor4: 400,
+    idInvestor5: 200,
   };
 }
 
