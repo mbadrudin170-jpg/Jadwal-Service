@@ -509,7 +509,7 @@ class PelangganOpGlobal {
 
   /// Menambahkan pelanggan dengan logika berdasarkan role
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       await _pelangganOpSqlite.tambahPelanggan(pelanggan);
     } else {
       await _pelangganOpFirebase.tambahPelanggan(pelanggan);
@@ -519,7 +519,7 @@ class PelangganOpGlobal {
 
   /// Mengupdate pelanggan
   Future<void> updatePelanggan(PelangganModel pelanggan) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
     } else {
       await _pelangganOpFirebase.perbaruiPelanggan(pelanggan);
@@ -529,7 +529,7 @@ class PelangganOpGlobal {
 
   /// Menghapus pelanggan (soft delete)
   Future<void> softDelete(String id) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       await _pelangganOpSqlite.softDelete(id);
     } else {
       await _pelangganOpFirebase.softDelete(id);
@@ -539,7 +539,7 @@ class PelangganOpGlobal {
 
   /// Mengambil daftar pelanggan berdasarkan role
   Future<List<PelangganModel>> ambilSemua() async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       return await _pelangganOpSqlite.ambilSemua();
     } else {
       return await _pelangganOpFirebase.ambilSemua();
@@ -548,7 +548,7 @@ class PelangganOpGlobal {
 
   /// Mengambil pelanggan berdasarkan ID
   Future<PelangganModel?> ambilBerdasarkanId(String id) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       return await _pelangganOpSqlite.ambilBerdasarkanId(id);
     } else {
       return await _pelangganOpFirebase.ambilBerdasarkanId(id);

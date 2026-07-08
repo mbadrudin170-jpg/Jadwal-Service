@@ -1,7 +1,7 @@
 #!/bin/bash
-# path: script/docs/md_packages.sh
+# // path: script/package/flutter_test.sh
 
-OUTPUT_FILE="docs/packages.md"
+OUTPUT_FILE="docs/flutter_test.md"
 PACKAGE_CACHE="/home/user/.pub-cache/hosted/pub.dev"
 FLUTTER_CORE="/home/user/flutter/bin/cache/pkg/sky_engine"
 
@@ -10,35 +10,8 @@ FLUTTER_CORE="/home/user/flutter/bin/cache/pkg/sky_engine"
 # ============================================================
 
 files=(
-    # Core Dart & Flutter
-    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart"
-    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/async/future.dart"
-    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/list.dart"
-    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart"
-    
-    # Flutter Framework
-    "/home/user/flutter/packages/flutter/lib/src/widgets/framework.dart"
-    "/home/user/flutter/packages/flutter/lib/src/widgets/basic.dart"
-    "/home/user/flutter/packages/flutter/lib/src/widgets/text.dart"
-    "/home/user/flutter/packages/flutter/lib/src/material/progress_indicator.dart"
-    "/home/user/flutter/packages/flutter/lib/src/widgets/scroll_view.dart"
-    "/home/user/flutter/packages/flutter/lib/src/painting/edge_insets.dart"
-    "/home/user/flutter/packages/flutter_test/lib/src/deprecated.dart"
-    
-    # Packages
-    "/home/user/.pub-cache/hosted/pub.dev/collection-1.19.1/lib/src/iterable_extensions.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/fl_chart-1.2.0/lib/src/chart/line_chart/line_chart.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/consumer.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/widget_ref.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/provider_scope.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/async_value.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/ref.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/provider_container.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/freezed_annotation-3.1.0/lib/freezed_annotation.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/riverpod_annotation-4.0.3/lib/src/riverpod_annotation.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/workmanager-0.9.0+3/lib/src/workmanager_impl.dart"
-    "/home/user/.pub-cache/hosted/pub.dev/shared_preferences-2.5.5/lib/src/shared_preferences_async.dart"
-)
+    '/home/user/flutter/packages/flutter_test/lib/src/widget_tester.dart'
+   )
 
 # ============================================================
 # FUNGSI DETEKSI JENIS FILE

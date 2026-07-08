@@ -286,14 +286,38 @@ PACKAGE_CACHE="/home/user/.pub-cache/hosted/pub.dev"
 FLUTTER_CORE="/home/user/flutter/bin/cache/pkg/sky_engine"
 
 # ============================================================
-# DAFTAR FILE (TULIS PATH LENGKAP SAJA)
+# DAFTAR FILE (UNIK - TANPA DUPLIKAT)
 # ============================================================
 
 files=(
-    "/home/user/.pub-cache/hosted/pub.dev/collection-1.19.1/lib/src/iterable_extensions.dart"
+    # Core Dart & Flutter
     "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart"
-    # Tambahkan file lain di sini
-    # "/home/user/.pub-cache/hosted/pub.dev/dio-5.9.2/lib/dio.dart"
+    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/async/future.dart"
+    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/list.dart"
+    "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart"
+    
+    # Flutter Framework
+    "/home/user/flutter/packages/flutter/lib/src/widgets/framework.dart"
+    "/home/user/flutter/packages/flutter/lib/src/widgets/basic.dart"
+    "/home/user/flutter/packages/flutter/lib/src/widgets/text.dart"
+    "/home/user/flutter/packages/flutter/lib/src/material/progress_indicator.dart"
+    "/home/user/flutter/packages/flutter/lib/src/widgets/scroll_view.dart"
+    "/home/user/flutter/packages/flutter/lib/src/painting/edge_insets.dart"
+    "/home/user/flutter/packages/flutter_test/lib/src/deprecated.dart"
+    
+    # Packages
+    "/home/user/.pub-cache/hosted/pub.dev/collection-1.19.1/lib/src/iterable_extensions.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/fl_chart-1.2.0/lib/src/chart/line_chart/line_chart.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/consumer.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/widget_ref.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/provider_scope.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/async_value.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/ref.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/provider_container.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/freezed_annotation-3.1.0/lib/freezed_annotation.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/riverpod_annotation-4.0.3/lib/src/riverpod_annotation.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/workmanager-0.9.0+3/lib/src/workmanager_impl.dart"
+    "/home/user/.pub-cache/hosted/pub.dev/shared_preferences-2.5.5/lib/src/shared_preferences_async.dart"
 )
 
 # ============================================================
@@ -330,17 +354,26 @@ detect_file_type() {
 
 mkdir -p docs
 
+# Gunakan printf dan sort -u untuk menghilangkan duplikat
+UNIQUE_FILES=$(printf '%s\n' "${files[@]}" | sort -u)
+
+TOTAL_FILES=$(echo "$UNIQUE_FILES" | wc -l)
+
 cat > "$OUTPUT_FILE" << EOF
 # 📚 Dokumentasi File Eksternal & Core
 
 > **Tanggal dibuat:** $(date '+%Y-%m-%d %H:%M:%S')
-> **Total file:** ${#files[@]}
+> **Total file unik:** $TOTAL_FILES
 
 ---
 
 EOF
 
-for file_path in "${files[@]}"; do
+# ⭐ PROSES FILE UNIK
+echo "$UNIQUE_FILES" | while read -r file_path; do
+    # Skip jika baris kosong
+    [ -z "$file_path" ] && continue
+    
     if [ ! -f "$file_path" ]; then
         echo "⚠️  File tidak ditemukan: $file_path" >&2
         continue
@@ -442,7 +475,7 @@ mkdir -p prompt
 find lib test script docs prompt assets > prompt/struktur_proyek.md
 
 {
-    cat docs/packages.md
+    # cat docs/packages.md
     # Struktur direktori
     echo "// ============================================================"
     echo "// STRUKTUR PROYEK"
@@ -637,6 +670,120 @@ done
 mv "$temp_file" "$output"
 echo "✅ Dokumentasi gabungan selesai → $output"
 
+// File: script/package/flutter_test.sh
+#!/bin/bash
+# // path: script/package/flutter_test.sh
+
+OUTPUT_FILE="docs/flutter_test.md"
+PACKAGE_CACHE="/home/user/.pub-cache/hosted/pub.dev"
+FLUTTER_CORE="/home/user/flutter/bin/cache/pkg/sky_engine"
+
+# ============================================================
+# DAFTAR FILE (UNIK - TANPA DUPLIKAT)
+# ============================================================
+
+files=(
+    '/home/user/flutter/packages/flutter_test/lib/src/widget_tester.dart'
+   )
+
+# ============================================================
+# FUNGSI DETEKSI JENIS FILE
+# ============================================================
+
+detect_file_type() {
+    local file_path="$1"
+    
+    # Cek apakah di flutter core
+    if [[ "$file_path" == *"sky_engine"* ]]; then
+        echo "core"
+        return
+    fi
+    
+    # Cek apakah di pub-cache
+    if [[ "$file_path" == *".pub-cache"* ]]; then
+        echo "package"
+        return
+    fi
+    
+    # Cek apakah di project sendiri
+    if [[ "$file_path" == *"$PROJECT_ROOT"* ]]; then
+        echo "project"
+        return
+    fi
+    
+    echo "unknown"
+}
+
+# ============================================================
+# EKSEKUSI
+# ============================================================
+
+mkdir -p docs
+
+# Gunakan printf dan sort -u untuk menghilangkan duplikat
+UNIQUE_FILES=$(printf '%s\n' "${files[@]}" | sort -u)
+
+TOTAL_FILES=$(echo "$UNIQUE_FILES" | wc -l)
+
+cat > "$OUTPUT_FILE" << EOF
+# 📚 Dokumentasi File Eksternal & Core
+
+> **Tanggal dibuat:** $(date '+%Y-%m-%d %H:%M:%S')
+> **Total file unik:** $TOTAL_FILES
+
+---
+
+EOF
+
+# ⭐ PROSES FILE UNIK
+echo "$UNIQUE_FILES" | while read -r file_path; do
+    # Skip jika baris kosong
+    [ -z "$file_path" ] && continue
+    
+    if [ ! -f "$file_path" ]; then
+        echo "⚠️  File tidak ditemukan: $file_path" >&2
+        continue
+    fi
+    
+    # Deteksi jenis file
+    file_type=$(detect_file_type "$file_path")
+    filename=$(basename "$file_path")
+    
+    case "$file_type" in
+        core)
+            icon="🔧"
+            label="Core Dart"
+            ;;
+        package)
+            icon="📦"
+            label="Package"
+            ;;
+        project)
+            icon="📁"
+            label="Project"
+            ;;
+        *)
+            icon="📄"
+            label="File"
+            ;;
+    esac
+    
+    echo "" >> "$OUTPUT_FILE"
+    echo "// ============================================================" >> "$OUTPUT_FILE"
+    echo "// $icon $label: $filename" >> "$OUTPUT_FILE"
+    echo "// 📁 $file_path" >> "$OUTPUT_FILE"
+    echo "// ============================================================" >> "$OUTPUT_FILE"
+    echo "" >> "$OUTPUT_FILE"
+    echo '```dart' >> "$OUTPUT_FILE"
+    cat "$file_path" >> "$OUTPUT_FILE"
+    echo '```' >> "$OUTPUT_FILE"
+    
+    echo "✅ $icon $filename"
+done
+
+echo ""
+echo "✅ Selesai! File: $OUTPUT_FILE"
+
 // File: script/clean/full_clean.sh
 #!/bin/bash
 
@@ -730,6 +877,7 @@ alias md_readme='/home/user/myapp/script/docs/md_readme.sh'
 alias timpa_readme='/home/user/myapp/script/docs/timpa_readme.sh'
 alias md_script='/home/user/myapp/script/docs/md_script.sh'
 alias md_packages='/home/user/myapp/script/docs/md_package.sh'
+alias flutter_test='/home/user/myapp/script/package/flutter_test.sh'
 
 # -----------build_runner-----------
 alias fbuild='flutter pub run build_runner build --delete-conflicting-outputs'
@@ -763,3 +911,4 @@ alias r='md_packages && build_docs README.md'
 alias l='build_docs README.md include_test'
 
 alias buat_struktur='/home/user/myapp/script/lainnya/buat_struktur.sh'
+alias semua='flutter_test && md_script && md_fitur'
