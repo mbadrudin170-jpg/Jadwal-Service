@@ -89,7 +89,6 @@ class _MainPageState extends ConsumerState<MainPage> {
     BottomNavigationBarItem(icon: Icon(TIcons.speed), label: 'Uji Speed'),
     BottomNavigationBarItem(icon: Icon(TIcons.settings), label: 'Pengaturan'),
   ];
-
   final List<BottomNavigationBarItem> _bottomInvestor = const [
     BottomNavigationBarItem(icon: Icon(TIcons.money), label: 'Portofolio'),
     BottomNavigationBarItem(icon: Icon(TIcons.star), label: 'Saham'),
