@@ -31,7 +31,7 @@ class InvestasiOpGlobal {
     InvestasiModel investasi, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin menambah investasi ke SQLite: ${investasi.id}',
       );
@@ -51,7 +51,7 @@ class InvestasiOpGlobal {
   Future<List<InvestasiModel>> ambilSemuaInvestasi({
     bool tampilkanYangDiarsip = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info('[InvestasiOpGlobal] Admin mengambil investasi dari SQLite');
       return await _investasiOpSqlite.ambilSemuaInvestasi(
         tampilkanYangDiarsip: tampilkanYangDiarsip,
@@ -66,7 +66,7 @@ class InvestasiOpGlobal {
 
   /// Mengambil investasi berdasarkan ID.
   Future<InvestasiModel?> ambilInvestasiById(String id) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin mengambil investasi ID: $id dari SQLite',
       );
@@ -83,7 +83,7 @@ class InvestasiOpGlobal {
   Future<List<InvestasiModel>> ambilInvestasiByIdInvestor(
     String idInvestor,
   ) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin mengambil investasi untuk investor ID: $idInvestor dari SQLite',
       );
@@ -101,7 +101,7 @@ class InvestasiOpGlobal {
     InvestasiModel investasi, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin memperbarui investasi di SQLite: ${investasi.id}',
       );
@@ -119,7 +119,7 @@ class InvestasiOpGlobal {
 
   /// Soft delete investasi.
   Future<void> softDeleteInvestasi(String id, {bool dariServer = false}) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin soft delete investasi di SQLite: $id',
       );
@@ -141,7 +141,7 @@ class InvestasiOpGlobal {
     DividenModel dividen, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin menambah dividen ke SQLite: ${dividen.id}',
       );
@@ -158,7 +158,7 @@ class InvestasiOpGlobal {
   Future<List<DividenModel>> ambilSemuaDividen({
     bool tampilkanYangDiarsip = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info('[InvestasiOpGlobal] Admin mengambil dividen dari SQLite');
       return await _investasiOpSqlite.ambilSemuaDividen(
         tampilkanYangDiarsip: tampilkanYangDiarsip,
@@ -173,7 +173,7 @@ class InvestasiOpGlobal {
 
   /// Mengambil dividen berdasarkan ID.
   Future<DividenModel?> ambilDividenById(String id) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin mengambil dividen ID: $id dari SQLite',
       );
@@ -188,7 +188,7 @@ class InvestasiOpGlobal {
 
   /// Mengambil dividen berdasarkan ID investor.
   Future<List<DividenModel>> ambilDividenByIdInvestor(String idInvestor) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin mengambil dividen untuk investor ID: $idInvestor dari SQLite',
       );
@@ -205,7 +205,7 @@ class InvestasiOpGlobal {
   Future<List<DividenModel>> ambilDividenByIdInvestasi(
     String idInvestasi,
   ) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin mengambil dividen untuk investasi ID: $idInvestasi dari SQLite',
       );
@@ -223,7 +223,7 @@ class InvestasiOpGlobal {
     DividenModel dividen, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin memperbarui dividen di SQLite: ${dividen.id}',
       );
@@ -238,7 +238,7 @@ class InvestasiOpGlobal {
 
   /// Soft delete dividen.
   Future<void> softDeleteDividen(String id, {bool dariServer = false}) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info('[InvestasiOpGlobal] Admin soft delete dividen di SQLite: $id');
       await _investasiOpSqlite.softDeleteDividen(id, dariServer: dariServer);
     } else {
@@ -252,7 +252,7 @@ class InvestasiOpGlobal {
     String id, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin menandai dividen dibayar di SQLite: $id',
       );
@@ -270,7 +270,7 @@ class InvestasiOpGlobal {
     List<InvestasiModel> daftarInvestasi, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin batch investasi ke SQLite: ${daftarInvestasi.length} item',
       );
@@ -291,7 +291,7 @@ class InvestasiOpGlobal {
     List<DividenModel> daftarDividen, {
     bool dariServer = false,
   }) async {
-      if (ref.isAdmin) {
+    if (ref.isAdmin) {
       Log.info(
         '[InvestasiOpGlobal] Admin batch dividen ke SQLite: ${daftarDividen.length} item',
       );

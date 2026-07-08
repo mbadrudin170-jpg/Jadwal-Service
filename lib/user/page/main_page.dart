@@ -53,20 +53,18 @@ class _MainPageState extends ConsumerState<MainPage> {
         unawaited(pengingatService.cekDanTampilkanPengingatTagihan());
       }
     });
-
-    final halamanDasar = <Widget>[
+    final halamanInvestor = <Widget>[
+      const HalamanPortofolio(),
+      const RingkasanSaham(),
+    ];
+    final halamanUser = <Widget>[
       const ProfilePage(),
       const TransaksiU(),
       const OrderPage(),
-      if (ref.isInvestor) ...[
-        const HalamanPortofolio(),
-        const RingkasanSaham(),
-      ] else
-        const HalamanUjiKecepatan(),
+      const HalamanUjiKecepatan(),
       const SettingsPageU(),
     ];
-
-    _daftarHalaman = halamanDasar;
+    _daftarHalaman = ref.isInvestor ? halamanInvestor : halamanUser;
     _reaktorSiklusHidup = AppLifecycleReactor(
       appOpenAdService: _layananIklanBukaAplikasi,
     );
@@ -84,40 +82,23 @@ class _MainPageState extends ConsumerState<MainPage> {
     });
   }
 
+  final List<BottomNavigationBarItem> _bottomUser = const [
+    BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
+    BottomNavigationBarItem(icon: Icon(TIcons.history), label: 'Riwayat'),
+    BottomNavigationBarItem(icon: Icon(TIcons.pesanan), label: 'Pesanan'),
+    BottomNavigationBarItem(icon: Icon(TIcons.speed), label: 'Uji Speed'),
+    BottomNavigationBarItem(icon: Icon(TIcons.settings), label: 'Pengaturan'),
+  ];
+
+  final List<BottomNavigationBarItem> _bottomInvestor = const [
+    BottomNavigationBarItem(icon: Icon(TIcons.money), label: 'Portofolio'),
+    BottomNavigationBarItem(icon: Icon(TIcons.star), label: 'Saham'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     Log.info('Membangun MainPage untuk indeks halaman: $_indeksTerpilih');
-
-    final navItems = <BottomNavigationBarItem>[
-      const BottomNavigationBarItem(icon: Icon(TIcons.person), label: 'Profil'),
-      const BottomNavigationBarItem(
-        icon: Icon(TIcons.history),
-        label: 'Riwayat',
-      ),
-      const BottomNavigationBarItem(
-        icon: Icon(TIcons.pesanan),
-        label: 'Pesanan',
-      ),
-      if (ref.isInvestor) ...[
-        const BottomNavigationBarItem(
-          icon: Icon(TIcons.money),
-          label: 'Portofolio',
-        ),
-        const BottomNavigationBarItem(
-          icon: Icon(TIcons.star), // Ganti ikon untuk Ringkasan Saham
-          label: 'Saham',
-        ),
-      ] else
-        const BottomNavigationBarItem(
-          icon: Icon(TIcons.speed),
-          label: 'Uji Speed',
-        ),
-      const BottomNavigationBarItem(
-        icon: Icon(TIcons.settings),
-        label: 'Pengaturan',
-      ),
-    ];
-
+    final navItems = ref.isInvestor ? _bottomInvestor : _bottomUser;
     return Scaffold(
       body: Column(
         children: [
