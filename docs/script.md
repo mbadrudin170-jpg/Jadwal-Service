@@ -759,7 +759,7 @@ alias s='timpa_readme'
 alias md='cd_root md_fitur'
 alias g='md_readme' 
 alias dscript='md_script'
-alias r='md_packages build_docs README.md'
+alias r='md_packages && build_docs README.md'
 alias l='build_docs README.md include_test'
 
 alias buat_struktur='/home/user/myapp/script/lainnya/buat_struktur.sh'
