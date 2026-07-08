@@ -387,7 +387,7 @@ class OrderOpGlobal {
 
   Future<void> tambah(OrderModel order) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.tambahOrder(order);
       } else {
         await _orderOpFirebase.tambahOrder(order);
@@ -401,7 +401,7 @@ class OrderOpGlobal {
 
   Future<void> perbarui(OrderModel order) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.perbarui(order);
       } else {
         await _orderOpFirebase.perbarui(order);
@@ -415,7 +415,7 @@ class OrderOpGlobal {
 
   Future<void> softDelete(String id) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.softDeleteorder(id);
       } else {
         await _orderOpFirebase.softDeleteOrder(id);
@@ -429,7 +429,7 @@ class OrderOpGlobal {
 
   Future<void> softDeleteAll() async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _orderOpSqlite.softDeleteAll();
       } else {
         await _orderOpFirebase.softDeleteAll();
@@ -444,7 +444,7 @@ class OrderOpGlobal {
   Future<List<OrderModel>> ambilSemua() async {
     try {
       Log.info('fungsi ambil semua dijalankan');
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         return await _orderOpSqlite.ambilSemua();
       } else {
         return await _orderOpFirebase.ambilSemua();
@@ -702,12 +702,12 @@ import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
 import 'package:wifi/fitur/order/operasi/order_op_global.dart';
 import 'package:wifi/fitur/order/provider/order_provider.dart';
+import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 import 'package:wifi/shared/common/teks.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/enum.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/paket/widget/nama_paket_widget.dart';
 
 class OrderPage extends ConsumerStatefulWidget {
   const OrderPage({super.key});

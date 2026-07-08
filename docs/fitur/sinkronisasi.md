@@ -356,6 +356,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/dompet/model/dompet_model.dart';
 import 'package:wifi/fitur/feedback/model/feedback_model.dart';
+import 'package:wifi/fitur/investasi/model/dividen_model.dart';
+import 'package:wifi/fitur/investasi/model/investasi_model.dart';
+import 'package:wifi/fitur/investasi/operasi/investasi_op_sqlite.dart';
 import 'package:wifi/fitur/kategori/model/kategori_model.dart';
 import 'package:wifi/fitur/kategori/model/sub_kategori_model.dart';
 import 'package:wifi/fitur/order/model/order_model.dart';
@@ -388,6 +391,8 @@ class LayananUnduhData {
   final SubKategoriOpSqlite _operasiSubKategori;
   final VersiApkOpSqlite _operasiVersiApk;
   final SettingsOpSqlite _operasiPengaturan;
+  final InvestasiOpSqlite _operasiInvestasi;
+  final InvestasiOpSqlite _operasiDividen;
 
   /// Konstruktor dengan injeksi dependensi (untuk produksi dan testing)
   LayananUnduhData({
@@ -405,6 +410,8 @@ class LayananUnduhData {
     required VersiApkOpSqlite operasiVersiApk,
     required SettingsOpSqlite operasiPengaturan,
     required PengelolaSinkronisasi pengelolaSinkronisasi,
+    required InvestasiOpSqlite operasiInvestasi,
+    required InvestasiOpSqlite operasiDividen,
   }) : _pengelolaSinkronisasi = pengelolaSinkronisasi,
        _firestore = firestore,
        _operasiDompet = operasiDompet,
@@ -417,7 +424,9 @@ class LayananUnduhData {
        _operasiPesanan = operasiPesanan,
        _operasiSubKategori = operasiSubKategori,
        _operasiVersiApk = operasiVersiApk,
-       _operasiPengaturan = operasiPengaturan {
+       _operasiPengaturan = operasiPengaturan,
+       _operasiInvestasi = operasiInvestasi,
+       _operasiDividen = operasiDividen {
     Log.info('LayananUnduhData diinisialisasi dengan dependency injection.');
   }
 
@@ -435,6 +444,8 @@ class LayananUnduhData {
     required final SubKategoriOpSqlite operasiSubKategori,
     required final VersiApkOpSqlite operasiVersiApk,
     required final SettingsOpSqlite operasiPengaturan,
+    required InvestasiOpSqlite operasiInvestasi,
+    required InvestasiOpSqlite operasiDividen,
   }) : _firestore = firestore,
        _pengelolaSinkronisasi = syncManager,
        _operasiDompet = operasiDompet,
@@ -447,6 +458,8 @@ class LayananUnduhData {
        _operasiPesanan = operasiPesanan,
        _operasiSubKategori = operasiSubKategori,
        _operasiVersiApk = operasiVersiApk,
+       _operasiInvestasi = operasiInvestasi,
+       _operasiDividen = operasiDividen,
        _operasiPengaturan = operasiPengaturan {
     Log.info('LayananUnduhData berhasil diinisialisasi untuk pengujian.');
   }
@@ -468,6 +481,8 @@ class LayananUnduhData {
         unduhDataPesanan(),
         unduhDataSubKategori(),
         unduhDataVersiApk(),
+        unduhDataInvestasi(),
+        unduhDataDividen(),
       ]);
       stopwatch.stop();
       Log.info(
@@ -488,22 +503,17 @@ class LayananUnduhData {
       const namaKoleksi = NamaTabel.settings;
       final docRef = _firestore.collection(namaKoleksi).doc(idGlobalSetting);
       final doc = await docRef.get(const GetOptions(source: Source.server));
-
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        // Menggunakan ColumnNames.updatedAt untuk field 'diperbarui'
         if (data.containsKey(NamaKolom.diperbaruiPada)) {
           final dynamic fieldValue = data[NamaKolom.diperbaruiPada];
-
           if (fieldValue is! Timestamp) {
             Log.error(
               'Inkompatibilitas Tipe: Field "${NamaKolom.diperbaruiPada}" bukan Timestamp.',
             );
             return;
           }
-
           final waktuPembaruanServer = fieldValue.toDate();
-
           if (waktuPembaruanServer.isAfter(lastDownloadTime)) {
             Log.info('Data pengaturan server lebih baru, memperbarui lokal.');
             final settings = SettingsModel.fromFirebase(data);
@@ -527,6 +537,32 @@ class LayananUnduhData {
       Log.error('Kesalahan sinkronisasi Pengaturan.', e: e, s: s);
       rethrow;
     }
+  }
+
+  Future<void> unduhDataInvestasi() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [INVESTASI]');
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduhPreferensi();
+    await sinkronkanKoleksi<InvestasiModel>(
+      namaKoleksi: NamaTabel.investasi,
+      waktuTerakhirUnduh: lastDownloadTime,
+      dariFirebase: InvestasiModel.fromFirebase,
+      operasiBatch: (final data) =>
+          _operasiInvestasi.sisipkanAtauPerbaruiBatch(data, dariServer: true),
+    );
+  }
+
+  Future<void> unduhDataDividen() async {
+    Log.info('Memulai sinkronisasi untuk koleksi: [DIVIDEN]');
+    final lastDownloadTime = await _pengelolaSinkronisasi
+        .ambilWaktuTerakhirUnduhPreferensi();
+    await sinkronkanKoleksi<DividenModel>(
+      namaKoleksi: NamaTabel.dividen,
+      waktuTerakhirUnduh: lastDownloadTime,
+      dariFirebase: DividenModel.fromFirebase,
+      operasiBatch: (final data) => _operasiDividen
+          .sisipkanAtauPerbaruiBatchDividen(data, dariServer: true),
+    );
   }
 
   Future<void> unduhDataDompet() async {
@@ -692,7 +728,6 @@ class LayananUnduhData {
             );
           }
         }
-
         if (daftarData.isNotEmpty) {
           Log.info(
             'Mengirim ${daftarData.length} item ke operasi batch lokal.',
@@ -729,6 +764,10 @@ final layananUnduhDataProvider = Provider<LayananUnduhData>((ref) {
     operasiSubKategori: ref.read(subKategoriOpSqliteProvider),
     operasiVersiApk: ref.read(versiApkOpSqliteProvider),
     operasiPengaturan: ref.read(settingsOpSqliteProvider),
+    operasiInvestasi: ref.read(investasiOpSqliteProvider),
+    operasiDividen: ref.read(
+      investasiOpSqliteProvider,
+    ), // sama karena satu class
     pengelolaSinkronisasi: ref.read(pengelolaSinkronisasiProvider),
   );
 });

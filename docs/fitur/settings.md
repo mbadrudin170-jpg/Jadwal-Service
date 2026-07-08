@@ -721,8 +721,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/admin/halaman/tes/halaman_tes.dart';
 import 'package:wifi/fitur/akun/page/daftar_akun_page.dart';
+import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/feedback/page/feedback_page.dart';
 import 'package:wifi/fitur/info_perangkat/page/info_apk_page_user.dart';
+import 'package:wifi/fitur/investasi/page/portofolio.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/user/widget/theme_menu_widget.dart';
@@ -784,8 +786,24 @@ class SettingsPageU extends ConsumerWidget {
               );
             },
           ),
+
+          if (ref.isInvestor)
+            _SettingsMenuItem(
+              icon: TIcons.money,
+              title: 'Portofolio Saya',
+              onTap: () async {
+                Log.info('Navigasi ke halaman portofolio investor.');
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => const HalamanPortofolio(),
+                  ),
+                );
+              },
+            ),
+
           // Hanya tampilkan tombol ini dalam mode debug
-          if (kDebugMode)
+          if (kDebugMode) ...[
             _SettingsMenuItem(
               icon: TIcons.science,
               title: 'Halaman Uji Fitur',
@@ -799,6 +817,7 @@ class SettingsPageU extends ConsumerWidget {
                 );
               },
             ),
+          ],
           _SettingsMenuItem(
             icon: TIcons.logout,
             title: 'Ganti Akun/Keluar',

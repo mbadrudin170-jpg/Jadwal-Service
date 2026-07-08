@@ -415,7 +415,7 @@ class PaketOpGlobal {
   PaketOpFirebase get _paketOpFirebase => ref.read(paketOpFirebaseProvider);
 
   Future<void> tambahPaket(PaketModel paket) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin menambah paket ke SQLite: ${paket.nama}');
       await _paketOpSqlite.tambahPaket(paket);
     } else {
@@ -427,7 +427,7 @@ class PaketOpGlobal {
   }
 
   Future<List<PaketModel>> ambilSemua() async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin mengambil paket dari SQLite');
       return await _paketOpSqlite.ambilSemua();
     } else {
@@ -437,7 +437,7 @@ class PaketOpGlobal {
   }
 
   Future<PaketModel?> ambilBerdasarkanId(String id) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin mengambil paket ID: $id dari SQLite');
       return await _paketOpSqlite.ambilBerdasarkanId(id);
     } else {
@@ -447,7 +447,7 @@ class PaketOpGlobal {
   }
 
   Future<List<PaketModel>> ambilPaketPublik() async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin mengambil paket publik dari SQLite');
       return await _paketOpSqlite.ambilPaketPublik();
     } else {
@@ -457,7 +457,7 @@ class PaketOpGlobal {
   }
 
   Future<void> perbaruiPaket(PaketModel paket) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin update paket di SQLite: ${paket.nama}');
       await _paketOpSqlite.perbaruiPaket(paket);
     } else {
@@ -467,7 +467,7 @@ class PaketOpGlobal {
   }
 
   Future<void> softDelete(String id) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin hapus paket ID: $id di SQLite');
       await _paketOpSqlite.hapusSementara(id);
     } else {
@@ -484,7 +484,7 @@ class PaketOpGlobal {
       return [];
     }
 
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info(
         '[PaketOpGlobal] Admin mengambil ${ids.length} paket dari SQLite',
       );
@@ -505,7 +505,7 @@ class PaketOpGlobal {
   }
 
   Future<bool> cekNamaPaketSudahAda(String nama, {String? idKecuali}) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       Log.info('[PaketOpGlobal] Admin cek nama paket di SQLite: $nama');
       final semuaPaket = await _paketOpSqlite.ambilSemua();
       return semuaPaket.any(

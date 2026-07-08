@@ -270,7 +270,7 @@ class FeedbackOpGlobal {
 
   Future<void> tambah(FeedbackModel feedback) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _feedbackOpSqlite.tambah(feedback);
       } else {
         await _feedbackOpFirebase.tambah(feedback);
@@ -284,7 +284,7 @@ class FeedbackOpGlobal {
 
   Future<void> perbarui(FeedbackModel feedback) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _feedbackOpSqlite.perbarui(feedback);
       } else {
         await _feedbackOpFirebase.perbarui(feedback);
@@ -298,7 +298,7 @@ class FeedbackOpGlobal {
 
   Future<void> softDelete(String id) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         await _feedbackOpSqlite.softDelete(id);
       } else {
         await _feedbackOpFirebase.softDelete(id);
@@ -312,7 +312,7 @@ class FeedbackOpGlobal {
 
   Future<FeedbackModel?> ambilBerdasarkanId(String id) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         return await _feedbackOpSqlite.ambilBerdasarkanId(id);
       } else {
         return await _feedbackOpFirebase.ambilBerdasarkanId(id);
@@ -325,7 +325,7 @@ class FeedbackOpGlobal {
 
   Future<List<FeedbackModel>> ambilSemua(String userId) async {
     try {
-      if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
         return await _feedbackOpSqlite.ambilSemua();
       } else {
         return await _feedbackOpFirebase.ambilBerdasarkanUser(userId);
@@ -865,11 +865,11 @@ import 'package:wifi/fitur/feedback/operasi/feedback_op_global.dart';
 import 'package:wifi/fitur/feedback/page/feedback_detail.dart';
 import 'package:wifi/fitur/feedback/page/form_feedback.dart';
 import 'package:wifi/fitur/feedback/provider/feedback_provider.dart'; // Import provider baru Anda
+import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/theme.dart';
 import 'package:wifi/shared/utils/format_util.dart';
 import 'package:wifi/shared/utils/toast_util.dart';
-import 'package:wifi/fitur/pelanggan/widget/nama_pelanggan_widget.dart';
 
 class FeedbackPage extends ConsumerStatefulWidget {
   const FeedbackPage({super.key});

@@ -8,7 +8,6 @@
 - [lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart](../../lib/fitur/pelanggan/operasi/pelanggan_op_firebase.dart)
 - [lib/fitur/pelanggan/operasi/pelanggan_op_global.dart](../../lib/fitur/pelanggan/operasi/pelanggan_op_global.dart)
 - [lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart](../../lib/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart)
-- [lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart](../../lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart)
 - [lib/fitur/pelanggan/page/admin/form_pelanggan.dart](../../lib/fitur/pelanggan/page/admin/form_pelanggan.dart)
 - [lib/fitur/pelanggan/page/admin/pelanggan_page.dart](../../lib/fitur/pelanggan/page/admin/pelanggan_page.dart)
 - [lib/fitur/pelanggan/page/user/detail_pelanggan.dart](../../lib/fitur/pelanggan/page/user/detail_pelanggan.dart)
@@ -287,6 +286,7 @@ abstract class PelangganModel with _$PelangganModel implements HasId {
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
@@ -319,12 +319,9 @@ class PelangganOpFirebase {
           .where(NamaKolom.telepon, isEqualTo: telepon)
           .where(NamaKolom.kataSandi, isEqualTo: kataSandi)
           .where(NamaKolom.dihapus, isEqualTo: false);
-
-      // Jika excludeId diberikan, exclude pelanggan dengan ID tersebut
       if (excludeId != null && excludeId.isNotEmpty) {
         query = query.where(NamaKolom.id, isNotEqualTo: excludeId);
       }
-
       final snapshot = await query.limit(1).get();
       return snapshot.docs.isNotEmpty;
     } catch (e, s) {
@@ -339,9 +336,16 @@ class PelangganOpFirebase {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
+      Log.error(
+        'Duplikasi data pelanggan',
+        data: {'telepon': pelanggan.telepon, 'nama': pelanggan.nama},
+      );
       throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     await _baseOpFirebase.sisipkan(
       _namaKoleksi,
@@ -358,8 +362,16 @@ class PelangganOpFirebase {
       excludeId: pelanggan.id,
     );
 
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
+      Log.error(
+        'Duplikasi data pelanggan',
+        data: {'telepon': pelanggan.telepon, 'nama': pelanggan.nama},
+      );
       throw Exception('Nomor telepon dan password sudah digunakan.');
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     await _baseOpFirebase.update(
       _namaKoleksi,
@@ -497,7 +509,7 @@ class PelangganOpGlobal {
 
   /// Menambahkan pelanggan dengan logika berdasarkan role
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _pelangganOpSqlite.tambahPelanggan(pelanggan);
     } else {
       await _pelangganOpFirebase.tambahPelanggan(pelanggan);
@@ -507,7 +519,7 @@ class PelangganOpGlobal {
 
   /// Mengupdate pelanggan
   Future<void> updatePelanggan(PelangganModel pelanggan) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
     } else {
       await _pelangganOpFirebase.perbaruiPelanggan(pelanggan);
@@ -517,7 +529,7 @@ class PelangganOpGlobal {
 
   /// Menghapus pelanggan (soft delete)
   Future<void> softDelete(String id) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       await _pelangganOpSqlite.softDelete(id);
     } else {
       await _pelangganOpFirebase.softDelete(id);
@@ -527,7 +539,7 @@ class PelangganOpGlobal {
 
   /// Mengambil daftar pelanggan berdasarkan role
   Future<List<PelangganModel>> ambilSemua() async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _pelangganOpSqlite.ambilSemua();
     } else {
       return await _pelangganOpFirebase.ambilSemua();
@@ -536,7 +548,7 @@ class PelangganOpGlobal {
 
   /// Mengambil pelanggan berdasarkan ID
   Future<PelangganModel?> ambilBerdasarkanId(String id) async {
-    if (RoleUtil.isAdmin(ref)) {
+      if (ref.isAdmin) {
       return await _pelangganOpSqlite.ambilBerdasarkanId(id);
     } else {
       return await _pelangganOpFirebase.ambilBerdasarkanId(id);
@@ -554,6 +566,7 @@ final pelangganOpGlobalProvider = Provider<PelangganOpGlobal>((ref) {
 ```dart
 // path: lib/shared/operasi/sqlite_operasi/pelanggan_op_sqlite.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
@@ -626,14 +639,19 @@ class PelangganOpSqlite {
       pelanggan.telepon,
       pelanggan.kataSandi,
     );
-    if (isDuplicate) {
-      Log.warning('Data pelanggan duplikat ditemukan.', {
+    if (!kDebugMode && isDuplicate) {
+      Log.warning('Data pelanggan duplikat ditemukan saat update.', {
         'telepon': pelanggan.telepon,
         'nama': pelanggan.nama,
+        'id': pelanggan.id,
       });
       throw Exception(
         'Pelanggan dengan nomor telepon dan password ini sudah ada.',
       );
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     Log.info('Memulai pembuatan customer dengan ID: ${pelanggan.id}');
     try {
@@ -709,7 +727,7 @@ class PelangganOpSqlite {
       excludeId: pelanggan.id,
     );
 
-    if (isDuplicate) {
+    if (!kDebugMode && isDuplicate) {
       Log.warning('Data pelanggan duplikat ditemukan saat update.', {
         'telepon': pelanggan.telepon,
         'nama': pelanggan.nama,
@@ -718,6 +736,10 @@ class PelangganOpSqlite {
       throw Exception(
         'Pelanggan dengan nomor telepon dan password ini sudah ada.',
       );
+    }
+
+    if (kDebugMode && isDuplicate) {
+      Log.warning('⚠️ Duplikasi terdeteksi di DEBUG MODE, tetapi dilewati.');
     }
     Log.info('Memulai pembaruan untuk customer ID: ${pelanggan.id}');
     try {
@@ -847,132 +869,13 @@ class PelangganOpSqlite {
 }
 ```
 
-### File: `lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart`
-```dart
-// // path lib/fitur/pelanggan/page/admin/detail_pelanggan_a.dart
-
-// import 'dart:async';
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-// import 'package:wifi/fitur/pelanggan/page/admin/form_pelanggan.dart';
-// import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
-// import 'package:wifi/fitur/pelanggan/widget/detail_pelanggan_ui.dart';
-// import 'package:wifi/fitur/poin/page/halaman_poin.dart';
-// import 'package:wifi/shared/debug/log.dart';
-// import 'package:wifi/shared/utils/toast_util.dart';
-
-// class DetailPelanggan extends ConsumerWidget {
-//   final String idPelanggan;
-
-//   const DetailPelanggan({super.key, required this.idPelanggan});
-
-//   Future<void> _editPelanggan(
-//     BuildContext context,
-//     PelangganModel? pelanggan,
-//   ) async {
-//     if (pelanggan == null) return;
-//     Log.info('Navigasi ke form edit pelanggan: ${pelanggan.nama}');
-//     unawaited(
-//       Navigator.push<bool>(
-//         context,
-//         MaterialPageRoute<bool>(
-//           builder: (context) => FormPelanggan(pelanggan: pelanggan),
-//         ),
-//       ),
-//     );
-//   }
-
-//   Future<void> _salinSemuaInfo(
-//     BuildContext context,
-//     PelangganModel customer,
-//     int totalPoin,
-//   ) async {
-//     Log.info('Menyalin info pelanggan: ${customer.nama}');
-//     final info =
-//         '''
-// Nama : ${customer.nama}
-// No HP : ${customer.telepon}
-// Alamat : ${customer.alamat}
-// Password : ${customer.kataSandi}
-// MAC : ${customer.macAddress}
-// Poin: $totalPoin
-// '''
-//             .trim();
-
-//     await Clipboard.setData(ClipboardData(text: info));
-//     if (context.mounted) {
-//       ToastUtil.success(context, 'Informasi pelanggan berhasil disalin.');
-//     }
-//   }
-
-//   Future<void> _navigasiKePoin(
-//     BuildContext context,
-//     PelangganModel? pelanggan,
-//   ) async {
-//     if (pelanggan == null) return;
-//     Log.info('Navigasi ke halaman poin pelanggan: ${pelanggan.nama}');
-
-//     unawaited(
-//       Navigator.push<void>(
-//         context,
-//         MaterialPageRoute<void>(
-//           builder: (context) => HalamanPoin(idPelanggan: pelanggan.id),
-//         ),
-//       ),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final detailAsync = ref.watch(pelangganDetailProvider(idPelanggan));
-//     return detailAsync.when(
-//       skipLoadingOnReload: true,
-//       loading: () => Scaffold(
-//         appBar: AppBar(title: const Text('Memuat Detail...')),
-//         body: const Center(child: CircularProgressIndicator()),
-//       ),
-//       error: (e, s) {
-//         Log.error(
-//           'Gagal mengambil data pelanggan ID: $idPelanggan.',
-//           e: e,
-//           s: s,
-//         );
-//         return Scaffold(
-//           appBar: AppBar(title: const Text('Detail Pelanggan')),
-//           body: Center(child: Text('Gagal memuat data: $e')),
-//         );
-//       },
-//       data: (data) {
-//         final (pelanggan, totalPoin) = data;
-//         if (pelanggan == null) {
-//           return Scaffold(
-//             appBar: AppBar(title: const Text('Detail Pelanggan')),
-//             body: const Center(child: Text('Pelanggan tidak ditemukan')),
-//           );
-//         }
-//         return DetailPelangganUI(
-//           pelanggan: pelanggan,
-//           totalPoin: totalPoin,
-//           navigasiKeEdit: () => _editPelanggan(context, pelanggan),
-//           navigasiKePoin: () => _navigasiKePoin(context, pelanggan),
-
-//           onCopyAll: () => _salinSemuaInfo(context, pelanggan, totalPoin),
-//         );
-//       },
-//     );
-//   }
-// }
-```
-
 ### File: `lib/fitur/pelanggan/page/admin/form_pelanggan.dart`
 ```dart
 // path lib/fitur/pelanggan/page/admin/form_pelanggan.dart
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -980,6 +883,7 @@ import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
+import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/services/koneksi_internet_service.dart';
@@ -992,9 +896,9 @@ import 'package:wifi/shared/widget/input/input_teks.dart';
 import 'package:wifi/shared/widget/input/input_telepon.dart';
 
 class FormPelanggan extends ConsumerStatefulWidget {
-  final PelangganModel? pelanggan;
+  final String? idPelanggan;
 
-  const FormPelanggan({super.key, this.pelanggan});
+  const FormPelanggan({super.key, this.idPelanggan});
 
   @override
   ConsumerState<FormPelanggan> createState() => _FormPelangganState();
@@ -1014,7 +918,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
   final _passwordFocusNode = FocusNode();
   final _macAddressFocusNode = FocusNode();
   AppRole _selectedRole = AppRole.user;
-  bool get _modeEdit => widget.pelanggan != null;
+  bool get _modeEdit => widget.idPelanggan != null;
   bool _menyimpan = false;
 
   @override
@@ -1025,14 +929,20 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
     );
     if (_modeEdit) {
       Log.info(
-        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.pelanggan!.id}',
+        'Mode Edit: Mempopulasikan form dengan data pelanggan ID: ${widget.idPelanggan}',
       );
-      _namaController.text = widget.pelanggan!.nama;
-      _teleponController.text = widget.pelanggan!.telepon;
-      _alamatController.text = widget.pelanggan!.alamat;
-      _passwordController.text = widget.pelanggan!.kataSandi;
-      _macAddressController.text = widget.pelanggan!.macAddress;
-      _selectedRole = widget.pelanggan!.role;
+      final pelanggan = ref
+          .read(pelangganProvider)
+          .value
+          ?.ambilBerdasarkanId(widget.idPelanggan ?? '');
+      if (pelanggan != null) {
+        _namaController.text = pelanggan.nama;
+        _teleponController.text = pelanggan.telepon;
+        _alamatController.text = pelanggan.alamat;
+        _passwordController.text = pelanggan.kataSandi;
+        _macAddressController.text = pelanggan.macAddress;
+        _selectedRole = pelanggan.role;
+      }
     }
   }
 
@@ -1076,7 +986,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
       Log.info('Form valid. Memulai proses penyimpanan.');
       setState(() => _menyimpan = true);
       final pelangganBaru = PelangganModel(
-        id: _modeEdit ? widget.pelanggan!.id : const Uuid().v4(),
+        id: _modeEdit ? widget.idPelanggan! : const Uuid().v4(),
         nama: _namaController.text.trim(),
         telepon: _teleponController.text.trim(),
         alamat: _alamatController.text.trim(),
@@ -1168,9 +1078,9 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                   nextFocusNode: _macAddressFocusNode,
                 ),
                 gapH16,
-                if (ref.isAdmin)
+                if (kDebugMode || ref.isAdmin)
                   DropdownButtonFormField<AppRole>(
-                    value: _selectedRole,
+                    initialValue: _selectedRole,
                     decoration: const InputDecoration(
                       labelText: 'Peran (Role)',
                       border: OutlineInputBorder(),
@@ -1193,7 +1103,7 @@ class _FormPelangganState extends ConsumerState<FormPelanggan> {
                         value == null ? 'Role harus dipilih' : null,
                   ),
                 gapH16,
-                if (ref.isAdmin)
+                if (kDebugMode || ref.isAdmin)
                   InputMacAddress(
                     controller: _macAddressController,
                     focusNode: _macAddressFocusNode,
@@ -1478,7 +1388,8 @@ class _PelangganState extends ConsumerState<PelangganPage> {
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => FormPelanggan(pelanggan: pelanggan),
+                      builder: (context) =>
+                          FormPelanggan(idPelanggan: pelanggan.id),
                     ),
                   ),
                 );
@@ -1610,7 +1521,7 @@ Poin: $totalPoin
       Navigator.push<void>(
         context,
         MaterialPageRoute<void>(
-          builder: (context) => FormPelanggan(pelanggan: pelanggan),
+          builder: (context) => FormPelanggan(idPelanggan: pelanggan.id),
         ),
       ),
     );
@@ -1787,6 +1698,7 @@ Poin: $totalPoin
 import 'package:collection/collection.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:wifi/fitur/app_role/app_role_enum.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
@@ -1802,10 +1714,13 @@ abstract class PelangganState with _$PelangganState {
     @Default(0) int jumlahPelanggan,
     @Default(0) int totalPoin,
   }) = _PelangganState;
-  // di dalam PelangganState (freezed)
+
   PelangganModel? ambilBerdasarkanId(String idPelanggan) {
-    // pastikan import 'package:collection/collection.dart';
     return daftarPelanggan.firstWhereOrNull((p) => p.id == idPelanggan);
+  }
+
+  List<PelangganModel> ambilBerdasarkanRole(AppRole role) {
+    return daftarPelanggan.where((p) => p.role == role).toList();
   }
 }
 
