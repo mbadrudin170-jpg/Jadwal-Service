@@ -18,6 +18,7 @@ mkdir -p prompt
 find lib test script docs prompt assets > prompt/struktur_proyek.md
 
 {
+    cat docs/packages.md
     # Struktur direktori
     echo "// ============================================================"
     echo "// STRUKTUR PROYEK"

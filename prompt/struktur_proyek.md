@@ -730,6 +730,7 @@ script/lainnya/buat_struktur.sh
 script/lainnya/buat_file.sh
 script/docs
 script/docs/md_script.sh
+script/docs/md_package.sh
 script/docs/timpa_readme.sh
 script/docs/build_docs.sh
 script/docs/md_fitur.sh
@@ -769,6 +770,7 @@ docs/fitur/akun.md
 docs/fitur/event.md
 docs/fitur/dompet.md
 docs/fitur/sinkronisasi.md
+docs/packages.md
 docs/build
 docs/build/build_apk_user.md
 docs/build/build_apk_admin.md
