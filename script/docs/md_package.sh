@@ -122,11 +122,22 @@ files=(
     '/home/user/flutter/bin/cache/pkg/sky_engine/lib/async/future.dart'
 '/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/list.dart'
 '/home/user/flutter/packages/flutter_test/lib/src/deprecated.dart'
-
-
-
-
-
+'/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/consumer.dart'
+'/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/async_value.dart'
+'/home/user/.pub-cache/hosted/pub.dev/riverpod-3.3.2/lib/src/core/ref.dart'
+'/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/widget_ref.dart'
+'/home/user/flutter/packages/flutter/lib/src/widgets/framework.dart'
+'/home/user/.pub-cache/hosted/pub.dev/flutter_riverpod-3.3.2/lib/src/core/provider_scope.dart'
+'/home/user/.pub-cache/hosted/pub.dev/freezed_annotation-3.1.0/lib/freezed_annotation.dart'
+'/home/user/.pub-cache/hosted/pub.dev/riverpod_annotation-4.0.3/lib/src/riverpod_annotation.dart'
+'/home/user/flutter/packages/flutter/lib/src/widgets/basic.dart'
+'/home/user/flutter/packages/flutter/lib/src/widgets/text.dart'
+'/home/user/flutter/packages/flutter/lib/src/material/progress_indicator.dart'
+'/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/string.dart'
+'/home/user/flutter/packages/flutter/lib/src/widgets/scroll_view.dart'
+'/home/user/flutter/packages/flutter/lib/src/painting/edge_insets.dart'
+'/home/user/.pub-cache/hosted/pub.dev/workmanager-0.9.0+3/lib/src/workmanager_impl.dart'
+'/home/user/.pub-cache/hosted/pub.dev/shared_preferences-2.5.5/lib/src/shared_preferences_async.dart'
     # Tambahkan file lain di sini
 )
 
