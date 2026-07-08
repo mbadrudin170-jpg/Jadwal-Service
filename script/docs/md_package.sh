@@ -119,8 +119,15 @@ FLUTTER_CORE="/home/user/flutter/bin/cache/pkg/sky_engine"
 files=(
     "/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/iterable.dart"
     "/home/user/.pub-cache/hosted/pub.dev/collection-1.19.1/lib/src/iterable_extensions.dart"
+    '/home/user/flutter/bin/cache/pkg/sky_engine/lib/async/future.dart'
+'/home/user/flutter/bin/cache/pkg/sky_engine/lib/core/list.dart'
+'/home/user/flutter/packages/flutter_test/lib/src/deprecated.dart'
+
+
+
+
+
     # Tambahkan file lain di sini
-    # "/home/user/.pub-cache/hosted/pub.dev/dio-5.9.2/lib/dio.dart"
 )
 
 # ============================================================
