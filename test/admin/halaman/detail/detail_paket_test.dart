@@ -15,6 +15,7 @@ import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
 // MOCK CLASSES
 // ============================================================
 class MockTransaksiOpGlobal extends Mock implements TransaksiOpGlobal {}
+
 class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 // Fake class untuk Route agar bisa digunakan sebagai fallback
@@ -66,7 +67,7 @@ void main() {
   }
 
   group('DetailDompet Widget Tests', () {
-    final dompetUtama = DompetModel(
+    final dompetUtama = const DompetModel(
       id: 'dompet-1',
       nama: 'Dompet Utama',
       saldo: 5000000,
@@ -84,7 +85,6 @@ void main() {
       idPaket: null,
       tanggalMulai: null,
       tanggalBerakhir: null,
-      statusAktivasi: false,
     );
 
     testWidgets(
@@ -153,22 +153,21 @@ void main() {
       },
     );
 
-    testWidgets(
-      '05. harus menampilkan pesan saat daftar transaksi kosong',
-      (tester) async {
-        await tester.pumpWidget(
-          buildTestWidget(dompet: dompetUtama, transaksiList: []),
-        );
+    testWidgets('05. harus menampilkan pesan saat daftar transaksi kosong', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestWidget(dompet: dompetUtama, transaksiList: []),
+      );
 
-        await tester.pump();
+      await tester.pump();
 
-        expect(find.text('Dompet Utama'), findsOneWidget);
-      },
-    );
+      expect(find.text('Dompet Utama'), findsOneWidget);
+    });
   });
 
   group('Interaksi dan Navigasi', () {
-    final dompetUtama = DompetModel(
+    final dompetUtama = const DompetModel(
       id: 'dompet-1',
       nama: 'Dompet Utama',
       saldo: 5000000,
@@ -186,7 +185,6 @@ void main() {
       idPaket: null,
       tanggalMulai: null,
       tanggalBerakhir: null,
-      statusAktivasi: false,
     );
 
     testWidgets('01. harus memanggil Navigator.pop saat tombol back ditekan', (
