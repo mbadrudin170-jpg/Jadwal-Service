@@ -221,6 +221,14 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       _kategoriDipilih = kategoriSumber.firstWhereOrNull(
         (k) => k.id == transaksi.idKategori,
       );
+      if (transaksi.poinDigunakan > 0) {
+        _gunakanPoin = true;
+        Log.info(
+          'Mode poin diaktifkan karena poinDigunakan > 0 (${transaksi.poinDigunakan})',
+        );
+      } else {
+        _gunakanPoin = false;
+      }
       if (transaksi.durasiBonus > 0) {
         _bonus = true;
         _durasiBonusController.text = transaksi.durasiBonus.toString();

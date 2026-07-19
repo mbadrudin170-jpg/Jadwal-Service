@@ -735,6 +735,8 @@ script/docs/timpa_readme.sh
 script/docs/build_docs.sh
 script/docs/md_fitur.sh
 script/docs/md_readme.sh
+script/package
+script/package/flutter_test.sh
 script/clean
 script/clean/full_clean.sh
 script/build
@@ -770,6 +772,7 @@ docs/fitur/akun.md
 docs/fitur/event.md
 docs/fitur/dompet.md
 docs/fitur/sinkronisasi.md
+docs/flutter_test.md
 docs/packages.md
 docs/build
 docs/build/build_apk_user.md
