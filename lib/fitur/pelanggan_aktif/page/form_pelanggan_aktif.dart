@@ -215,12 +215,6 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
       _dompetDipilih = _dompetList.firstWhereOrNull(
         (d) => d.id == transaksi.idDompet,
       );
-      final kategoriSumber = transaksi.tipe == TipeTransaksi.income
-          ? _kategoriPemasukanList
-          : _kategoriPengeluaranList;
-      _kategoriDipilih = kategoriSumber.firstWhereOrNull(
-        (k) => k.id == transaksi.idKategori,
-      );
       if (transaksi.poinDigunakan > 0) {
         _gunakanPoin = true;
         Log.info(
@@ -228,6 +222,13 @@ class _FormPelangganAktifState extends ConsumerState<FormPelangganAktif> {
         );
       } else {
         _gunakanPoin = false;
+      }
+      if (_kategoriList.isNotEmpty) {
+        _kategoriDipilih = _kategoriList.firstWhereOrNull(
+          (k) => k.id == transaksi.idKategori,
+        );
+        _kategoriDipilih ??= _kategoriList.first;
+        Log.info('Kategori dipilih: ${_kategoriDipilih!.nama}');
       }
       if (transaksi.durasiBonus > 0) {
         _bonus = true;
