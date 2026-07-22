@@ -1,3 +1,6 @@
+// path: lib/main/main_admin/admin_dev.dart
+
+
 import 'package:wifi/admin/firebase_option/firebase_option_admin_dev.dart';
 import 'package:wifi/main/main_admin/bootstrap_admin.dart';
 
