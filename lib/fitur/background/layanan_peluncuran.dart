@@ -1,5 +1,6 @@
 // path: lib/fitur/background/boot_service.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/alarm/penjadwal_alarm_android.dart';
 import 'package:wifi/fitur/background/layanan_latar_belakang.dart';
@@ -11,6 +12,7 @@ const int idArsipKadaluarsaSekaliJalan = 998;
 
 class LayananPeluncuran {
   Future<void> jadwalkanTugasArsipPeriodik(ProviderContainer container) async {
+    if (kIsWeb) return;
     final penjadwalAlarm = container.read(penjadwalAlarmProvider);
 
     await penjadwalAlarm.jadwalkanPeriodik(
@@ -25,6 +27,7 @@ class LayananPeluncuran {
   }
 
   Future<void> jadwalkanUlangTugasArsip(ProviderContainer container) async {
+    if (kIsWeb) return;
     Log.info('Memulai penjadwalan ulang tugas pengarsipan...');
     final penjadwalAlarm = container.read(penjadwalAlarmProvider);
     final pelangganAktifOpSqlite = container.read(
@@ -32,8 +35,8 @@ class LayananPeluncuran {
     );
 
     try {
-      final daftarPelangganAktif = await pelangganAktifOpSqlite
-          .ambilSemuaPelangganAktifDenganDetail();
+      final daftarPelangganAktif =
+          await pelangganAktifOpSqlite.ambilSemuaPelangganAktifDenganDetail();
 
       await penjadwalAlarm.batalkan(idArsipKadaluarsaSekaliJalan);
       Log.info(
