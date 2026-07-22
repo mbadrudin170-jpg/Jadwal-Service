@@ -1,4 +1,6 @@
+// path: lib/main/main_admin/bootstrap_admin.dart
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -21,7 +23,9 @@ Future<void> bootstrapAdmin({
   required String logPrefix,
 }) async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  if (!kIsWeb) {
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  }
 
   Log.info('Memuat variabel lingkungan dari file .env...');
   await dotenv.load();
@@ -68,9 +72,13 @@ Future<void> bootstrapAdmin({
     container.dispose();
   }
 
-  Log.info('Menginisialisasi Google Mobile Ads SDK...');
-  await MobileAds.instance.initialize();
-  Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
+  if (!kIsWeb) {
+    Log.info('Menginisialisasi Google Mobile Ads SDK...');
+    await MobileAds.instance.initialize();
+    Log.info('Inisialisasi Google Mobile Ads SDK selesai.');
+  } else {
+    Log.warning('Google Mobile Ads SDK tidak diinisialisasi di platform web.');
+  }
 
   Intl.defaultLocale = 'id_ID';
 
