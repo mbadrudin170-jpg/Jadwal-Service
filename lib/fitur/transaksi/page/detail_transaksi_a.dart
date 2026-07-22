@@ -13,6 +13,7 @@ import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
 import 'package:wifi/fitur/sinkronisasi/layanan_cek_sinkronisasi.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_global.dart';
+import 'package:wifi/fitur/transaksi/operasi_provider.dart/transaksi_op_provider.dart';
 import 'package:wifi/fitur/transaksi/page/form_transaksi.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/export/operation.dart';
@@ -156,8 +157,8 @@ class _DetailTransaksiAState extends ConsumerState<DetailTransaksiA> {
     );
     try {
       await ref
-          .read(transaksiOpGlobalProvider)
-          .softDelete(_currentTransaction.id);
+          .read(transaksiOpProvider.notifier)
+          .hapus(_currentTransaction.id);
       unawaited(
         ref.read(layananCekSinkronisasiProvider).jalankanCekSinkronisasi(),
       );

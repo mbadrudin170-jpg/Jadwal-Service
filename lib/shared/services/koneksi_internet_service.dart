@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/speedtest/provider/ping_provider.dart';
 import 'package:wifi/shared/debug/log.dart';
@@ -17,7 +18,7 @@ class KoneksiInternetService {
   final Ref _ref;
 
   KoneksiInternetService(this._ref, {Connectivity? connectivity})
-    : _connectivity = connectivity ?? Connectivity() {
+      : _connectivity = connectivity ?? Connectivity() {
     Log.info('KoneksiInternetService diinisialisasi.');
   }
 
@@ -29,9 +30,9 @@ class KoneksiInternetService {
 
       final isOnline =
           hasilKoneksi.contains(ConnectivityResult.mobile) ||
-          hasilKoneksi.contains(ConnectivityResult.wifi) ||
-          hasilKoneksi.contains(ConnectivityResult.ethernet) ||
-          hasilKoneksi.contains(ConnectivityResult.vpn);
+              hasilKoneksi.contains(ConnectivityResult.wifi) ||
+              hasilKoneksi.contains(ConnectivityResult.ethernet) ||
+              hasilKoneksi.contains(ConnectivityResult.vpn);
 
       if (isOnline) {
         Log.info('[Lokal] ✅ Sukses: Perangkat terhubung ke jaringan lokal.');
@@ -47,6 +48,10 @@ class KoneksiInternetService {
 
   // 3. Hapus parameter 'WidgetRef ref' karena sekarang menggunakan '_ref' internal
   Future<bool> cekInternet() async {
+    if (kIsWeb) {
+      Log.info('[Internet] Pengecekan internet dilewati untuk platform web.');
+      return true;
+    }
     Log.info('[Internet] Memulai pemeriksaan status koneksi perangkat...');
     final lokal = await cekKoneksiLokal();
     if (!lokal) {

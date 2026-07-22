@@ -8,6 +8,7 @@ if [ -z "$1" ] || [ -z "$2" ]; then
 fi
 
 flutter clean && \
+flutter pub upgrade && \
 flutter build apk --split-per-abi \
   --flavor adminProd \
   -t lib/main/main_admin/admin_prod.dart \

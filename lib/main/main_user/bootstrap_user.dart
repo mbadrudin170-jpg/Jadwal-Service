@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -20,7 +21,9 @@ Future<void> bootstrapUser({
 }) async {
   // Memastikan binding Flutter siap dan menahan native splash screen.
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  if (!kIsWeb) {
+    FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  }
 
   Log.info('Memuat variabel lingkungan dari file .env...');
   await dotenv.load();
@@ -32,10 +35,12 @@ Future<void> bootstrapUser({
   Log.info('Inisialisasi Firebase selesai.');
   await SharedPreferences.getInstance();
 
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-  );
+  if (!kIsWeb) {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+  }
 
   Log.info('Menginisialisasi Supabase...');
   final supabaseUrl = dotenv.env[AppConstants.supabaseUrlKey]!;
@@ -50,12 +55,14 @@ Future<void> bootstrapUser({
   Log.info('Menginisialisasi workmanager');
   await LayananLatarBelakang.inisialisasi();
 
-  Log.info('Menginisialisasi GmaMediationUnity');
-  await GmaMediationUnity().setGDPRConsent(true);
-  await GmaMediationUnity().setCCPAConsent(true);
+  if (!kIsWeb) {
+    Log.info('Menginisialisasi GmaMediationUnity');
+    await GmaMediationUnity().setGDPRConsent(true);
+    await GmaMediationUnity().setCCPAConsent(true);
 
-  Log.info('Menginisialisasi MobileAds');
-  await MobileAds.instance.initialize();
+    Log.info('Menginisialisasi MobileAds');
+    await MobileAds.instance.initialize();
+  }
   Intl.defaultLocale = 'id_ID';
 
   Log.info(
