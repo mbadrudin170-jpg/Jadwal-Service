@@ -14,9 +14,11 @@ import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/fitur/pelanggan_aktif/helper/pengurut_pelanggan_aktif.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_firebase.dart';
 import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_op_sqlite.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/shared/debug/log.dart';
+import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
 part 'pelanggan_aktif_provider.g.dart';
 part 'pelanggan_aktif_provider.freezed.dart';
@@ -40,19 +42,27 @@ abstract class PelangganAktifState with _$PelangganAktifState {
 class PelangganAktif extends _$PelangganAktif {
   PelangganAktifOpSqlite get pelangganAktifOpSqlite =>
       ref.read(pelangganAktifOpSqliteProvider);
-
+  PelangganAktifOpFirebase get pelangganAktifOpFirebase =>
+      ref.read(pelangganAktifOpFirebaseProvider);
   @override
   FutureOr<PelangganAktifState> build() {
     return _ambilData();
   }
 
+  // path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
   Future<PelangganAktifState> _ambilData() async {
-    final operasi = ref.read(pelangganAktifOpSqliteProvider);
+    final operasi = kIsWeb
+        ? ref.read(pelangganAktifOpFirebaseProvider)
+        : ref.read(pelangganAktifOpSqliteProvider);
+
     final hasil = await operasi.ambilSemua();
-    return PelangganAktifState(
-      daftarPelangganAktif: hasil,
-      jumlahPelangganAktif: hasil.length,
+    state = AsyncData(
+      PelangganAktifState(
+        daftarPelangganAktif: hasil,
+        jumlahPelangganAktif: hasil.length,
+      ),
     );
+    return state.requireValue;
   }
 
   Future<void> tambah(PelangganAktifModel pelangganAktif) async {
