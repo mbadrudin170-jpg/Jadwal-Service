@@ -49,7 +49,6 @@ class PelangganAktif extends _$PelangganAktif {
     return _ambilData();
   }
 
-  // path: lib/fitur/pelanggan_aktif/provider/pelanggan_aktif_provider.dart
   Future<PelangganAktifState> _ambilData() async {
     final operasi = kIsWeb
         ? ref.read(pelangganAktifOpFirebaseProvider)

@@ -6,6 +6,7 @@ import 'package:wifi/fitur/notifikasi/layanan_notifikasi.dart';
 import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/detail_pelanggan_aktif_model.dart';
 import 'package:wifi/fitur/pelanggan_aktif/model/pelanggan_aktif_model.dart';
+import 'package:wifi/fitur/pelanggan_aktif/operasi/pelanggan_aktif_abstrak.dart';
 import 'package:wifi/fitur/transaksi/model/transaksi_model.dart';
 import 'package:wifi/fitur/transaksi/operasi/transaksi_op_sqlite.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
@@ -13,7 +14,7 @@ import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-class PelangganAktifOpSqlite {
+class PelangganAktifOpSqlite implements PelangganAktifAbstrak {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOpSqlite;
   final LayananNotifikasi _layananNotifikasi;
@@ -31,10 +32,10 @@ class PelangganAktifOpSqlite {
     required PelangganOpSqlite pelangganOpSqlite,
     required LayananNotifikasi layananNotifikasi,
     required TransaksiOpSqlite transaksiOpSqlite,
-  }) : _baseOpSqlite = baseOpSqlite,
-       _pelangganOpSqlite = pelangganOpSqlite,
-       _layananNotifikasi = layananNotifikasi,
-       _transaksiOpSqlite = transaksiOpSqlite {
+  })  : _baseOpSqlite = baseOpSqlite,
+        _pelangganOpSqlite = pelangganOpSqlite,
+        _layananNotifikasi = layananNotifikasi,
+        _transaksiOpSqlite = transaksiOpSqlite {
     Log.info(
       'PelangganAktifOperation diinisialisasi - Tabel: $_tabelPelangganAktif',
     );
@@ -69,14 +70,13 @@ class PelangganAktifOpSqlite {
   }
 
   Future<List<DetailPelangganAktifModel>>
-  ambilSemuaPelangganAktifDenganDetail() async {
+      ambilSemuaPelangganAktifDenganDetail() async {
     final db = await sqliteDb.database;
     Log.info(
       'Mengambil semua pelanggan aktif dengan detail yang belum berakhir (JOIN)',
     );
 
-    final query =
-        '''
+    final query = '''
       SELECT
         ac.*,
         c.${NamaKolom.nama} as customer_name,
@@ -114,16 +114,17 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<PelangganAktifModel> tambahPelangganAktif(
+  @override
+  Future<int> tambahPelangganAktif(
     final PelangganAktifModel pelangganAktif, {
     final bool fromServer = false,
   }) async {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
 
-      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+      final result = await _baseOpSqlite.operasiKompleks<int>((txn) async {
         final data = customerToSave.toSqlite();
-        await txn.insert(
+        return await txn.insert(
           _tabelPelangganAktif,
           data,
           conflictAlgorithm: ConflictAlgorithm.replace,
@@ -132,13 +133,14 @@ class PelangganAktifOpSqlite {
 
       await jadwalkanNotifikasi(customerToSave);
 
-      return customerToSave;
+      return result;
     } on Exception catch (e, st) {
       Log.error('Gagal membuat active customer', e: e, s: st);
       rethrow;
     }
   }
 
+  @override
   Future<List<PelangganAktifModel>> ambilSemua() async {
     try {
       final db = await sqliteDb.database;
@@ -190,16 +192,17 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<PelangganAktifModel> updatePelangganAktif(
+  @override
+  Future<int> updatePelangganAktif(
     final PelangganAktifModel pelangganAktif, {
     final bool fromServer = false,
   }) async {
     try {
       final customerToSave = pelangganAktif.copyWith(diperbaruiPada: _nowUtc);
       Log.info('Memperbarui active customer ID: ${customerToSave.id}');
-      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+      final result = await _baseOpSqlite.operasiKompleks<int>((txn) async {
         final data = customerToSave.toSqlite();
-        await txn.update(
+        return await txn.update(
           _tabelPelangganAktif,
           data,
           where: '${NamaKolom.id} = ?',
@@ -208,7 +211,7 @@ class PelangganAktifOpSqlite {
       }, dariServer: fromServer);
       await jadwalkanNotifikasi(customerToSave);
       Log.info('Active customer ID: ${customerToSave.id} berhasil diperbarui');
-      return customerToSave;
+      return result;
     } on Exception catch (e, st) {
       Log.error(
         'Gagal memperbarui active customer ID: ${pelangganAktif.id}',
@@ -321,24 +324,25 @@ class PelangganAktifOpSqlite {
     }
   }
 
-  Future<void> softDelete(String id, {bool dariServer = false}) async {
+  @override
+  Future<int> softDelete(String id, {bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan active customer ID: $id');
 
       final pelangganAktif = await ambilBerdasarkanid(id);
       if (pelangganAktif == null) {
         Log.info('Active customer ID: $id tidak ditemukan');
-        return;
+        return 0;
       }
 
-      await _baseOpSqlite.operasiKompleks<void>((txn) async {
+      final result = await _baseOpSqlite.operasiKompleks<int>((txn) async {
         final pelangganAktifArsip = pelangganAktif.copyWith(
           diperbaruiPada: _nowUtc,
           diHapus: true,
           diarsipkanPada: _nowUtc,
         );
 
-        await txn.update(
+        final rowsAffected = await txn.update(
           _tabelPelangganAktif,
           pelangganAktifArsip.toSqlite(),
           where: '${NamaKolom.id} = ?',
@@ -350,9 +354,11 @@ class PelangganAktifOpSqlite {
         await _layananNotifikasi.batalkanNotifikasi((id.hashCode + 2));
 
         Log.info('Notifikasi telah di batalkan pada fungsi softDelete');
+        return rowsAffected;
       }, dariServer: dariServer);
 
       Log.info('Active customer ID: $id berhasil diarsipkan');
+      return result;
     } catch (e, st) {
       Log.error('Gagal mengarsipkan active customer ID: $id', e: e, s: st);
       rethrow;
@@ -362,7 +368,7 @@ class PelangganAktifOpSqlite {
   Future<void> softDeletePelangganAktifDanTransaksi(
     String idPelangganAKtif,
     String? idTransaksi, {
-    bool dariServer = false,
+    bool fromServer = false,
   }) async {
     final pelangganAktif = await ambilBerdasarkanid(idPelangganAKtif);
     if (pelangganAktif == null) {
@@ -452,6 +458,7 @@ class PelangganAktifOpSqlite {
     }
   }
 
+  @override
   Future<int> softDeleteAll({bool dariServer = false}) async {
     try {
       Log.info('Mengarsipkan SEMUA active customer');
