@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -82,7 +83,6 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
   Future<bool> _initializeAndNavigate() async {
     final notifikasiServis = ref.read(layananNotifikasiProvider);
     final koneksiInternetService = ref.read(koneksiInternetServiceProvider);
-    final sqliteDb = ref.read(sqliteDatabaseProvider);
 
     try {
       // 1. Inisialisasi layanan latar belakang dan notifikasi
@@ -109,9 +109,10 @@ class _AppInitializerState extends ConsumerState<AppInitializer> {
 
       // 3. Format tanggal lokal
       await initializeDateFormatting('id_ID');
+      if (!kIsWeb) {
+        await ref.read(sqliteDatabaseProvider).database;
+      }
 
-      // 4. Buka database dan arsipkan data kedaluwarsa
-      await sqliteDb.database;
       final isOnline = await koneksiInternetService.cekInternet();
       if (isOnline) {
         Log.info('Perangkat online, melanjutkan dengan unduhan data awal.');
