@@ -4,12 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:wifi/admin/data/sqlite.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/sqlite_operasi/base_op_sqlite.dart';
 
-class PelangganOpSqlite {
+class PelangganOpSqlite implements PelangganAbstrak {
   final SqliteDatabase sqliteDb;
   final BaseOpSqlite _baseOpSqlite;
   final String _tabel = NamaTabel.pelanggan;
@@ -65,6 +66,7 @@ class PelangganOpSqlite {
     }
   }
 
+  @override
   Future<void> tambahPelanggan(
     PelangganModel pelanggan, {
     bool dariServer = false,
@@ -104,6 +106,7 @@ class PelangganOpSqlite {
     }
   }
 
+  @override
   Future<List<PelangganModel>> ambilSemua({
     bool tampilkanYangDiarsip = false,
   }) async {
@@ -129,6 +132,7 @@ class PelangganOpSqlite {
     }
   }
 
+  @override
   Future<PelangganModel?> ambilBerdasarkanId(String id) async {
     Log.info('Mencari customer berdasarkan ID: $id');
     try {
@@ -151,6 +155,7 @@ class PelangganOpSqlite {
     }
   }
 
+  @override
   Future<void> perbaruiPelanggan(
     PelangganModel pelanggan, {
     bool dariServer = false,
@@ -195,6 +200,7 @@ class PelangganOpSqlite {
     }
   }
 
+  @override
   Future<void> softDelete(String id, {bool dariServer = false}) async {
     Log.info('Memulai proses soft delete untuk customer ID: $id');
     try {

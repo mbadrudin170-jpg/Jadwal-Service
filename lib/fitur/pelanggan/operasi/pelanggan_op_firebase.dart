@@ -5,12 +5,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
+import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_global.dart';
 import 'package:wifi/shared/constant/nama_kolom.dart';
 import 'package:wifi/shared/constant/nama_tabel.dart';
 import 'package:wifi/shared/debug/log.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/base_op_firebase.dart';
 
-class PelangganOpFirebase {
+class PelangganOpFirebase implements PelangganAbstrak {
   final FirebaseFirestore _firestore;
   final BaseOpFirebase _baseOpFirebase;
   final String _namaKoleksi = NamaTabel.pelanggan;
@@ -18,8 +19,8 @@ class PelangganOpFirebase {
   PelangganOpFirebase({
     required FirebaseFirestore firestore,
     required BaseOpFirebase baseOpFirebase,
-  }) : _firestore = firestore,
-       _baseOpFirebase = baseOpFirebase {
+  })  : _firestore = firestore,
+        _baseOpFirebase = baseOpFirebase {
     Log.info('CustomerOpFirebase diinisialisasi.');
   }
 
@@ -47,6 +48,7 @@ class PelangganOpFirebase {
     }
   }
 
+  @override
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembuatan pelanggan: ${pelanggan.id}');
     final isDuplicate = await cekDuplikasiTeleponDanPassword(
@@ -71,6 +73,7 @@ class PelangganOpFirebase {
     );
   }
 
+  @override
   Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
     Log.info('Mendelegasikan pembaruan pelanggan: ${pelanggan.id}');
     final isDuplicate = await cekDuplikasiTeleponDanPassword(
@@ -97,6 +100,7 @@ class PelangganOpFirebase {
     );
   }
 
+  @override
   Future<void> softDelete(String id) async {
     Log.info('Mendelegasikan soft delete pelanggan: $id');
     await _baseOpFirebase.softDelete(_namaKoleksi, id);
@@ -118,6 +122,7 @@ class PelangganOpFirebase {
     await _baseOpFirebase.update(_namaKoleksi, id, {'fcmToken': token});
   }
 
+  @override
   Future<List<PelangganModel>> ambilSemua({
     bool tampilkanYangDiarsip = true,
   }) async {
@@ -177,6 +182,7 @@ class PelangganOpFirebase {
         });
   }
 
+  @override
   Future<PelangganModel?> ambilBerdasarkanId(String id) async {
     try {
       final doc = await _koleksiPelanggan.doc(id).get();

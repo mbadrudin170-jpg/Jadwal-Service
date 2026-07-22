@@ -1,75 +1,72 @@
 // path: lib/fitur/pelanggan/operasi/pelanggan_op_global.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wifi/fitur/app_role/role_util.dart';
 import 'package:wifi/fitur/database/provider/operasi_sqlite_provider.dart';
 import 'package:wifi/fitur/pelanggan/model/pelanggan_model.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_firebase.dart';
-import 'package:wifi/fitur/pelanggan/operasi/pelanggan_op_sqlite.dart';
 import 'package:wifi/fitur/pelanggan/provider/pelanggan_provider.dart';
 import 'package:wifi/shared/operasi/firebase_operasi/firebase_operation_provider/firebase_operation_provider.dart';
 
-class PelangganOpGlobal {
+/// Abstract class sebagai "kontrak" untuk semua operasi pelanggan.
+abstract class PelangganAbstrak {
+  Future<void> tambahPelanggan(PelangganModel pelanggan);
+  Future<void> perbaruiPelanggan(PelangganModel pelanggan);
+  Future<void> softDelete(String id);
+  Future<List<PelangganModel>> ambilSemua();
+  Future<PelangganModel?> ambilBerdasarkanId(String id);
+}
+
+class PelangganOpGlobal implements PelangganAbstrak {
   final Ref ref;
 
   PelangganOpGlobal({required this.ref});
 
-  // ✅ Cara benar mengakses provider
-  PelangganOpSqlite get _pelangganOpSqlite =>
-      ref.read(pelangganOpSqliteProvider);
-  PelangganOpFirebase get _pelangganOpFirebase =>
-      ref.read(pelangganOpFirebaseProvider);
+  /// Logika baru untuk memilih datasource yang tepat.
+  PelangganAbstrak get _operasi {
+    if (kIsWeb) {
+      // 1. Jika di web, selalu gunakan Firebase.
+      return ref.read(pelangganOpFirebaseProvider);
+    } else {
+      // 2. Jika di mobile, gunakan role untuk memutuskan.
+      if (ref.isAdmin) {
+        return ref.read(pelangganOpSqliteProvider);
+      } else {
+        return ref.read(pelangganOpFirebaseProvider);
+      }
+    }
+  }
 
   void _invalidateProviderTerkait(String? idPelanggan) {
     ref.read(pelangganProvider.notifier).invalidateDetailPelanggan(idPelanggan);
   }
 
-  /// Menambahkan pelanggan dengan logika berdasarkan role
+  @override
   Future<void> tambahPelanggan(PelangganModel pelanggan) async {
-    if (ref.isAdmin) {
-      await _pelangganOpSqlite.tambahPelanggan(pelanggan);
-    } else {
-      await _pelangganOpFirebase.tambahPelanggan(pelanggan);
-    }
+    await _operasi.tambahPelanggan(pelanggan);
     _invalidateProviderTerkait(pelanggan.id);
   }
 
-  /// Mengupdate pelanggan
-  Future<void> updatePelanggan(PelangganModel pelanggan) async {
-    if (ref.isAdmin) {
-      await _pelangganOpSqlite.perbaruiPelanggan(pelanggan);
-    } else {
-      await _pelangganOpFirebase.perbaruiPelanggan(pelanggan);
-    }
+  @override
+  Future<void> perbaruiPelanggan(PelangganModel pelanggan) async {
+    await _operasi.perbaruiPelanggan(pelanggan);
     _invalidateProviderTerkait(pelanggan.id);
   }
 
-  /// Menghapus pelanggan (soft delete)
+  @override
   Future<void> softDelete(String id) async {
-    if (ref.isAdmin) {
-      await _pelangganOpSqlite.softDelete(id);
-    } else {
-      await _pelangganOpFirebase.softDelete(id);
-    }
+    await _operasi.softDelete(id);
     _invalidateProviderTerkait(id);
   }
 
-  /// Mengambil daftar pelanggan berdasarkan role
-  Future<List<PelangganModel>> ambilSemua() async {
-    if (ref.isAdmin) {
-      return await _pelangganOpSqlite.ambilSemua();
-    } else {
-      return await _pelangganOpFirebase.ambilSemua();
-    }
+  @override
+  Future<List<PelangganModel>> ambilSemua() {
+    return _operasi.ambilSemua();
   }
 
-  /// Mengambil pelanggan berdasarkan ID
-  Future<PelangganModel?> ambilBerdasarkanId(String id) async {
-    if (ref.isAdmin) {
-      return await _pelangganOpSqlite.ambilBerdasarkanId(id);
-    } else {
-      return await _pelangganOpFirebase.ambilBerdasarkanId(id);
-    }
+  @override
+  Future<PelangganModel?> ambilBerdasarkanId(String id) {
+    return _operasi.ambilBerdasarkanId(id);
   }
 }
 
